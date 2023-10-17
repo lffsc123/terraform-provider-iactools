@@ -29,7 +29,7 @@ type ScaffoldingProviderModel struct {
 
 func (p *ScaffoldingProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "dptech-demo"
-	tflog.Info(ctx, "Metadata***********")
+	tflog.Info(ctx, "Metadata**********")
 }
 
 func (p *ScaffoldingProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
