@@ -57,7 +57,7 @@ func (p *ScaffoldingProvider) Configure(ctx context.Context, req provider.Config
 	var data ScaffoldingProviderModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-	tflog.Info(ctx, "Configure***********")
+	tflog.Info(ctx, "Configure******+*****")
 	if resp.Diagnostics.HasError() {
 		return
 	}
