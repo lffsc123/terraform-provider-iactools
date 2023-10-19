@@ -1,6 +1,6 @@
 
 provider "scaffolding" {
-  # example configuration here
+  # exam ple configuration here
 }
 
 data "scaffolding_example" "example" {
