@@ -31,11 +31,10 @@ type SourceNatResourceModel struct {
 	AddSourceNatParameter    AddSourceNatParameter    `tfsdk:"addSourceNatParameter"`
 	UpdateSourceNatParameter UpdateSourceNatParameter `tfsdk:"updateSourceNatParameter"`
 	DelSourceNatParameter    DelSourceNatParameter    `tfsdk:"delSourceNatParameter"`
+	ReadSourceNatParameter   ReadSourceNatParameter   `tfsdk:"readSourceNatParameter"`
 }
 
 type AddSourceNatParameter struct {
-	Port                types.String `tfsdk:"port"`
-	Ip                  types.String `tfsdk:"ip"`
 	IpVersion           types.String `tfsdk:"ipVersion"`
 	VsysName            types.String `tfsdk:"vsysName"`
 	Name                types.String `tfsdk:"name"`
@@ -57,8 +56,6 @@ type AddSourceNatParameter struct {
 }
 
 type UpdateSourceNatParameter struct {
-	Port                types.String `tfsdk:"port"`
-	Ip                  types.String `tfsdk:"ip"`
 	IpVersion           types.String `tfsdk:"ipVersion"`
 	VsysName            types.String `tfsdk:"vsysName"`
 	OldName             types.String `tfsdk:"oldName"`
@@ -81,12 +78,40 @@ type UpdateSourceNatParameter struct {
 }
 
 type DelSourceNatParameter struct {
-	Port         types.String `tfsdk:"port"`
-	Ip           types.String `tfsdk:"ip"`
 	IpVersion    types.String `tfsdk:"ipVersion"`
 	VsysName     types.String `tfsdk:"vsysName"`
 	Name         types.String `tfsdk:"name"`
 	DelallEnable types.String `tfsdk:"delallEnable"`
+}
+
+type ReadSourceNatParameter struct {
+	IpVersion           types.String `tfsdk:"ipVersion"`
+	VsysName            types.String `tfsdk:"vsysName"`
+	Offset              types.String `tfsdk:"offset"`
+	Count               types.String `tfsdk:"count"`
+	Name                types.String `tfsdk:"name"`
+	OutInterface        types.String `tfsdk:"outInterface"`
+	SourceIp            types.String `tfsdk:"sourceIp"`
+	DestinationIp       types.String `tfsdk:"destinationIp"`
+	Service             types.String `tfsdk:"service"`
+	State               types.String `tfsdk:"state"`
+	SrcAddrObj          types.String `tfsdk:"srcAddrObj"`
+	SrcAddrGroup        types.String `tfsdk:"srcAddrGroup"`
+	DstAddrObj          types.String `tfsdk:"dstAddrObj"`
+	DstAddrGroup        types.String `tfsdk:"dstAddrGroup"`
+	PreService          types.String `tfsdk:"preService"`
+	UsrService          types.String `tfsdk:"usrService"`
+	ServiceGroup        types.String `tfsdk:"serviceGroup"`
+	PublicIpAddressFlag types.String `tfsdk:"publicIpAddressFlag"`
+	AddrpoolName        types.String `tfsdk:"addrpoolName"`
+	MinPort             types.String `tfsdk:"minPort"`
+	MaxPort             types.String `tfsdk:"maxPort"`
+	PortHash            types.String `tfsdk:"portHash"`
+	RuleId              types.String `tfsdk:"ruleId"`
+	DelallEnable        types.String `tfsdk:"delallEnable"`
+	TargetName          types.String `tfsdk:"targetName"`
+	OldName             types.String `tfsdk:"oldName"`
+	Position            types.String `tfsdk:"position"`
 }
 
 func (r *SourceNatResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -164,7 +189,7 @@ func (r *SourceNatResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	// sendToweb_AddSourceNatRequest(ctx,"POST", r.client, data.Rsinfo)
+	sendToweb_ReadSourceNatRequest(ctx, "GET", r.client, data.ReadSourceNatParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -248,6 +273,28 @@ func sendToweb_UpdateSourceNatRequest(ctx context.Context, reqmethod string, c *
 }
 
 func sendToweb_DelSourceNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelSourceNatParameter) {
+	requstData := Rsinfo
+
+	body, _ := json.Marshal(requstData)
+	targetUrl := c.HostURL + "/func/web_main/api/nat/nat/snatlist"
+
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	respn, err := http.DefaultClient.Do(req)
+	if err != nil {
+		tflog.Info(ctx, " read Error"+err.Error())
+	}
+	defer respn.Body.Close()
+
+	body, err2 := ioutil.ReadAll(respn.Body)
+	if err2 == nil {
+		fmt.Println(string(body))
+	}
+}
+
+func sendToweb_ReadSourceNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadSourceNatParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

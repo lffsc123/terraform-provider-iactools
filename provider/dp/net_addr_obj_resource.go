@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// IPv4策略路由
+// IP 地址对象
 var _ resource.Resource = &NetAddrObjResource{}
 var _ resource.ResourceWithImportState = &NetAddrObjResource{}
 
@@ -31,6 +31,7 @@ type NetAddrObjResourceModel struct {
 	AddNetAddrObjParameter    AddNetAddrObjParameter    `tfsdk:"addNetAddrObjParameter"`
 	UpdateNetAddrObjParameter UpdateNetAddrObjParameter `tfsdk:"updateNetAddrObjParameter"`
 	DelNetAddrObjParameter    DelNetAddrObjParameter    `tfsdk:"delNetAddrObjParameter"`
+	ReadNetAddrObjParameter   ReadNetAddrObjParameter   `tfsdk:"readNetAddrObjParameter"`
 }
 
 type AddNetAddrObjParameter struct {
@@ -59,6 +60,22 @@ type DelNetAddrObjParameter struct {
 	DelAllEnable types.String `tfsdk:"delAllEnable"`
 }
 
+type ReadNetAddrObjParameter struct {
+	IpVersion    types.String `tfsdk:"ipVersion"`
+	VsysName     types.String `tfsdk:"vsysName"`
+	Offset       types.String `tfsdk:"offset"`
+	Count        types.String `tfsdk:"count"`
+	SearchValue  types.String `tfsdk:"searchValue"`
+	Id           types.String `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
+	OldName      types.String `tfsdk:"oldName"`
+	Desc         types.String `tfsdk:"desc"`
+	Ip           types.String `tfsdk:"ip"`
+	ExpIp        types.String `tfsdk:"expIp"`
+	ReferNum     types.String `tfsdk:"referNum"`
+	DelAllEnable types.String `tfsdk:"delAllEnable"`
+}
+
 func (r *NetAddrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = "dptech-demo-NetAddrObj"
 }
@@ -67,29 +84,6 @@ func (r *NetAddrObjResource) Schema(ctx context.Context, req resource.SchemaRequ
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"targetnat": schema.SingleNestedAttribute{
-				Required: true,
-				Attributes: map[string]schema.Attribute{
-					"name": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
-						Optional: true,
-					},
-				},
-			},
-			"updatesourcenat": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
@@ -156,7 +150,7 @@ func (r *NetAddrObjResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	// sendToweb_AddSourceNatRequest(ctx,"POST", r.client, data.Rsinfo)
+	sendToweb_ReadNetAddrObjRequest(ctx, "GET", r.client, data.ReadNetAddrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -244,6 +238,28 @@ func sendToweb_DelNetAddrObjRequest(ctx context.Context, reqmethod string, c *Cl
 
 	body, _ := json.Marshal(requstData)
 	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist"
+
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	respn, err := http.DefaultClient.Do(req)
+	if err != nil {
+		tflog.Info(ctx, " read Error"+err.Error())
+	}
+	defer respn.Body.Close()
+
+	body, err2 := ioutil.ReadAll(respn.Body)
+	if err2 == nil {
+		fmt.Println(string(body))
+	}
+}
+
+func sendToweb_ReadNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadNetAddrObjParameter) {
+	requstData := Rsinfo
+
+	body, _ := json.Marshal(requstData)
+	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist?vsysName=PublicSystem&offset=0&count=25"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

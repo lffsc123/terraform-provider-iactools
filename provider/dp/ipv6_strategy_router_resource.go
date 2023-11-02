@@ -31,6 +31,7 @@ type Ipv6StrategyRouterResourceModel struct {
 	AddIpv6StrategyRouterParameter    AddIpv6StrategyRouterParameter    `tfsdk:"addIpv6StrategyRouterParameter"`
 	UpdateIpv6StrategyRouterParameter UpdateIpv6StrategyRouterParameter `tfsdk:"updateIpv6StrategyRouterParameter"`
 	DelIpv6StrategyRouterParameter    DelIpv6StrategyRouterParameter    `tfsdk:"delIpv6StrategyRouterParameter"`
+	ReadIpv6StrategyRouterParameter   ReadIpv6StrategyRouterParameter   `tfsdk:"readIpv6StrategyRouterParameter"`
 }
 
 type AddIpv6StrategyRouterParameter struct {
@@ -90,6 +91,14 @@ type DelIpv6StrategyRouterParameter struct {
 	RtpName  types.String `tfsdk:"rtpName"`
 }
 
+type ReadIpv6StrategyRouterParameter struct {
+	Resource types.String `tfsdk:"resource"`
+	ListFlag types.String `tfsdk:"listFlag"`
+	RtpName  types.String `tfsdk:"rtpName"`
+	Offset   types.String `tfsdk:"offset"`
+	Count    types.String `tfsdk:"count"`
+}
+
 func (r *Ipv6StrategyRouterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = "dptech-demo-Ipv6Strategy"
 }
@@ -98,29 +107,6 @@ func (r *Ipv6StrategyRouterResource) Schema(ctx context.Context, req resource.Sc
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"targetnat": schema.SingleNestedAttribute{
-				Required: true,
-				Attributes: map[string]schema.Attribute{
-					"name": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
-						Optional: true,
-					},
-				},
-			},
-			"updatesourcenat": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
@@ -187,7 +173,7 @@ func (r *Ipv6StrategyRouterResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	// sendToweb_AddSourceNatRequest(ctx,"POST", r.client, data.Rsinfo)
+	sendToweb_ReadIpv6StrategyRouterRequest(ctx, "GET", r.client, data.ReadIpv6StrategyRouterParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -275,6 +261,28 @@ func sendToweb_DelIpv6StrategyRouterRequest(ctx context.Context, reqmethod strin
 
 	body, _ := json.Marshal(requstData)
 	targetUrl := c.HostURL + "/func/web_main/api/rt_policy_ipv6/rtpolicyipv6/rtp6list"
+
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	respn, err := http.DefaultClient.Do(req)
+	if err != nil {
+		tflog.Info(ctx, " read Error"+err.Error())
+	}
+	defer respn.Body.Close()
+
+	body, err2 := ioutil.ReadAll(respn.Body)
+	if err2 == nil {
+		fmt.Println(string(body))
+	}
+}
+
+func sendToweb_ReadIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadIpv6StrategyRouterParameter) {
+	requstData := Rsinfo
+
+	body, _ := json.Marshal(requstData)
+	targetUrl := c.HostURL + "/func/web_main/api/rt_policy_ipv6/rtpolicyipv6/rtp6list?rtpName=aaa&listFlag=0"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

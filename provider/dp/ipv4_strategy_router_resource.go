@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// IPv4路由
+// IPv4策略路由
 var _ resource.Resource = &Ipv4StrategyRouterResource{}
 var _ resource.ResourceWithImportState = &Ipv4StrategyRouterResource{}
 
@@ -31,6 +31,7 @@ type Ipv4StrategyRouterResourceModel struct {
 	AddIpv4StrategyRouterParameter    AddIpv4StrategyRouterParameter    `tfsdk:"addIpv4StrategyRouterParameter"`
 	UpdateIpv4StrategyRouterParameter UpdateIpv4StrategyRouterParameter `tfsdk:"updateIpv4StrategyRouterParameter"`
 	DelIpv4StrategyRouterParameter    DelIpv4StrategyRouterParameter    `tfsdk:"delIpv4StrategyRouterParameter"`
+	ReadIpv4StrategyRouterParameter   ReadIpv4StrategyRouterParameter   `tfsdk:"readIpv4StrategyRouterParameter"`
 }
 
 type AddIpv4StrategyRouterParameter struct {
@@ -98,6 +99,11 @@ type DelIpv4StrategyRouterParameter struct {
 	RtpName  types.String `tfsdk:"rtpName"`
 }
 
+type ReadIpv4StrategyRouterParameter struct {
+	ListFlag types.String `tfsdk:"listFlag"`
+	RtpName  types.String `tfsdk:"rtpName"`
+}
+
 func (r *Ipv4StrategyRouterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = "dptech-demo-Ipv4Strategy"
 }
@@ -106,29 +112,6 @@ func (r *Ipv4StrategyRouterResource) Schema(ctx context.Context, req resource.Sc
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"targetnat": schema.SingleNestedAttribute{
-				Required: true,
-				Attributes: map[string]schema.Attribute{
-					"name": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
-						Optional: true,
-					},
-				},
-			},
-			"updatesourcenat": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
@@ -195,7 +178,7 @@ func (r *Ipv4StrategyRouterResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	// sendToweb_AddSourceNatRequest(ctx,"POST", r.client, data.Rsinfo)
+	sendToweb_ReadIpv4StrategyRouterRequest(ctx, "GET", r.client, data.ReadIpv4StrategyRouterParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -283,6 +266,28 @@ func sendToweb_DelIpv4StrategyRouterRequest(ctx context.Context, reqmethod strin
 
 	body, _ := json.Marshal(requstData)
 	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
+
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	respn, err := http.DefaultClient.Do(req)
+	if err != nil {
+		tflog.Info(ctx, " read Error"+err.Error())
+	}
+	defer respn.Body.Close()
+
+	body, err2 := ioutil.ReadAll(respn.Body)
+	if err2 == nil {
+		fmt.Println(string(body))
+	}
+}
+
+func sendToweb_ReadIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadIpv4StrategyRouterParameter) {
+	requstData := Rsinfo
+
+	body, _ := json.Marshal(requstData)
+	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist?rtpName=ss&listFlag=0"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

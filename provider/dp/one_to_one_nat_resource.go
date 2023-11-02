@@ -31,11 +31,10 @@ type OneToOneNatResourceModel struct {
 	AddOneToOneNatParameter    AddOneToOneNatParameter    `tfsdk:"addOneToOneNatParameter"`
 	UpdateOneToOneNatParameter UpdateOneToOneNatParameter `tfsdk:"updateOneToOneNatParameter"`
 	DelOneToOneNatParameter    DelOneToOneNatParameter    `tfsdk:"delOneToOneNatParameter"`
+	ReadOneToOneNatParameter   ReadOneToOneNatParameter   `tfsdk:"readOneToOneNatParameter"`
 }
 
 type AddOneToOneNatParameter struct {
-	Port                types.String `tfsdk:"port"`
-	Ip                  types.String `tfsdk:"ip"`
 	VsysName            types.String `tfsdk:"vsysName"`
 	Name                types.String `tfsdk:"name"`
 	TargetName          types.String `tfsdk:"targetName"`
@@ -48,8 +47,6 @@ type AddOneToOneNatParameter struct {
 }
 
 type UpdateOneToOneNatParameter struct {
-	Port                types.String `tfsdk:"port"`
-	Ip                  types.String `tfsdk:"ip"`
 	VsysName            types.String `tfsdk:"vsysName"`
 	Name                types.String `tfsdk:"name"`
 	OldName             types.String `tfsdk:"oldName"`
@@ -63,11 +60,26 @@ type UpdateOneToOneNatParameter struct {
 }
 
 type DelOneToOneNatParameter struct {
-	Port         types.String `tfsdk:"port"`
-	Ip           types.String `tfsdk:"ip"`
 	VsysName     types.String `tfsdk:"vsysName"`
 	Name         types.String `tfsdk:"name"`
 	DelallEnable types.String `tfsdk:"delallEnable"`
+}
+
+type ReadOneToOneNatParameter struct {
+	VsysName            types.String `tfsdk:"vsysName"`
+	Offset              types.String `tfsdk:"offset"`
+	Count               types.String `tfsdk:"count"`
+	Name                types.String `tfsdk:"name"`
+	GlobalInterfaceName types.String `tfsdk:"globalInterfaceName"`
+	GlobalAddress       types.String `tfsdk:"globalAddress"`
+	LocalAddress        types.String `tfsdk:"localAddress"`
+	VrrpIfName          types.String `tfsdk:"vrrpIfName"`
+	VrrpId              types.String `tfsdk:"vrrpId"`
+	RuleId              types.String `tfsdk:"ruleId"`
+	DelallEnable        types.String `tfsdk:"delallEnable"`
+	Position            types.String `tfsdk:"position"`
+	OldName             types.String `tfsdk:"oldName"`
+	TargetName          types.String `tfsdk:"targetName"`
 }
 
 func (r *OneToOneNatResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -78,29 +90,6 @@ func (r *OneToOneNatResource) Schema(ctx context.Context, req resource.SchemaReq
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"targetnat": schema.SingleNestedAttribute{
-				Required: true,
-				Attributes: map[string]schema.Attribute{
-					"name": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
-						Optional: true,
-					},
-				},
-			},
-			"updatesourcenat": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
@@ -167,7 +156,7 @@ func (r *OneToOneNatResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	// sendToweb_AddSourceNatRequest(ctx,"POST", r.client, data.Rsinfo)
+	sendToweb_ReadOneToOneNatRequest(ctx, "GET", r.client, data.ReadOneToOneNatParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -251,6 +240,28 @@ func sendToweb_UpdateOneToOneNatRequest(ctx context.Context, reqmethod string, c
 }
 
 func sendToweb_DelOneToOneNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelOneToOneNatParameter) {
+	requstData := Rsinfo
+
+	body, _ := json.Marshal(requstData)
+	targetUrl := c.HostURL + "/func/web_main/api/nat/nat/nat1to1list"
+
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	respn, err := http.DefaultClient.Do(req)
+	if err != nil {
+		tflog.Info(ctx, " read Error"+err.Error())
+	}
+	defer respn.Body.Close()
+
+	body, err2 := ioutil.ReadAll(respn.Body)
+	if err2 == nil {
+		fmt.Println(string(body))
+	}
+}
+
+func sendToweb_ReadOneToOneNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadOneToOneNatParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

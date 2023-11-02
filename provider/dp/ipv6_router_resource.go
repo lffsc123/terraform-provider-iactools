@@ -31,6 +31,7 @@ type Ipv6RouterResourceModel struct {
 	AddIpv6RouterParameter    AddIpv6RouterParameter    `tfsdk:"addIpv6RouterParameter"`
 	UpdateIpv6RouterParameter UpdateIpv6RouterParameter `tfsdk:"updateIpv6RouterParameter"`
 	DelIpv6RouterParameter    DelIpv6RouterParameter    `tfsdk:"delIpv6RouterParameter"`
+	ReadIpv6RouterParameter   ReadIpv6RouterParameter   `tfsdk:"readIpv6RouterParameter"`
 }
 
 type AddIpv6RouterParameter struct {
@@ -67,6 +68,13 @@ type DelIpv6RouterParameter struct {
 	RouteType types.String `tfsdk:"routeType"`
 }
 
+type ReadIpv6RouterParameter struct {
+	IpVersion types.String `tfsdk:"ipVersion"`
+	VpnName   types.String `tfsdk:"vpnName"`
+	Ip        types.String `tfsdk:"ip"`
+	Mask      types.String `tfsdk:"mask"`
+}
+
 func (r *Ipv6RouterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = "dptech-demo-Ipv6Router"
 }
@@ -75,29 +83,6 @@ func (r *Ipv6RouterResource) Schema(ctx context.Context, req resource.SchemaRequ
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"targetnat": schema.SingleNestedAttribute{
-				Required: true,
-				Attributes: map[string]schema.Attribute{
-					"name": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
-						Optional: true,
-					},
-				},
-			},
-			"updatesourcenat": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
@@ -164,7 +149,7 @@ func (r *Ipv6RouterResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	// sendToweb_AddSourceNatRequest(ctx,"POST", r.client, data.Rsinfo)
+	sendToweb_ReadIpv6RouterRequest(ctx, "GET", r.client, data.ReadIpv6RouterParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -252,6 +237,28 @@ func sendToweb_DelIpv6RouterRequest(ctx context.Context, reqmethod string, c *Cl
 
 	body, _ := json.Marshal(requstData)
 	targetUrl := c.HostURL + "/func/web_main/api/rtm_api/restfulstaticroute/routeEntries"
+
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	respn, err := http.DefaultClient.Do(req)
+	if err != nil {
+		tflog.Info(ctx, " read Error"+err.Error())
+	}
+	defer respn.Body.Close()
+
+	body, err2 := ioutil.ReadAll(respn.Body)
+	if err2 == nil {
+		fmt.Println(string(body))
+	}
+}
+
+func sendToweb_ReadIpv6RouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadIpv6RouterParameter) {
+	requstData := Rsinfo
+
+	body, _ := json.Marshal(requstData)
+	targetUrl := c.HostURL + "/func/web_main/api/rtm_api/restfulstaticroute/routeEntries?ip=123:100::123&mask=128&ipVersion=6"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
