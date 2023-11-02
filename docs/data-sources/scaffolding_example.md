@@ -31,6 +31,6 @@ data "scaffolding_example" "example" {
 
 ### Read-Only
 
-- `id` (String) Example identifier
+- `id` (String) Example identifier1
 
 
