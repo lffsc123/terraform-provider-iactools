@@ -168,7 +168,7 @@ func (r *NetAddrGroupResource) Update(ctx context.Context, req resource.UpdateRe
 
 func (r *NetAddrGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data *NetAddrGroupResourceModel
-	tflog.Info(ctx, " Delete Start ************")
+	tflog.Info(ctx, " Delete Start ***** *******")
 
 	sendToweb_DelNetAddrGroupRequest(ctx, "DELETE", r.client, data.DelNetAddrGroupParameter)
 
