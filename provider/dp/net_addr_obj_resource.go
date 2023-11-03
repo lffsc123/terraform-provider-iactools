@@ -136,7 +136,7 @@ func (r *NetAddrObjResource) Create(ctx context.Context, req resource.CreateRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Trace(ctx, "created a resource **************")
+	tflog.Trace(ctx, "created a resource ****** ********")
 	sendToweb_AddNetAddrObjRequest(ctx, "POST", r.client, data.AddNetAddrObjParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
