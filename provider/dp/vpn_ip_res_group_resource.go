@@ -146,7 +146,7 @@ func (r *VpnIpResGroupResource) Update(ctx context.Context, req resource.UpdateR
 
 func (r *VpnIpResGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data *VpnIpResGroupResourceModel
-	tflog.Info(ctx, " Delete Start *************")
+	tflog.Info(ctx, " Delete Start  *************")
 
 	sendToweb_DelVpnIpResGroupRequest(ctx, "DELETE", r.client, data.DelVpnIpResGroupParameter)
 
