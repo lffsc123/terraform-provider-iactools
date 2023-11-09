@@ -116,6 +116,10 @@ func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.R
 		NewRealServiceListResource,
 		NewAddrPoolResource,
 		NewVirtualServiceResource,
+		NewSourceNatResource,
+		NewTargetNatResource,
+		NewIpv4RouterResource,
+		NewIpv4StrategyRouterResource,
 	}
 }
 

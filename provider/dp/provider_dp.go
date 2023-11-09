@@ -233,6 +233,8 @@ func (p *DpProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewSourceNatResource,
 		NewTargetNatResource,
+		NewIpv4RouterResource,
+		NewIpv4StrategyRouterResource,
 	}
 }
 
