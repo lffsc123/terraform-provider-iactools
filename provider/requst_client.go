@@ -94,6 +94,48 @@ type VirtualServiceRequestModel struct {
 	Vrrp        string `json:"vrrp"`       //涉及普通双机热备场景，需要关联具体的vrrp组
 }
 
+type SessionKeepRequest struct {
+	sessionkeep SessionKeepRequestModel `json:"sessionkeep"`
+}
+
+type SessionKeepRequestModel struct {
+	Name              string `tfsdk:"name"`
+	Type              string `tfsdk:"type"`
+	ActiveTime        string `tfsdk:"activeTime"`
+	OverrideLimit     string `tfsdk:"overrideLimit"`
+	MatchAcrossVs     string `tfsdk:"matchAcrossVs"`
+	MatchFailAction   string `tfsdk:"matchFailAction"`
+	PrefixType        string `tfsdk:"prefixType"`
+	PrefixLen         string `tfsdk:"prefixLen"`
+	Sessioncookie     string `tfsdk:"sessioncookie"`
+	Cookiename        string `tfsdk:"cookiename"`
+	Cookiemode        string `tfsdk:"cookiemode"`
+	CookieEncryMode   string `tfsdk:"cookieEncryMode"`
+	CookieEncryPasswd string `tfsdk:"cookieEncryPasswd"`
+	RadiusAttribute   string `tfsdk:"radiusAttribute"`
+	RelatePolicy      string `tfsdk:"relatePolicy"`
+	RadiusStopProc    string `tfsdk:"radiusStopProc"`
+	HashCondition     string `tfsdk:"hashCondition"`
+	SipHeadType       string `tfsdk:"sipHeadType"`
+	SipHeadName       string `tfsdk:"sipHeadName"`
+	RequestContent    string `tfsdk:"requestContent"`
+	ReplyContent      string `tfsdk:"replyContent"`
+	VirtualSystem     string `tfsdk:"virtualSystem"`
+	HttponlyAttribute string `tfsdk:"httponlyAttribute"`
+	SecureAttribute   string `tfsdk:"secureAttribute"`
+}
+
+type AdxSlbMonitorRequest struct {
+	adxSlbMonitor AdxSlbMonitorRequestModel `json:"adxSlbMonitor"`
+}
+
+type AdxSlbMonitorRequestModel struct {
+	Name     string `tfsdk:"name"`
+	Type     string `tfsdk:"type"`
+	OverTime string `tfsdk:"overTime"`
+	Interval string `tfsdk:"interval"`
+}
+
 func NewClient(host *string, auth *AuthStruct) (*Client, error) {
 	c := Client{
 		HTTPClient: &http.Client{Timeout: 10 * time.Second},
