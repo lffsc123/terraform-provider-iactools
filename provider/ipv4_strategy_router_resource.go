@@ -28,10 +28,10 @@ type Ipv4StrategyRouterResource struct {
 }
 
 type Ipv4StrategyRouterResourceModel struct {
-	AddIpv4StrategyRouterParameter    AddIpv4StrategyRouterParameter    `tfsdk:"addIpv4StrategyRouterParameter"`
-	UpdateIpv4StrategyRouterParameter UpdateIpv4StrategyRouterParameter `tfsdk:"updateIpv4StrategyRouterParameter"`
-	DelIpv4StrategyRouterParameter    DelIpv4StrategyRouterParameter    `tfsdk:"delIpv4StrategyRouterParameter"`
-	ReadIpv4StrategyRouterParameter   ReadIpv4StrategyRouterParameter   `tfsdk:"readIpv4StrategyRouterParameter"`
+	AddIpv4StrategyRouterParameter    AddIpv4StrategyRouterParameter    `tfsdk:"addipv4strategyrouterparameter"`
+	UpdateIpv4StrategyRouterParameter UpdateIpv4StrategyRouterParameter `tfsdk:"updateipv4strategyrouterparameter"`
+	DelIpv4StrategyRouterParameter    DelIpv4StrategyRouterParameter    `tfsdk:"delipv4strategyrouterparameter"`
+	ReadIpv4StrategyRouterParameter   ReadIpv4StrategyRouterParameter   `tfsdk:"readipv4strategyrouterparameter"`
 }
 
 type AddIpv4StrategyRouterParameter struct {
