@@ -28,10 +28,7 @@ type Ipv4StrategyRouterResource struct {
 }
 
 type Ipv4StrategyRouterResourceModel struct {
-	AddIpv4StrategyRouterParameter    AddIpv4StrategyRouterParameter    `tfsdk:"addipv4strategyrouterparameter"`
-	UpdateIpv4StrategyRouterParameter UpdateIpv4StrategyRouterParameter `tfsdk:"updateipv4strategyrouterparameter"`
-	DelIpv4StrategyRouterParameter    DelIpv4StrategyRouterParameter    `tfsdk:"delipv4strategyrouterparameter"`
-	ReadIpv4StrategyRouterParameter   ReadIpv4StrategyRouterParameter   `tfsdk:"readipv4strategyrouterparameter"`
+	AddIpv4StrategyRouterParameter AddIpv4StrategyRouterParameter `tfsdk:"addipv4strategyrouterparameter"`
 }
 
 type AddIpv4StrategyRouterParameter struct {
@@ -163,7 +160,7 @@ func (r *Ipv4StrategyRouterResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	sendToweb_ReadIpv4StrategyRouterRequest(ctx, "GET", r.client, data.ReadIpv4StrategyRouterParameter)
+	sendToweb_ReadIpv4StrategyRouterRequest(ctx, "GET", r.client, data.AddIpv4StrategyRouterParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -174,7 +171,7 @@ func (r *Ipv4StrategyRouterResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateIpv4StrategyRouterRequest(ctx, "PUT", r.client, data.UpdateIpv4StrategyRouterParameter)
+	sendToweb_UpdateIpv4StrategyRouterRequest(ctx, "PUT", r.client, data.AddIpv4StrategyRouterParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -182,7 +179,7 @@ func (r *Ipv4StrategyRouterResource) Delete(ctx context.Context, req resource.De
 	var data *Ipv4StrategyRouterResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelIpv4StrategyRouterRequest(ctx, "DELETE", r.client, data.DelIpv4StrategyRouterParameter)
+	sendToweb_DelIpv4StrategyRouterRequest(ctx, "DELETE", r.client, data.AddIpv4StrategyRouterParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -224,7 +221,7 @@ func sendToweb_AddIpv4StrategyRouterRequest(ctx context.Context, reqmethod strin
 	}
 }
 
-func sendToweb_UpdateIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateIpv4StrategyRouterParameter) {
+func sendToweb_UpdateIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -246,7 +243,7 @@ func sendToweb_UpdateIpv4StrategyRouterRequest(ctx context.Context, reqmethod st
 	}
 }
 
-func sendToweb_DelIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelIpv4StrategyRouterParameter) {
+func sendToweb_DelIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -268,7 +265,7 @@ func sendToweb_DelIpv4StrategyRouterRequest(ctx context.Context, reqmethod strin
 	}
 }
 
-func sendToweb_ReadIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadIpv4StrategyRouterParameter) {
+func sendToweb_ReadIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

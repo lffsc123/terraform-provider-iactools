@@ -36,6 +36,27 @@ resource "dpsc_SourceNat" "cs" {
     portHash="string"
     state="string"
   }
+  sourcenat={
+    ipVersion="string"
+    vsysName="string"
+    name="string"
+    targetName="string"
+    position="string"
+    outInterface="string"
+    srcAddrObj="string"
+    srcAddrGroup="string"
+    dstAddrObj="string"
+    dstAddrGroup="string"
+    preService="string"
+    usrService="string"
+    serviceGroup="string"
+    publicIpAddressFlag="string"
+    addrpoolName="string"
+    minPort="string"
+    maxPort="string"
+    portHash="string"
+    state="string"
+  }
 }
 
 resource "dpsc_TargetNat" "cs" {
