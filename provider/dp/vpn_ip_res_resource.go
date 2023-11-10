@@ -64,7 +64,7 @@ func (r *VpnIpResResource) Metadata(ctx context.Context, req resource.MetadataRe
 func (r *VpnIpResResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"targetnat": schema.SingleNestedAttribute{
+			"param": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
