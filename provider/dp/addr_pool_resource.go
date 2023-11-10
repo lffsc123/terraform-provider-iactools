@@ -88,7 +88,7 @@ type ReadAddrPoolParameter struct {
 }
 
 func (r *AddrPoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-AddrPool"
+	resp.TypeName = "dpsc_AddrPool"
 }
 
 func (r *AddrPoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

@@ -84,7 +84,7 @@ type ReadUsrObjParameter struct {
 }
 
 func (r *UsrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-UsrObj"
+	resp.TypeName = "dpsc_UsrObj"
 }
 
 func (r *UsrObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

@@ -72,7 +72,7 @@ type ReadProtectNetParameter struct {
 }
 
 func (r *ProtectNetResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-ProtectNet"
+	resp.TypeName = "dpsc_ProtectNet"
 }
 
 func (r *ProtectNetResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

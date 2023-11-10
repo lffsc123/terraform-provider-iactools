@@ -70,7 +70,7 @@ type ReadNetAddrGroupParameter struct {
 }
 
 func (r *NetAddrGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-NetAddrGroup"
+	resp.TypeName = "dpsc_NetAddrGroup"
 }
 
 func (r *NetAddrGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

@@ -74,7 +74,7 @@ type ReadBlackNameCfgParameter struct {
 }
 
 func (r *BlackNameCfgResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-BlackNameCfg"
+	resp.TypeName = "dpsc_BlackNameCfg"
 }
 
 func (r *BlackNameCfgResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

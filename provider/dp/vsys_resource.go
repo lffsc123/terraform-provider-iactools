@@ -60,7 +60,7 @@ type ReadVsysParameter struct {
 }
 
 func (r *VsysResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-Vsys"
+	resp.TypeName = "dpsc_Vsys"
 }
 
 func (r *VsysResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

@@ -192,7 +192,7 @@ type ReadPfPolicyParameter struct {
 }
 
 func (r *PfPolicyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-PfPolicy"
+	resp.TypeName = "dpsc_PfPolicy"
 }
 
 func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

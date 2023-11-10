@@ -92,7 +92,7 @@ type ReadQosFlowParameter struct {
 }
 
 func (r *QosFlowResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-QosFlow"
+	resp.TypeName = "dpsc_QosFlow"
 }
 
 func (r *QosFlowResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

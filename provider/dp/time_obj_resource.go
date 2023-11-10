@@ -73,7 +73,7 @@ type ReadTimeObjParameter struct {
 }
 
 func (r *TimeObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-TimeObj"
+	resp.TypeName = "dpsc_TimeObj"
 }
 
 func (r *TimeObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

@@ -105,7 +105,7 @@ type ReadIpv4StrategyRouterParameter struct {
 }
 
 func (r *Ipv4StrategyRouterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-Ipv4Strategy"
+	resp.TypeName = "dpsc_Ipv4Strategy"
 }
 
 func (r *Ipv4StrategyRouterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

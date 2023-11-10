@@ -56,7 +56,7 @@ type ReadVpnIpResGroupParameter struct {
 }
 
 func (r *VpnIpResGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-VpnIpResGroup"
+	resp.TypeName = "dpsc_VpnIpResGroup"
 }
 
 func (r *VpnIpResGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

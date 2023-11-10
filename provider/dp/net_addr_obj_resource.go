@@ -77,7 +77,7 @@ type ReadNetAddrObjParameter struct {
 }
 
 func (r *NetAddrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-NetAddrObj"
+	resp.TypeName = "dpsc_NetAddrObj"
 }
 
 func (r *NetAddrObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

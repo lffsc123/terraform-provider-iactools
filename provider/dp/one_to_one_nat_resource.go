@@ -83,7 +83,7 @@ type ReadOneToOneNatParameter struct {
 }
 
 func (r *OneToOneNatResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo-TargetNat"
+	resp.TypeName = "dpsc_TargetNat"
 }
 
 func (r *OneToOneNatResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
