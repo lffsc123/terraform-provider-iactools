@@ -32,74 +32,74 @@ type Ipv4StrategyRouterResourceModel struct {
 }
 
 type AddIpv4StrategyRouterParameter struct {
-	VsysName      types.String `tfsdk:"vsysName"`
+	VsysName      types.String `tfsdk:"vsysname"`
 	Resource      types.String `tfsdk:"resource"`
-	ListFlag      types.String `tfsdk:"listFlag"`
+	ListFlag      types.String `tfsdk:"listflag"`
 	Sequence      types.String `tfsdk:"sequence"`
-	RtpName       types.String `tfsdk:"rtpName"`
-	MatchSrctype  types.String `tfsdk:"matchSrctype"`
-	MatchDesttype types.String `tfsdk:"matchDesttype"`
+	RtpName       types.String `tfsdk:"rtpname"`
+	MatchSrctype  types.String `tfsdk:"matchsrctype"`
+	MatchDesttype types.String `tfsdk:"matchdesttype"`
 	Src           types.String `tfsdk:"src"`
 	Dst           types.String `tfsdk:"dst"`
-	IIfName       types.String `tfsdk:"iIfName"`
+	IIfName       types.String `tfsdk:"iifname"`
 	Protocol      types.String `tfsdk:"protocol"`
-	MinSrcport    types.String `tfsdk:"minSrcport"`
-	MaxSrcport    types.String `tfsdk:"maxSrcport"`
-	MinDstport    types.String `tfsdk:"minDstport"`
-	MaxDstport    types.String `tfsdk:"maxDstport"`
+	MinSrcport    types.String `tfsdk:"minsrcport"`
+	MaxSrcport    types.String `tfsdk:"maxsrcport"`
+	MinDstport    types.String `tfsdk:"mindstport"`
+	MaxDstport    types.String `tfsdk:"maxdstport"`
 	Dscp          types.String `tfsdk:"dscp"`
 	Act           types.String `tfsdk:"act"`
 	Timestr       types.String `tfsdk:"timestr"`
 	Status        types.String `tfsdk:"status"`
-	OifName       types.String `tfsdk:"oifName"`
+	OifName       types.String `tfsdk:"oifname"`
 	Weight        types.String `tfsdk:"weight"`
 	Nexthop       types.String `tfsdk:"nexthop"`
-	HcType        types.String `tfsdk:"hcType"`
-	HcName        types.String `tfsdk:"hcName"`
-	BfdCheck      types.String `tfsdk:"bfdCheck"`
-	NexthopCount  types.String `tfsdk:"nexthopCount"`
+	HcType        types.String `tfsdk:"hctype"`
+	HcName        types.String `tfsdk:"hcname"`
+	BfdCheck      types.String `tfsdk:"bfdcheck"`
+	NexthopCount  types.String `tfsdk:"nexthopcount"`
 }
 
-type UpdateIpv4StrategyRouterParameter struct {
-	VsysName      types.String `tfsdk:"vsysName"`
-	Resource      types.String `tfsdk:"resource"`
-	ListFlag      types.String `tfsdk:"listFlag"`
-	Sequence      types.String `tfsdk:"sequence"`
-	RtpName       types.String `tfsdk:"rtpName"`
-	MatchSrctype  types.String `tfsdk:"matchSrctype"`
-	MatchDesttype types.String `tfsdk:"matchDesttype"`
-	Src           types.String `tfsdk:"src"`
-	Dst           types.String `tfsdk:"dst"`
-	IIfName       types.String `tfsdk:"iIfName"`
-	Protocol      types.String `tfsdk:"protocol"`
-	MinSrcport    types.String `tfsdk:"minSrcport"`
-	MaxSrcport    types.String `tfsdk:"maxSrcport"`
-	MinDstport    types.String `tfsdk:"minDstport"`
-	MaxDstport    types.String `tfsdk:"maxDstport"`
-	Dscp          types.String `tfsdk:"dscp"`
-	Act           types.String `tfsdk:"act"`
-	Timestr       types.String `tfsdk:"timestr"`
-	Status        types.String `tfsdk:"status"`
-	OifName       types.String `tfsdk:"oifName"`
-	Weight        types.String `tfsdk:"weight"`
-	Nexthop       types.String `tfsdk:"nexthop"`
-	HcType        types.String `tfsdk:"hcType"`
-	HcName        types.String `tfsdk:"hcName"`
-	BfdCheck      types.String `tfsdk:"bfdCheck"`
-	NexthopCount  types.String `tfsdk:"nexthopCount"`
-}
-
-type DelIpv4StrategyRouterParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
-	Resource types.String `tfsdk:"resource"`
-	ListFlag types.String `tfsdk:"listFlag"`
-	RtpName  types.String `tfsdk:"rtpName"`
-}
-
-type ReadIpv4StrategyRouterParameter struct {
-	ListFlag types.String `tfsdk:"listFlag"`
-	RtpName  types.String `tfsdk:"rtpName"`
-}
+//type UpdateIpv4StrategyRouterParameter struct {
+//	VsysName      types.String `tfsdk:"vsysName"`
+//	Resource      types.String `tfsdk:"resource"`
+//	ListFlag      types.String `tfsdk:"listFlag"`
+//	Sequence      types.String `tfsdk:"sequence"`
+//	RtpName       types.String `tfsdk:"rtpName"`
+//	MatchSrctype  types.String `tfsdk:"matchSrctype"`
+//	MatchDesttype types.String `tfsdk:"matchDesttype"`
+//	Src           types.String `tfsdk:"src"`
+//	Dst           types.String `tfsdk:"dst"`
+//	IIfName       types.String `tfsdk:"iIfName"`
+//	Protocol      types.String `tfsdk:"protocol"`
+//	MinSrcport    types.String `tfsdk:"minSrcport"`
+//	MaxSrcport    types.String `tfsdk:"maxSrcport"`
+//	MinDstport    types.String `tfsdk:"minDstport"`
+//	MaxDstport    types.String `tfsdk:"maxDstport"`
+//	Dscp          types.String `tfsdk:"dscp"`
+//	Act           types.String `tfsdk:"act"`
+//	Timestr       types.String `tfsdk:"timestr"`
+//	Status        types.String `tfsdk:"status"`
+//	OifName       types.String `tfsdk:"oifName"`
+//	Weight        types.String `tfsdk:"weight"`
+//	Nexthop       types.String `tfsdk:"nexthop"`
+//	HcType        types.String `tfsdk:"hcType"`
+//	HcName        types.String `tfsdk:"hcName"`
+//	BfdCheck      types.String `tfsdk:"bfdCheck"`
+//	NexthopCount  types.String `tfsdk:"nexthopCount"`
+//}
+//
+//type DelIpv4StrategyRouterParameter struct {
+//	VsysName types.String `tfsdk:"vsysName"`
+//	Resource types.String `tfsdk:"resource"`
+//	ListFlag types.String `tfsdk:"listFlag"`
+//	RtpName  types.String `tfsdk:"rtpName"`
+//}
+//
+//type ReadIpv4StrategyRouterParameter struct {
+//	ListFlag types.String `tfsdk:"listFlag"`
+//	RtpName  types.String `tfsdk:"rtpName"`
+//}
 
 func (r *Ipv4StrategyRouterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = "dpsc_Ipv4Strategy"
