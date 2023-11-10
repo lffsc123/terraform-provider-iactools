@@ -122,26 +122,35 @@ func (r *TargetNatResource) Metadata(ctx context.Context, req resource.MetadataR
 func (r *TargetNatResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"param": schema.SingleNestedAttribute{
+			"addparam": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_start": schema.StringAttribute{
+				},
+			},
+			"updateparam": schema.SingleNestedAttribute{
+				Required: true,
+				Attributes: map[string]schema.Attribute{
+					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_end": schema.StringAttribute{
+				},
+			},
+			"delparam": schema.SingleNestedAttribute{
+				Required: true,
+				Attributes: map[string]schema.Attribute{
+					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
-						Optional: true,
+				},
+			},
+			"readparam": schema.SingleNestedAttribute{
+				Required: true,
+				Attributes: map[string]schema.Attribute{
+					"name": schema.StringAttribute{
+						Required: true,
 					},
 				},
 			},
