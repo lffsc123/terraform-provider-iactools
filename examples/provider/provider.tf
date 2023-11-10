@@ -1,6 +1,6 @@
 terraform {
  required_providers {
-  dptech-demo={
+  dpsc={
      source = "registry.terraform.io/lffsc123/dpsc"
      version = "1.2.37"
    } 
