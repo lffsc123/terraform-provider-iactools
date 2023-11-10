@@ -111,10 +111,10 @@ func (r *Ipv4StrategyRouterResource) Metadata(ctx context.Context, req resource.
 func (r *Ipv4StrategyRouterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"addIpv4StrategyRouterParameter": schema.SingleNestedAttribute{
+			"addipv4strategyrouterparameter": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
-					"rtpName": schema.StringAttribute{
+					"rtpname": schema.StringAttribute{
 						Required: true,
 					},
 				},
