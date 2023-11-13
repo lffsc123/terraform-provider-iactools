@@ -200,7 +200,12 @@ func (r *Ipv4StrategyRouterResource) ImportState(ctx context.Context, req resour
 }
 
 func sendToweb_AddIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
-	requstData := Rsinfo
+	sendData := AddIpv4StrategyRouterRequestModel{
+		RtpName: Rsinfo.RtpName.ValueString(),
+	}
+	requstData := AddIpv4StrategyRouterRequest{
+		AddIpv4StrategyRouterRequestModel: sendData,
+	}
 
 	body, _ := json.Marshal(requstData)
 	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"

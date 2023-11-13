@@ -75,6 +75,14 @@ type AddrPoolRequestModel struct {
 	VrrpId     string `json:"vrrpId,omitempty"`     //vrid
 }
 
+type AddIpv4StrategyRouterRequest struct {
+	AddIpv4StrategyRouterRequestModel AddIpv4StrategyRouterRequestModel `json:"addipv4strategyrouterparameter"`
+}
+
+type AddIpv4StrategyRouterRequestModel struct {
+	RtpName string `json:"rtpName"`
+}
+
 type VirtualServiceRequest struct {
 	Virtualservice VirtualServiceRequestModel `json:"virtualservice"`
 }
