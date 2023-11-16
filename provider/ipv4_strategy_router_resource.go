@@ -31,6 +31,15 @@ type Ipv4StrategyRouterResourceModel struct {
 	AddIpv4StrategyRouterParameter AddIpv4StrategyRouterParameter `tfsdk:"addipv4strategyrouterparameter"`
 }
 
+type AddIpv4StrategyRouterRequest struct {
+	AddIpv4StrategyRouterRequestModel AddIpv4StrategyRouterRequestModel `json:"rtplist"`
+}
+
+type AddIpv4StrategyRouterRequestModel struct {
+	RtpName string `json:"rtpName"`
+	Act     string `json:"act"`
+}
+
 type AddIpv4StrategyRouterParameter struct {
 	//VsysName      types.String `tfsdk:"vsysname"`
 	//Resource      types.String `tfsdk:"resource"`
@@ -48,7 +57,7 @@ type AddIpv4StrategyRouterParameter struct {
 	//MinDstport    types.String `tfsdk:"mindstport"`
 	//MaxDstport    types.String `tfsdk:"maxdstport"`
 	//Dscp          types.String `tfsdk:"dscp"`
-	//Act           types.String `tfsdk:"act"`
+	Act types.String `tfsdk:"act"`
 	//Timestr       types.String `tfsdk:"timestr"`
 	//Status        types.String `tfsdk:"status"`
 	//OifName       types.String `tfsdk:"oifname"`

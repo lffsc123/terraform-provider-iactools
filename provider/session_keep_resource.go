@@ -30,39 +30,38 @@ type SessionKeepResource struct {
 
 // ExampleResourceModel describes the resource data model.
 type SessionKeepResourceModel struct {
-	// Uuid_count types.String `tfsdk:"uuid_count"`
-	Rsinfo SessionKeepParameter `tfsdk:"virtualservice"`
+	Rsinfo SessionKeepParameter `tfsdk:"sessionkeep"`
 }
 
 type SessionKeepParameter struct {
-	Name              types.String `tfsdk:"name"`
-	Type              types.String `tfsdk:"type"`
-	ActiveTime        types.String `tfsdk:"activeTime"`
-	OverrideLimit     types.String `tfsdk:"overrideLimit"`
-	MatchAcrossVs     types.String `tfsdk:"matchAcrossVs"`
-	MatchFailAction   types.String `tfsdk:"matchFailAction"`
-	PrefixType        types.String `tfsdk:"prefixType"`
-	PrefixLen         types.String `tfsdk:"prefixLen"`
-	Sessioncookie     types.String `tfsdk:"sessioncookie"`
-	Cookiename        types.String `tfsdk:"cookiename"`
-	Cookiemode        types.String `tfsdk:"cookiemode"`
-	CookieEncryMode   types.String `tfsdk:"cookieEncryMode"`
-	CookieEncryPasswd types.String `tfsdk:"cookieEncryPasswd"`
-	RadiusAttribute   types.String `tfsdk:"radiusAttribute"`
-	RelatePolicy      types.String `tfsdk:"relatePolicy"`
-	RadiusStopProc    types.String `tfsdk:"radiusStopProc"`
-	HashCondition     types.String `tfsdk:"hashCondition"`
-	SipHeadType       types.String `tfsdk:"sipHeadType"`
-	SipHeadName       types.String `tfsdk:"sipHeadName"`
-	RequestContent    types.String `tfsdk:"requestContent"`
-	ReplyContent      types.String `tfsdk:"replyContent"`
-	VirtualSystem     types.String `tfsdk:"virtualSystem"`
-	HttponlyAttribute types.String `tfsdk:"httponlyAttribute"`
-	SecureAttribute   types.String `tfsdk:"secureAttribute"`
+	Name types.String `tfsdk:"name"`
+	Type types.String `tfsdk:"type"`
+	//ActiveTime        types.String `tfsdk:"activeTime"`
+	//OverrideLimit     types.String `tfsdk:"overrideLimit"`
+	//MatchAcrossVs     types.String `tfsdk:"matchAcrossVs"`
+	//MatchFailAction   types.String `tfsdk:"matchFailAction"`
+	//PrefixType        types.String `tfsdk:"prefixType"`
+	//PrefixLen         types.String `tfsdk:"prefixLen"`
+	//Sessioncookie     types.String `tfsdk:"sessioncookie"`
+	//Cookiename        types.String `tfsdk:"cookiename"`
+	//Cookiemode        types.String `tfsdk:"cookiemode"`
+	//CookieEncryMode   types.String `tfsdk:"cookieEncryMode"`
+	//CookieEncryPasswd types.String `tfsdk:"cookieEncryPasswd"`
+	//RadiusAttribute   types.String `tfsdk:"radiusAttribute"`
+	//RelatePolicy      types.String `tfsdk:"relatePolicy"`
+	//RadiusStopProc    types.String `tfsdk:"radiusStopProc"`
+	//HashCondition     types.String `tfsdk:"hashCondition"`
+	//SipHeadType       types.String `tfsdk:"sipHeadType"`
+	//SipHeadName       types.String `tfsdk:"sipHeadName"`
+	//RequestContent    types.String `tfsdk:"requestContent"`
+	//ReplyContent      types.String `tfsdk:"replyContent"`
+	//VirtualSystem     types.String `tfsdk:"virtualSystem"`
+	//HttponlyAttribute types.String `tfsdk:"httponlyAttribute"`
+	//SecureAttribute   types.String `tfsdk:"secureAttribute"`
 }
 
 func (r *SessionKeepResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo_SessionKeep"
+	resp.TypeName = "dpsc_SessionKeep"
 }
 
 func (r *SessionKeepResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -77,72 +76,72 @@ func (r *SessionKeepResource) Schema(ctx context.Context, req resource.SchemaReq
 					"type": schema.StringAttribute{
 						Required: true,
 					},
-					"activeTime": schema.StringAttribute{
-						Required: true,
-					},
-					"overrideLimit": schema.StringAttribute{
-						Required: true,
-					},
-					"matchAcrossVs": schema.StringAttribute{
-						Optional: true,
-					},
-					"matchFailAction": schema.StringAttribute{
-						Optional: true,
-					},
-					"prefixType": schema.StringAttribute{
-						Optional: true,
-					},
-					"prefixLen": schema.StringAttribute{
-						Optional: true,
-					},
-					"sessioncookie": schema.StringAttribute{
-						Optional: true,
-					},
-					"cookiename": schema.StringAttribute{
-						Optional: true,
-					},
-					"cookiemode": schema.StringAttribute{
-						Optional: true,
-					},
-					"cookieEncryMode": schema.StringAttribute{
-						Optional: true,
-					},
-					"cookieEncryPasswd": schema.StringAttribute{
-						Optional: true,
-					},
-					"radiusAttribute": schema.StringAttribute{
-						Optional: true,
-					},
-					"relatePolicy": schema.StringAttribute{
-						Optional: true,
-					},
-					"radiusStopProc": schema.StringAttribute{
-						Optional: true,
-					},
-					"hashCondition": schema.StringAttribute{
-						Optional: true,
-					},
-					"sipHeadType": schema.StringAttribute{
-						Optional: true,
-					},
-					"sipHeadName": schema.StringAttribute{
-						Optional: true,
-					},
-					"requestContent": schema.StringAttribute{
-						Optional: true,
-					},
-					"replyContent": schema.StringAttribute{
-						Optional: true,
-					},
-					"virtualSystem": schema.StringAttribute{
-						Optional: true,
-					},
-					"httponlyAttribute": schema.StringAttribute{
-						Optional: true,
-					},
-					"secureAttribute": schema.StringAttribute{
-						Optional: true,
-					},
+					//"activeTime": schema.StringAttribute{
+					//	Required: true,
+					//},
+					//"overrideLimit": schema.StringAttribute{
+					//	Required: true,
+					//},
+					//"matchAcrossVs": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"matchFailAction": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"prefixType": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"prefixLen": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"sessioncookie": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"cookiename": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"cookiemode": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"cookieEncryMode": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"cookieEncryPasswd": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"radiusAttribute": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"relatePolicy": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"radiusStopProc": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"hashCondition": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"sipHeadType": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"sipHeadName": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"requestContent": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"replyContent": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"virtualSystem": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"httponlyAttribute": schema.StringAttribute{
+					//	Optional: true,
+					//},
+					//"secureAttribute": schema.StringAttribute{
+					//	Optional: true,
+					//},
 				},
 			},
 		},
@@ -214,19 +213,12 @@ func (r *SessionKeepResource) Delete(ctx context.Context, req resource.DeleteReq
 
 	sendToweb_SessionKeepRequest(ctx, "DELETE", r.client, data.Rsinfo)
 
-	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete example, got error: %s", err))
-	//     return
-	// }
+
 }
 
 func (r *SessionKeepResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
@@ -235,30 +227,30 @@ func (r *SessionKeepResource) ImportState(ctx context.Context, req resource.Impo
 
 func sendToweb_SessionKeepRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo SessionKeepParameter) {
 	sendData := SessionKeepRequestModel{
-		Name:              Rsinfo.Name.ValueString(),
-		Type:              Rsinfo.Type.ValueString(),
-		ActiveTime:        Rsinfo.ActiveTime.ValueString(),
-		OverrideLimit:     Rsinfo.OverrideLimit.ValueString(),
-		MatchAcrossVs:     Rsinfo.MatchAcrossVs.ValueString(),
-		MatchFailAction:   Rsinfo.MatchFailAction.ValueString(),
-		PrefixType:        Rsinfo.PrefixType.ValueString(),
-		PrefixLen:         Rsinfo.PrefixLen.ValueString(),
-		Sessioncookie:     Rsinfo.Sessioncookie.ValueString(),
-		Cookiename:        Rsinfo.Cookiename.ValueString(),
-		Cookiemode:        Rsinfo.Cookiemode.ValueString(),
-		CookieEncryMode:   Rsinfo.CookieEncryMode.ValueString(),
-		CookieEncryPasswd: Rsinfo.CookieEncryPasswd.ValueString(),
-		RadiusAttribute:   Rsinfo.RadiusAttribute.ValueString(),
-		RelatePolicy:      Rsinfo.RelatePolicy.ValueString(),
-		RadiusStopProc:    Rsinfo.RadiusStopProc.ValueString(),
-		HashCondition:     Rsinfo.HashCondition.ValueString(),
-		SipHeadType:       Rsinfo.SipHeadType.ValueString(),
-		SipHeadName:       Rsinfo.SipHeadName.ValueString(),
-		RequestContent:    Rsinfo.RequestContent.ValueString(),
-		ReplyContent:      Rsinfo.ReplyContent.ValueString(),
-		VirtualSystem:     Rsinfo.VirtualSystem.ValueString(),
-		HttponlyAttribute: Rsinfo.HttponlyAttribute.ValueString(),
-		SecureAttribute:   Rsinfo.SecureAttribute.ValueString(),
+		Name: Rsinfo.Name.ValueString(),
+		Type: Rsinfo.Type.ValueString(),
+		//ActiveTime:        Rsinfo.ActiveTime.ValueString(),
+		//OverrideLimit:     Rsinfo.OverrideLimit.ValueString(),
+		//MatchAcrossVs:     Rsinfo.MatchAcrossVs.ValueString(),
+		//MatchFailAction:   Rsinfo.MatchFailAction.ValueString(),
+		//PrefixType:        Rsinfo.PrefixType.ValueString(),
+		//PrefixLen:         Rsinfo.PrefixLen.ValueString(),
+		//Sessioncookie:     Rsinfo.Sessioncookie.ValueString(),
+		//Cookiename:        Rsinfo.Cookiename.ValueString(),
+		//Cookiemode:        Rsinfo.Cookiemode.ValueString(),
+		//CookieEncryMode:   Rsinfo.CookieEncryMode.ValueString(),
+		//CookieEncryPasswd: Rsinfo.CookieEncryPasswd.ValueString(),
+		//RadiusAttribute:   Rsinfo.RadiusAttribute.ValueString(),
+		//RelatePolicy:      Rsinfo.RelatePolicy.ValueString(),
+		//RadiusStopProc:    Rsinfo.RadiusStopProc.ValueString(),
+		//HashCondition:     Rsinfo.HashCondition.ValueString(),
+		//SipHeadType:       Rsinfo.SipHeadType.ValueString(),
+		//SipHeadName:       Rsinfo.SipHeadName.ValueString(),
+		//RequestContent:    Rsinfo.RequestContent.ValueString(),
+		//ReplyContent:      Rsinfo.ReplyContent.ValueString(),
+		//VirtualSystem:     Rsinfo.VirtualSystem.ValueString(),
+		//HttponlyAttribute: Rsinfo.HttponlyAttribute.ValueString(),
+		//SecureAttribute:   Rsinfo.SecureAttribute.ValueString(),
 	}
 
 	requstData := SessionKeepRequest{

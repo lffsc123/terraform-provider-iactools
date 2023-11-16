@@ -42,7 +42,7 @@ type RealServiceListParameter struct {
 }
 
 func (r *RealServiceListResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo_RealServiceList"
+	resp.TypeName = "dpsc_RealServiceList"
 }
 
 func (r *RealServiceListResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

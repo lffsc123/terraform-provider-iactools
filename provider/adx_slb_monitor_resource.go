@@ -30,8 +30,7 @@ type AdxSlbMonitorResource struct {
 
 // ExampleResourceModel describes the resource data model.
 type AdxSlbMonitorResourceModel struct {
-	// Uuid_count types.String `tfsdk:"uuid_count"`
-	Rsinfo AdxSlbMonitorParameter `tfsdk:"virtualservice"`
+	Rsinfo AdxSlbMonitorParameter `tfsdk:"monitorinfo"`
 }
 
 type AdxSlbMonitorParameter struct {
@@ -42,13 +41,13 @@ type AdxSlbMonitorParameter struct {
 }
 
 func (r *AdxSlbMonitorResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo_AdxSlbMonitor"
+	resp.TypeName = "dpsc_AdxSlbMonitor"
 }
 
 func (r *AdxSlbMonitorResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"sessionkeep": schema.SingleNestedAttribute{
+			"monitorinfo": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{

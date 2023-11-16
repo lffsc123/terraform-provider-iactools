@@ -50,7 +50,7 @@ type VirtualServiceParameter struct {
 }
 
 func (r *VirtualServiceResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dptech-demo_VirtualService"
+	resp.TypeName = "dpsc_VirtualService"
 }
 
 func (r *VirtualServiceResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

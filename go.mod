@@ -1,4 +1,4 @@
-module terraform-provider-dptech-demo
+module terraform-provider-dpsc
 
 go 1.19
 

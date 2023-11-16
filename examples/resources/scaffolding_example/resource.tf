@@ -1,3 +1,3 @@
- resource "dptech-demo_example" "cs" {
+ resource "dpsc_example" "cs" {
   uuid_count="4"
 }

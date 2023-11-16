@@ -75,14 +75,6 @@ type AddrPoolRequestModel struct {
 	VrrpId     string `json:"vrrpId,omitempty"`     //vrid
 }
 
-type AddIpv4StrategyRouterRequest struct {
-	AddIpv4StrategyRouterRequestModel AddIpv4StrategyRouterRequestModel `json:"addipv4strategyrouterparameter"`
-}
-
-type AddIpv4StrategyRouterRequestModel struct {
-	RtpName string `json:"rtpName"`
-}
-
 type VirtualServiceRequest struct {
 	Virtualservice VirtualServiceRequestModel `json:"virtualservice"`
 }
@@ -107,41 +99,41 @@ type SessionKeepRequest struct {
 }
 
 type SessionKeepRequestModel struct {
-	Name              string `tfsdk:"name"`
-	Type              string `tfsdk:"type"`
-	ActiveTime        string `tfsdk:"activeTime"`
-	OverrideLimit     string `tfsdk:"overrideLimit"`
-	MatchAcrossVs     string `tfsdk:"matchAcrossVs"`
-	MatchFailAction   string `tfsdk:"matchFailAction"`
-	PrefixType        string `tfsdk:"prefixType"`
-	PrefixLen         string `tfsdk:"prefixLen"`
-	Sessioncookie     string `tfsdk:"sessioncookie"`
-	Cookiename        string `tfsdk:"cookiename"`
-	Cookiemode        string `tfsdk:"cookiemode"`
-	CookieEncryMode   string `tfsdk:"cookieEncryMode"`
-	CookieEncryPasswd string `tfsdk:"cookieEncryPasswd"`
-	RadiusAttribute   string `tfsdk:"radiusAttribute"`
-	RelatePolicy      string `tfsdk:"relatePolicy"`
-	RadiusStopProc    string `tfsdk:"radiusStopProc"`
-	HashCondition     string `tfsdk:"hashCondition"`
-	SipHeadType       string `tfsdk:"sipHeadType"`
-	SipHeadName       string `tfsdk:"sipHeadName"`
-	RequestContent    string `tfsdk:"requestContent"`
-	ReplyContent      string `tfsdk:"replyContent"`
-	VirtualSystem     string `tfsdk:"virtualSystem"`
-	HttponlyAttribute string `tfsdk:"httponlyAttribute"`
-	SecureAttribute   string `tfsdk:"secureAttribute"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+	//ActiveTime        string `json:"activeTime"`
+	//OverrideLimit     string `json:"overrideLimit"`
+	//MatchAcrossVs     string `json:"matchAcrossVs"`
+	//MatchFailAction   string `json:"matchFailAction"`
+	//PrefixType        string `json:"prefixType"`
+	//PrefixLen         string `json:"prefixLen"`
+	//Sessioncookie     string `json:"sessioncookie"`
+	//Cookiename        string `json:"cookiename"`
+	//Cookiemode        string `json:"cookiemode"`
+	//CookieEncryMode   string `json:"cookieEncryMode"`
+	//CookieEncryPasswd string `json:"cookieEncryPasswd"`
+	//RadiusAttribute   string `json:"radiusAttribute"`
+	//RelatePolicy      string `json:"relatePolicy"`
+	//RadiusStopProc    string `json:"radiusStopProc"`
+	//HashCondition     string `json:"hashCondition"`
+	//SipHeadType       string `json:"sipHeadType"`
+	//SipHeadName       string `json:"sipHeadName"`
+	//RequestContent    string `json:"requestContent"`
+	//ReplyContent      string `json:"replyContent"`
+	//VirtualSystem     string `json:"virtualSystem"`
+	//HttponlyAttribute string `json:"httponlyAttribute"`
+	//SecureAttribute   string `json:"secureAttribute"`
 }
 
 type AdxSlbMonitorRequest struct {
-	adxSlbMonitor AdxSlbMonitorRequestModel `json:"adxSlbMonitor"`
+	adxSlbMonitor AdxSlbMonitorRequestModel `json:"monitorinfo"`
 }
 
 type AdxSlbMonitorRequestModel struct {
-	Name     string `tfsdk:"name"`
-	Type     string `tfsdk:"type"`
-	OverTime string `tfsdk:"overTime"`
-	Interval string `tfsdk:"interval"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	OverTime string `json:"overTime"`
+	Interval string `json:"interval"`
 }
 
 func NewClient(host *string, auth *AuthStruct) (*Client, error) {
