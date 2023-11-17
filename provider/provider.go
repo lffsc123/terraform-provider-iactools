@@ -120,6 +120,8 @@ func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.R
 		NewTargetNatResource,
 		NewIpv4RouterResource,
 		NewIpv4StrategyRouterResource,
+		NewSessionKeepResource,
+		NewAdxSlbMonitorResource,
 	}
 }
 
