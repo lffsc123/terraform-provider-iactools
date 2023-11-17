@@ -56,7 +56,7 @@ func (r *AdxSlbMonitorResource) Schema(ctx context.Context, req resource.SchemaR
 					"type": schema.StringAttribute{
 						Required: true,
 					},
-					"overTime": schema.StringAttribute{
+					"overtime": schema.StringAttribute{
 						Required: true,
 					},
 					"interval": schema.StringAttribute{
