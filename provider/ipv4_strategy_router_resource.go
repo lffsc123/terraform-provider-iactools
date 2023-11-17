@@ -28,7 +28,7 @@ type Ipv4StrategyRouterResource struct {
 }
 
 type Ipv4StrategyRouterResourceModel struct {
-	AddIpv4StrategyRouterParameter AddIpv4StrategyRouterParameter `tfsdk:"addipv4strategyrouterparameter"`
+	AddIpv4StrategyRouterParameter AddIpv4StrategyRouterParameter `tfsdk:"rtplist"`
 }
 
 type AddIpv4StrategyRouterRequest struct {
@@ -117,10 +117,13 @@ func (r *Ipv4StrategyRouterResource) Metadata(ctx context.Context, req resource.
 func (r *Ipv4StrategyRouterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"addipv4strategyrouterparameter": schema.SingleNestedAttribute{
+			"rtplist": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"rtpname": schema.StringAttribute{
+						Required: true,
+					},
+					"act": schema.StringAttribute{
 						Required: true,
 					},
 				},
@@ -211,6 +214,7 @@ func (r *Ipv4StrategyRouterResource) ImportState(ctx context.Context, req resour
 func sendToweb_AddIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
 	sendData := AddIpv4StrategyRouterRequestModel{
 		RtpName: Rsinfo.RtpName.ValueString(),
+		Act:     Rsinfo.Act.ValueString(),
 	}
 	requstData := AddIpv4StrategyRouterRequest{
 		AddIpv4StrategyRouterRequestModel: sendData,
