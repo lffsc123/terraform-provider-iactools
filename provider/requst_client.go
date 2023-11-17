@@ -132,7 +132,7 @@ type AdxSlbMonitorRequest struct {
 type AdxSlbMonitorRequestModel struct {
 	Name     string `json:"name"`
 	Type     string `json:"type"`
-	OverTime string `json:"overTime"`
+	OverTime string `json:"overtime"`
 	Interval string `json:"interval"`
 }
 

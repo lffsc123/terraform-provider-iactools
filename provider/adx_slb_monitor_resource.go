@@ -36,7 +36,7 @@ type AdxSlbMonitorResourceModel struct {
 type AdxSlbMonitorParameter struct {
 	Name     types.String `tfsdk:"name"`
 	Type     types.String `tfsdk:"type"`
-	OverTime types.String `tfsdk:"overTime"`
+	OverTime types.String `tfsdk:"overtime"`
 	Interval types.String `tfsdk:"interval"`
 }
 
