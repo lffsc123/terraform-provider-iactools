@@ -221,7 +221,8 @@ func sendToweb_AddIpv4StrategyRouterRequest(ctx context.Context, reqmethod strin
 	}
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
+	//targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
+	targetUrl := "https://www.baidu.com"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
