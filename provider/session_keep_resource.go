@@ -211,7 +211,7 @@ func (r *SessionKeepResource) Delete(ctx context.Context, req resource.DeleteReq
 	var data *SessionKeepResourceModel
 	tflog.Info(ctx, " Delete Start")
 
-	sendToweb_SessionKeepRequest(ctx, "DELETE", r.client, data.Rsinfo)
+	//sendToweb_SessionKeepRequest(ctx, "DELETE", r.client, data.Rsinfo)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 

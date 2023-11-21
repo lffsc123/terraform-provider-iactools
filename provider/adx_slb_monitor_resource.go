@@ -131,7 +131,7 @@ func (r *AdxSlbMonitorResource) Delete(ctx context.Context, req resource.DeleteR
 	var data *AdxSlbMonitorResourceModel
 	tflog.Info(ctx, " Delete Start")
 
-	sendToweb_AdxSlbMonitorRequest(ctx, "DELETE", r.client, data.Rsinfo)
+	//sendToweb_AdxSlbMonitorRequest(ctx, "DELETE", r.client, data.Rsinfo)
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
