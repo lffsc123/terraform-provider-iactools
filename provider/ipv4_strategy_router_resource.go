@@ -191,7 +191,7 @@ func (r *Ipv4StrategyRouterResource) Update(ctx context.Context, req resource.Up
 
 func (r *Ipv4StrategyRouterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data *Ipv4StrategyRouterResourceModel
-	tflog.Info(ctx, " Delete Start ************* ")
+	tflog.Info(ctx, " Delete Start *************")
 
 	sendToweb_DelIpv4StrategyRouterRequest(ctx, "DELETE", r.client, data.AddIpv4StrategyRouterParameter)
 
