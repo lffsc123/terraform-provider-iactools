@@ -3,8 +3,10 @@ package provider
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -228,16 +230,27 @@ func sendToweb_AddIpv4StrategyRouterRequest(ctx context.Context, reqmethod strin
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
+
+	// 创建一个HTTP客户端并发送请求
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	respn, err := client.Do(req)
 	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
+		fmt.Println("发送请求失败：", err)
+		return
 	}
 	defer respn.Body.Close()
 
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
+	body, err2 := io.ReadAll(respn.Body)
+	if err2 != nil {
+		fmt.Println("读取响应失败：", err2)
+		return
 	}
+	// 打印响应结果
+	fmt.Println("响应状态码:", respn.Status)
+	fmt.Println("响应体:", string(body))
 }
 
 func sendToweb_UpdateIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
