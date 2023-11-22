@@ -1,4 +1,4 @@
-module terraform-provider-dpsc
+module terraform-provider-firewall
 
 go 1.19
 

@@ -127,7 +127,7 @@ type ReadNetConnParameter struct {
 }
 
 func (r *NetConnResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_NetConn"
+	resp.TypeName = "firewall_NetConn"
 }
 
 func (r *NetConnResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

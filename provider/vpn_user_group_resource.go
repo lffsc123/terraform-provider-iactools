@@ -58,7 +58,7 @@ type ReadVpnUserGroupParameter struct {
 }
 
 func (r *VpnUserGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_VpnUserGroup"
+	resp.TypeName = "firewall_VpnUserGroup"
 }
 
 func (r *VpnUserGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

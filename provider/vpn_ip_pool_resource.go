@@ -60,7 +60,7 @@ type ReadVpnIpPoolParameter struct {
 }
 
 func (r *VpnIpPoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_VpnIpPool"
+	resp.TypeName = "firewall_VpnIpPool"
 }
 
 func (r *VpnIpPoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

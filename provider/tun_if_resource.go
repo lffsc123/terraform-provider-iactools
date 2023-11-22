@@ -61,7 +61,7 @@ type ReadTunIfParameter struct {
 }
 
 func (r *TunIfResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_TunIf"
+	resp.TypeName = "firewall_TunIf"
 }
 
 func (r *TunIfResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

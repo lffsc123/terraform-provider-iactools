@@ -88,7 +88,7 @@ type ReadIpv4RouterParameter struct {
 }
 
 func (r *Ipv4RouterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_Ipv4Router"
+	resp.TypeName = "firewall_Ipv4Router"
 }
 
 func (r *Ipv4RouterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

@@ -1,20 +1,20 @@
 terraform {
  required_providers {
-  dpsc={
-     source = "registry.terraform.io/lffsc123/dpsc"
+  firewall={
+     source = "registry.terraform.io/lffsc123/firewall"
      version = "1.2.37"
    } 
  }
  }
 
-provider "dpsc" {
+provider "firewall" {
   address="http://localhost:"
   port="8080"
   username="test"
   password="jsepc123!"
 }
 
-resource "dpsc_RealServiceList" "cs2" {
+resource "firewall_RealServiceList" "cs2" {
  poollist={
   name="string__*"
   monitor="string" // 健康监测
@@ -23,7 +23,7 @@ resource "dpsc_RealServiceList" "cs2" {
  }
 }
 
-resource "dpsc_AddrPoolList" "cs" {
+resource "firewall_AddrPoolList" "cs" {
 addrpoollist={
     name="string__*"
     ip_start="string__*"
@@ -34,7 +34,7 @@ addrpoollist={
 } 
 }
 
-resource "dpsc_VirtualService" "cs" {
+resource "firewall_VirtualService" "cs" {
     virtualservice={
       name ="string__*"
       mode ="string__*"
@@ -51,7 +51,7 @@ resource "dpsc_VirtualService" "cs" {
   }
 }
 
-resource "dpsc-TargetNat" "dpcs" {
+resource "firewall-TargetNat" "dpcs" {
   targetnat={
     name="string__*"
     ip_start="string__*"
@@ -62,7 +62,7 @@ resource "dpsc-TargetNat" "dpcs" {
   }
 }
 
-resource "dpsc-SourceNat" "dpcs" {
+resource "firewall-SourceNat" "dpcs" {
   sourcenat={
     name="string__*"
     ip_start="string__*"
@@ -74,7 +74,7 @@ resource "dpsc-SourceNat" "dpcs" {
 }
 
 // 会话保持
-resource "dpsc-SessionKeep" "dpcs" {
+resource "firewall-SessionKeep" "dpcs" {
   sessionkeep={
     // 1）必须配置。
     // 2）会话保持策略名称。
@@ -90,7 +90,7 @@ resource "dpsc-SessionKeep" "dpcs" {
 }
 
 // 健康监测
-resource "dpsc-AdxSlbMonitor" "dpcs" {
+resource "firewall-AdxSlbMonitor" "dpcs" {
   monitorinfo={
     // 1）必须配置
     // 2）新建健康监测的名称
