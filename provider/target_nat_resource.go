@@ -116,7 +116,7 @@ type ReadTargetNatParameter struct {
 }
 
 func (r *TargetNatResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "firewall_TargetNat"
+	resp.TypeName = "dpfirewall_TargetNat"
 }
 
 func (r *TargetNatResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

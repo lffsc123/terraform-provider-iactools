@@ -76,7 +76,7 @@ type ReadIpv6RouterParameter struct {
 }
 
 func (r *Ipv6RouterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "firewall_Ipv6Router"
+	resp.TypeName = "dpfirewall_Ipv6Router"
 }
 
 func (r *Ipv6RouterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

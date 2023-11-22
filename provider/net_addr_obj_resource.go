@@ -77,7 +77,7 @@ type ReadNetAddrObjParameter struct {
 }
 
 func (r *NetAddrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "firewall_NetAddrObj"
+	resp.TypeName = "dpfirewall_NetAddrObj"
 }
 
 func (r *NetAddrObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

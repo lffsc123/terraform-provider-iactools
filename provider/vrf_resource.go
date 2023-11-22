@@ -58,7 +58,7 @@ type ReadVrfParameter struct {
 }
 
 func (r *VrfResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "firewall_Vrf"
+	resp.TypeName = "dpfirewall_Vrf"
 }
 
 func (r *VrfResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

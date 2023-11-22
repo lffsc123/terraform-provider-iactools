@@ -1,7 +1,7 @@
 # This file is maintained automatically by "terraform init".
 # Manual edits may be lost in future updates.
 
-provider "registry.terraform.io/lffsc123/firewall" {
+provider "registry.terraform.io/lffsc123/dpfirewall" {
   version     = "1.2.36"
   constraints = "1.2.36"
   hashes = [

@@ -58,7 +58,7 @@ type ReadVpnIpResParameter struct {
 }
 
 func (r *VpnIpResResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "firewall_VpnIpRes"
+	resp.TypeName = "dpfirewall_VpnIpRes"
 }
 
 func (r *VpnIpResResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

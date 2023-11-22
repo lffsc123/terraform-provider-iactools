@@ -52,7 +52,7 @@ type ReadVpnSystemConfParameter struct {
 }
 
 func (r *VpnSystemConfResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "firewall_VpnSystemConf"
+	resp.TypeName = "dpfirewall_VpnSystemConf"
 }
 
 func (r *VpnSystemConfResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

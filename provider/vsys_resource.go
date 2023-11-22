@@ -60,7 +60,7 @@ type ReadVsysParameter struct {
 }
 
 func (r *VsysResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "firewall_Vsys"
+	resp.TypeName = "dpfirewall_Vsys"
 }
 
 func (r *VsysResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

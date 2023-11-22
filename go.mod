@@ -1,4 +1,4 @@
-module terraform-provider-firewall
+module terraform-provider-dpfirewall
 
 go 1.19
 

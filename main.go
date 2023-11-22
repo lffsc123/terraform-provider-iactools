@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 
-	"terraform-provider-firewall/provider"
+	"terraform-provider-dpfirewall/provider"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/lffsc123/firewall",
+		Address: "registry.terraform.io/lffsc123/dpfirewall",
 		Debug:   debug,
 	}
 

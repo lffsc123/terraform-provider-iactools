@@ -1,3 +1,3 @@
- resource "firewall_example" "cs" {
+ resource "dpfirewall_example" "cs" {
   uuid_count="4"
 }

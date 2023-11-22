@@ -72,7 +72,7 @@ type ReadUsrGroupParameter struct {
 }
 
 func (r *UsrGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "firewall_UsrGroup"
+	resp.TypeName = "dpfirewall_UsrGroup"
 }
 
 func (r *UsrGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
