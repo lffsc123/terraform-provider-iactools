@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -24,7 +25,7 @@ func NewUsrGroupResource() resource.Resource {
 }
 
 type UsrGroupResource struct {
-	client *Client
+	client *provider.Client
 }
 
 type UsrGroupResourceModel struct {
@@ -109,7 +110,7 @@ func (r *UsrGroupResource) Configure(ctx context.Context, req resource.Configure
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -177,7 +178,7 @@ func (r *UsrGroupResource) ImportState(ctx context.Context, req resource.ImportS
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddUsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddUsrGroupParameter) {
+func sendToweb_AddUsrGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddUsrGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -199,7 +200,7 @@ func sendToweb_AddUsrGroupRequest(ctx context.Context, reqmethod string, c *Clie
 	}
 }
 
-func sendToweb_UpdateUsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateUsrGroupParameter) {
+func sendToweb_UpdateUsrGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateUsrGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -221,7 +222,7 @@ func sendToweb_UpdateUsrGroupRequest(ctx context.Context, reqmethod string, c *C
 	}
 }
 
-func sendToweb_DelUsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelUsrGroupParameter) {
+func sendToweb_DelUsrGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelUsrGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -243,7 +244,7 @@ func sendToweb_DelUsrGroupRequest(ctx context.Context, reqmethod string, c *Clie
 	}
 }
 
-func sendToweb_ReadUsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadUsrGroupParameter) {
+func sendToweb_ReadUsrGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadUsrGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

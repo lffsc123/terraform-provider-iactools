@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,51 +16,55 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// VPN IP资源组
-var _ resource.Resource = &VpnIpResGroupResource{}
-var _ resource.ResourceWithImportState = &VpnIpResGroupResource{}
+// 虚拟系统
+var _ resource.Resource = &VsysResource{}
+var _ resource.ResourceWithImportState = &VsysResource{}
 
-func NewVpnIpResGroupResource() resource.Resource {
-	return &VpnIpResGroupResource{}
+func NewVsysResource() resource.Resource {
+	return &VsysResource{}
 }
 
-type VpnIpResGroupResource struct {
-	client *Client
+type VsysResource struct {
+	client *provider.Client
 }
 
-type VpnIpResGroupResourceModel struct {
-	AddVpnIpResGroupParameter    AddVpnIpResGroupParameter    `tfsdk:"addVpnIpResGroupParameter"`
-	UpdateVpnIpResGroupParameter UpdateVpnIpResGroupParameter `tfsdk:"updateVpnIpResGroupParameter"`
-	DelVpnIpResGroupParameter    DelVpnIpResGroupParameter    `tfsdk:"delVpnIpResGroupParameter"`
-	ReadVpnIpResGroupParameter   ReadVpnIpResGroupParameter   `tfsdk:"readVpnIpResGroupParameter"`
+type VsysResourceModel struct {
+	AddVsysParameter    AddVsysParameter    `tfsdk:"addVsysParameter"`
+	UpdateVsysParameter UpdateVsysParameter `tfsdk:"updateVsysParameter"`
+	DelVsysParameter    DelVsysParameter    `tfsdk:"delVsysParameter"`
+	ReadVsysParameter   ReadVsysParameter   `tfsdk:"readVsysParameter"`
 }
 
-type AddVpnIpResGroupParameter struct {
-	VsysName   types.String `tfsdk:"vsysName"`
-	resGrpName types.String `tfsdk:"resGrpName"`
-	ipResNames types.String `tfsdk:"ipResNames"`
+type AddVsysParameter struct {
+	VsysName types.String `tfsdk:"vsysName"`
+	VsysType types.String `tfsdk:"vsysType"`
+	VsysId   types.String `tfsdk:"vsysId"`
+	VsysInfo types.String `tfsdk:"vsysInfo"`
 }
 
-type UpdateVpnIpResGroupParameter struct {
-	VsysName   types.String `tfsdk:"vsysName"`
-	resGrpName types.String `tfsdk:"resGrpName"`
-	ipResNames types.String `tfsdk:"ipResNames"`
+type UpdateVsysParameter struct {
+	VsysName types.String `tfsdk:"vsysName"`
+	VsysType types.String `tfsdk:"vsysType"`
+	VsysId   types.String `tfsdk:"vsysId"`
+	VsysInfo types.String `tfsdk:"vsysInfo"`
 }
 
-type DelVpnIpResGroupParameter struct {
-	VsysName   types.String `tfsdk:"vsysName"`
-	resGrpName types.String `tfsdk:"resGrpName"`
-}
-
-type ReadVpnIpResGroupParameter struct {
+type DelVsysParameter struct {
 	VsysName types.String `tfsdk:"vsysName"`
 }
 
-func (r *VpnIpResGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_VpnIpResGroup"
+type ReadVsysParameter struct {
+	VsysName types.String `tfsdk:"vsysName"`
+	VsysType types.String `tfsdk:"vsysType"`
+	VsysId   types.String `tfsdk:"vsysId"`
+	VsysInfo types.String `tfsdk:"vsysInfo"`
 }
 
-func (r *VpnIpResGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *VsysResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_Vsys"
+}
+
+func (r *VsysResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -89,11 +94,11 @@ func (r *VpnIpResGroupResource) Schema(ctx context.Context, req resource.SchemaR
 	}
 }
 
-func (r *VpnIpResGroupResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *VsysResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -109,46 +114,46 @@ func (r *VpnIpResGroupResource) Configure(ctx context.Context, req resource.Conf
 	r.client = client
 }
 
-func (r *VpnIpResGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *VpnIpResGroupResourceModel
+func (r *VsysResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *VsysResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddVpnIpResGroupRequest(ctx, "POST", r.client, data.AddVpnIpResGroupParameter)
+	sendToweb_AddVsysRequest(ctx, "POST", r.client, data.AddVsysParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VpnIpResGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *VpnIpResGroupResourceModel
+func (r *VsysResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *VsysResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadVpnIpResGroupRequest(ctx, "GET", r.client, data.ReadVpnIpResGroupParameter)
+	sendToweb_ReadVsysRequest(ctx, "GET", r.client, data.ReadVsysParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VpnIpResGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *VpnIpResGroupResourceModel
+func (r *VsysResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *VsysResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateVpnIpResGroupRequest(ctx, "PUT", r.client, data.UpdateVpnIpResGroupParameter)
+	sendToweb_UpdateVsysRequest(ctx, "PUT", r.client, data.UpdateVsysParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VpnIpResGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *VpnIpResGroupResourceModel
-	tflog.Info(ctx, " Delete Start  *************")
+func (r *VsysResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *VsysResourceModel
+	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelVpnIpResGroupRequest(ctx, "DELETE", r.client, data.DelVpnIpResGroupParameter)
+	sendToweb_DelVsysRequest(ctx, "DELETE", r.client, data.DelVsysParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -157,15 +162,15 @@ func (r *VpnIpResGroupResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 }
 
-func (r *VpnIpResGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *VsysResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVpnIpResGroupParameter) {
+func sendToweb_AddVsysRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVsysParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/resGrpInfo"
+	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -183,11 +188,11 @@ func sendToweb_AddVpnIpResGroupRequest(ctx context.Context, reqmethod string, c 
 	}
 }
 
-func sendToweb_UpdateVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVpnIpResGroupParameter) {
+func sendToweb_UpdateVsysRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVsysParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/resGrpInfo"
+	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -205,11 +210,11 @@ func sendToweb_UpdateVpnIpResGroupRequest(ctx context.Context, reqmethod string,
 	}
 }
 
-func sendToweb_DelVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVpnIpResGroupParameter) {
+func sendToweb_DelVsysRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVsysParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/resGrpInfo"
+	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -227,11 +232,11 @@ func sendToweb_DelVpnIpResGroupRequest(ctx context.Context, reqmethod string, c 
 	}
 }
 
-func sendToweb_ReadVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVpnIpResGroupParameter) {
+func sendToweb_ReadVsysRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVsysParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/resGrpInfo?vsysName=PublicSystem"
+	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

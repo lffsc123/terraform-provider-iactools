@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,55 +16,53 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// VPN IP地址池
-var _ resource.Resource = &VpnIpPoolResource{}
-var _ resource.ResourceWithImportState = &VpnIpPoolResource{}
+// vrf
+var _ resource.Resource = &VrfResource{}
+var _ resource.ResourceWithImportState = &VrfResource{}
 
-func NewVpnIpPoolResource() resource.Resource {
-	return &VpnIpPoolResource{}
+func NewVrfResource() resource.Resource {
+	return &VrfResource{}
 }
 
-type VpnIpPoolResource struct {
-	client *Client
+type VrfResource struct {
+	client *provider.Client
 }
 
-type VpnIpPoolResourceModel struct {
-	AddVpnIpPoolParameter    AddVpnIpPoolParameter    `tfsdk:"addVpnIpPoolParameter"`
-	UpdateVpnIpPoolParameter UpdateVpnIpPoolParameter `tfsdk:"updateVpnIpPoolParameter"`
-	DelVpnIpPoolParameter    DelVpnIpPoolParameter    `tfsdk:"delVpnIpPoolParameter"`
-	ReadVpnIpPoolParameter   ReadVpnIpPoolParameter   `tfsdk:"readVpnIpPoolParameter"`
+type VrfResourceModel struct {
+	AddVrfParameter    AddVrfParameter    `tfsdk:"addVrfParameter"`
+	UpdateVrfParameter UpdateVrfParameter `tfsdk:"updateVrfParameter"`
+	DelVrfParameter    DelVrfParameter    `tfsdk:"delVrfParameter"`
+	ReadVrfParameter   ReadVrfParameter   `tfsdk:"readVrfParameter"`
 }
 
-type AddVpnIpPoolParameter struct {
-	VsysName  types.String `tfsdk:"vsysName"`
-	poolName  types.String `tfsdk:"poolName"`
-	poolStart types.String `tfsdk:"poolStart"`
-	poolEnd   types.String `tfsdk:"poolEnd"`
-	poolMask  types.String `tfsdk:"poolMask"`
+type AddVrfParameter struct {
+	VrfName      types.String `tfsdk:"vrfName"`
+	VrfId        types.String `tfsdk:"vrfId"`
+	VrfInterface types.String `tfsdk:"vrfInterface"`
 }
 
-type UpdateVpnIpPoolParameter struct {
-	VsysName  types.String `tfsdk:"vsysName"`
-	poolName  types.String `tfsdk:"poolName"`
-	poolStart types.String `tfsdk:"poolStart"`
-	poolEnd   types.String `tfsdk:"poolEnd"`
-	poolMask  types.String `tfsdk:"poolMask"`
+type UpdateVrfParameter struct {
+	VrfName      types.String `tfsdk:"vrfName"`
+	VrfInterface types.String `tfsdk:"vrfInterface"`
 }
 
-type DelVpnIpPoolParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
-	poolName types.String `tfsdk:"poolName"`
+type DelVrfParameter struct {
+	VrfName types.String `tfsdk:"vrfName"`
 }
 
-type ReadVpnIpPoolParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
+type ReadVrfParameter struct {
+	VrfName      types.String `tfsdk:"vrfName"`
+	VrfInterface types.String `tfsdk:"vrfInterface"`
+	VsysId       types.String `tfsdk:"vsysId"`
+	VsysName     types.String `tfsdk:"vsysName"`
+	VrfId        types.String `tfsdk:"vrfId"`
 }
 
-func (r *VpnIpPoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_VpnIpPool"
+func (r *VrfResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_Vrf"
 }
 
-func (r *VpnIpPoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *VrfResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -93,11 +92,11 @@ func (r *VpnIpPoolResource) Schema(ctx context.Context, req resource.SchemaReque
 	}
 }
 
-func (r *VpnIpPoolResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *VrfResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -113,46 +112,46 @@ func (r *VpnIpPoolResource) Configure(ctx context.Context, req resource.Configur
 	r.client = client
 }
 
-func (r *VpnIpPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *VpnIpPoolResourceModel
+func (r *VrfResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *VrfResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddVpnIpPoolRequest(ctx, "POST", r.client, data.AddVpnIpPoolParameter)
+	sendToweb_AddVrfRequest(ctx, "POST", r.client, data.AddVrfParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VpnIpPoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *VpnIpPoolResourceModel
+func (r *VrfResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *VrfResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadVpnIpPoolRequest(ctx, "GET", r.client, data.ReadVpnIpPoolParameter)
+	sendToweb_ReadVrfRequest(ctx, "GET", r.client, data.ReadVrfParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VpnIpPoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *VpnIpPoolResourceModel
+func (r *VrfResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *VrfResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateVpnIpPoolRequest(ctx, "PUT", r.client, data.UpdateVpnIpPoolParameter)
+	sendToweb_UpdateVrfRequest(ctx, "PUT", r.client, data.UpdateVrfParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VpnIpPoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *VpnIpPoolResourceModel
+func (r *VrfResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *VrfResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelVpnIpPoolRequest(ctx, "DELETE", r.client, data.DelVpnIpPoolParameter)
+	sendToweb_DelVrfRequest(ctx, "DELETE", r.client, data.DelVrfParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -161,15 +160,15 @@ func (r *VpnIpPoolResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 }
 
-func (r *VpnIpPoolResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *VrfResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVpnIpPoolParameter) {
+func sendToweb_AddVrfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVrfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/ipPoolInfo"
+	targetUrl := c.HostURL + "/func/web_main/api/vrf/vrflist/vrflist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -187,11 +186,11 @@ func sendToweb_AddVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Cli
 	}
 }
 
-func sendToweb_UpdateVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVpnIpPoolParameter) {
+func sendToweb_UpdateVrfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVrfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/ipPoolInfo"
+	targetUrl := c.HostURL + "/func/web_main/api/vrf/vrflist/vrflist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -209,11 +208,11 @@ func sendToweb_UpdateVpnIpPoolRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_DelVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVpnIpPoolParameter) {
+func sendToweb_DelVrfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVrfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/ipPoolInfo"
+	targetUrl := c.HostURL + "/func/web_main/api/vrf/vrflist/vrflist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -231,11 +230,11 @@ func sendToweb_DelVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Cli
 	}
 }
 
-func sendToweb_ReadVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVpnIpPoolParameter) {
+func sendToweb_ReadVrfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVrfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/ipPoolInfo?vsysName=PublicSystem"
+	targetUrl := c.HostURL + "/func/web_main/api/vrf/vrflist/vrflist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

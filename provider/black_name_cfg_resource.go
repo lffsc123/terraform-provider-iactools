@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -24,7 +25,7 @@ func NewBlackNameCfgResource() resource.Resource {
 }
 
 type BlackNameCfgResource struct {
-	client *Client
+	client *provider.Client
 }
 
 type BlackNameCfgResourceModel struct {
@@ -96,7 +97,7 @@ func (r *BlackNameCfgResource) Configure(ctx context.Context, req resource.Confi
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -164,7 +165,7 @@ func (r *BlackNameCfgResource) ImportState(ctx context.Context, req resource.Imp
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddBlackNameCfgRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddBlackNameCfgParameter) {
+func sendToweb_AddBlackNameCfgRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddBlackNameCfgParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -186,7 +187,7 @@ func sendToweb_AddBlackNameCfgRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_UpdateBlackNameCfgRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateBlackNameCfgParameter) {
+func sendToweb_UpdateBlackNameCfgRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateBlackNameCfgParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -208,7 +209,7 @@ func sendToweb_UpdateBlackNameCfgRequest(ctx context.Context, reqmethod string, 
 	}
 }
 
-func sendToweb_DelBlackNameCfgRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelBlackNameCfgParameter) {
+func sendToweb_DelBlackNameCfgRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelBlackNameCfgParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -230,7 +231,7 @@ func sendToweb_DelBlackNameCfgRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_ReadBlackNameCfgRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadBlackNameCfgParameter) {
+func sendToweb_ReadBlackNameCfgRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadBlackNameCfgParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,68 +16,55 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// 服务对象
-var _ resource.Resource = &TimeObjResource{}
-var _ resource.ResourceWithImportState = &TimeObjResource{}
+// VPN IP地址池
+var _ resource.Resource = &VpnIpPoolResource{}
+var _ resource.ResourceWithImportState = &VpnIpPoolResource{}
 
-func NewTimeObjResource() resource.Resource {
-	return &TimeObjResource{}
+func NewVpnIpPoolResource() resource.Resource {
+	return &VpnIpPoolResource{}
 }
 
-type TimeObjResource struct {
-	client *Client
+type VpnIpPoolResource struct {
+	client *provider.Client
 }
 
-type TimeObjResourceModel struct {
-	AddTimeObjParameter    AddTimeObjParameter    `tfsdk:"addTimeObjParameter"`
-	UpdateTimeObjParameter UpdateTimeObjParameter `tfsdk:"updateTimeObjParameter"`
-	DelTimeObjParameter    DelTimeObjParameter    `tfsdk:"delTimeObjParameter"`
-	ReadTimeObjParameter   ReadTimeObjParameter   `tfsdk:"readTimeObjParameter"`
+type VpnIpPoolResourceModel struct {
+	AddVpnIpPoolParameter    AddVpnIpPoolParameter    `tfsdk:"addVpnIpPoolParameter"`
+	UpdateVpnIpPoolParameter UpdateVpnIpPoolParameter `tfsdk:"updateVpnIpPoolParameter"`
+	DelVpnIpPoolParameter    DelVpnIpPoolParameter    `tfsdk:"delVpnIpPoolParameter"`
+	ReadVpnIpPoolParameter   ReadVpnIpPoolParameter   `tfsdk:"readVpnIpPoolParameter"`
 }
 
-type AddTimeObjParameter struct {
+type AddVpnIpPoolParameter struct {
 	VsysName  types.String `tfsdk:"vsysName"`
-	Name      types.String `tfsdk:"name"`
-	Mode      types.String `tfsdk:"mode"`
-	Week      types.String `tfsdk:"week"`
-	StartDay  types.String `tfsdk:"startDay"`
-	EndDay    types.String `tfsdk:"endDay"`
-	StartTime types.String `tfsdk:"startTime"`
-	EndTime   types.String `tfsdk:"endTime"`
+	poolName  types.String `tfsdk:"poolName"`
+	poolStart types.String `tfsdk:"poolStart"`
+	poolEnd   types.String `tfsdk:"poolEnd"`
+	poolMask  types.String `tfsdk:"poolMask"`
 }
 
-type UpdateTimeObjParameter struct {
+type UpdateVpnIpPoolParameter struct {
 	VsysName  types.String `tfsdk:"vsysName"`
-	Name      types.String `tfsdk:"name"`
-	Mode      types.String `tfsdk:"mode"`
-	Week      types.String `tfsdk:"week"`
-	StartDay  types.String `tfsdk:"startDay"`
-	EndDay    types.String `tfsdk:"endDay"`
-	StartTime types.String `tfsdk:"startTime"`
-	EndTime   types.String `tfsdk:"endTime"`
+	poolName  types.String `tfsdk:"poolName"`
+	poolStart types.String `tfsdk:"poolStart"`
+	poolEnd   types.String `tfsdk:"poolEnd"`
+	poolMask  types.String `tfsdk:"poolMask"`
 }
 
-type DelTimeObjParameter struct {
+type DelVpnIpPoolParameter struct {
 	VsysName types.String `tfsdk:"vsysName"`
-	Name     types.String `tfsdk:"name"`
+	poolName types.String `tfsdk:"poolName"`
 }
 
-type ReadTimeObjParameter struct {
-	VsysName  types.String `tfsdk:"vsysName"`
-	Name      types.String `tfsdk:"name"`
-	Mode      types.String `tfsdk:"mode"`
-	Week      types.String `tfsdk:"week"`
-	StartDay  types.String `tfsdk:"startDay"`
-	EndDay    types.String `tfsdk:"endDay"`
-	StartTime types.String `tfsdk:"startTime"`
-	EndTime   types.String `tfsdk:"endTime"`
+type ReadVpnIpPoolParameter struct {
+	VsysName types.String `tfsdk:"vsysName"`
 }
 
-func (r *TimeObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_TimeObj"
+func (r *VpnIpPoolResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_VpnIpPool"
 }
 
-func (r *TimeObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *VpnIpPoolResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -106,11 +94,11 @@ func (r *TimeObjResource) Schema(ctx context.Context, req resource.SchemaRequest
 	}
 }
 
-func (r *TimeObjResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *VpnIpPoolResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -126,46 +114,46 @@ func (r *TimeObjResource) Configure(ctx context.Context, req resource.ConfigureR
 	r.client = client
 }
 
-func (r *TimeObjResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *TimeObjResourceModel
+func (r *VpnIpPoolResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *VpnIpPoolResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddTimeObjRequest(ctx, "POST", r.client, data.AddTimeObjParameter)
+	sendToweb_AddVpnIpPoolRequest(ctx, "POST", r.client, data.AddVpnIpPoolParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *TimeObjResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *TimeObjResourceModel
+func (r *VpnIpPoolResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *VpnIpPoolResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadTimeObjRequest(ctx, "GET", r.client, data.ReadTimeObjParameter)
+	sendToweb_ReadVpnIpPoolRequest(ctx, "GET", r.client, data.ReadVpnIpPoolParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *TimeObjResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *TimeObjResourceModel
+func (r *VpnIpPoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *VpnIpPoolResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateTimeObjRequest(ctx, "PUT", r.client, data.UpdateTimeObjParameter)
+	sendToweb_UpdateVpnIpPoolRequest(ctx, "PUT", r.client, data.UpdateVpnIpPoolParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *TimeObjResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *TimeObjResourceModel
+func (r *VpnIpPoolResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *VpnIpPoolResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelTimeObjRequest(ctx, "DELETE", r.client, data.DelTimeObjParameter)
+	sendToweb_DelVpnIpPoolRequest(ctx, "DELETE", r.client, data.DelVpnIpPoolParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -174,15 +162,15 @@ func (r *TimeObjResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 }
 
-func (r *TimeObjResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *VpnIpPoolResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddTimeObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddTimeObjParameter) {
+func sendToweb_AddVpnIpPoolRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVpnIpPoolParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/ipPoolInfo"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -200,11 +188,11 @@ func sendToweb_AddTimeObjRequest(ctx context.Context, reqmethod string, c *Clien
 	}
 }
 
-func sendToweb_UpdateTimeObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateTimeObjParameter) {
+func sendToweb_UpdateVpnIpPoolRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVpnIpPoolParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/ipPoolInfo"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -222,11 +210,11 @@ func sendToweb_UpdateTimeObjRequest(ctx context.Context, reqmethod string, c *Cl
 	}
 }
 
-func sendToweb_DelTimeObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelTimeObjParameter) {
+func sendToweb_DelVpnIpPoolRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVpnIpPoolParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/ipPoolInfo"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -244,11 +232,11 @@ func sendToweb_DelTimeObjRequest(ctx context.Context, reqmethod string, c *Clien
 	}
 }
 
-func sendToweb_ReadTimeObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadTimeObjParameter) {
+func sendToweb_ReadVpnIpPoolRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVpnIpPoolParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj?vfwName=vsys&searchValue=&offset=1&count=100"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/ipPoolInfo?vsysName=PublicSystem"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

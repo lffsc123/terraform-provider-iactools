@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,53 +16,56 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// vrf
-var _ resource.Resource = &VrfResource{}
-var _ resource.ResourceWithImportState = &VrfResource{}
+// IPSec保护网段
+var _ resource.Resource = &TunIfResource{}
+var _ resource.ResourceWithImportState = &TunIfResource{}
 
-func NewVrfResource() resource.Resource {
-	return &VrfResource{}
+func NewTunIfResource() resource.Resource {
+	return &TunIfResource{}
 }
 
-type VrfResource struct {
-	client *Client
+type TunIfResource struct {
+	client *provider.Client
 }
 
-type VrfResourceModel struct {
-	AddVrfParameter    AddVrfParameter    `tfsdk:"addVrfParameter"`
-	UpdateVrfParameter UpdateVrfParameter `tfsdk:"updateVrfParameter"`
-	DelVrfParameter    DelVrfParameter    `tfsdk:"delVrfParameter"`
-	ReadVrfParameter   ReadVrfParameter   `tfsdk:"readVrfParameter"`
+type TunIfResourceModel struct {
+	AddTunIfParameter    AddTunIfParameter    `tfsdk:"addTunIfParameter"`
+	UpdateTunIfParameter UpdateTunIfParameter `tfsdk:"updateTunIfParameter"`
+	DelTunIfParameter    DelTunIfParameter    `tfsdk:"delTunIfParameter"`
+	ReadTunIfParameter   ReadTunIfParameter   `tfsdk:"readTunIfParameter"`
 }
 
-type AddVrfParameter struct {
-	VrfName      types.String `tfsdk:"vrfName"`
-	VrfId        types.String `tfsdk:"vrfId"`
-	VrfInterface types.String `tfsdk:"vrfInterface"`
+type AddTunIfParameter struct {
+	TunId     types.String `tfsdk:"tunId"`
+	TunIp     types.String `tfsdk:"tunIp"`
+	IpsecDesc types.String `tfsdk:"ipsecDesc"`
 }
 
-type UpdateVrfParameter struct {
-	VrfName      types.String `tfsdk:"vrfName"`
-	VrfInterface types.String `tfsdk:"vrfInterface"`
+type UpdateTunIfParameter struct {
+	IfName    types.String `tfsdk:"ifName"`
+	TunIp     types.String `tfsdk:"tunIp"`
+	IpsecDesc types.String `tfsdk:"ipsecDesc"`
 }
 
-type DelVrfParameter struct {
-	VrfName types.String `tfsdk:"vrfName"`
+type DelTunIfParameter struct {
+	IfName types.String `tfsdk:"ifName"`
 }
 
-type ReadVrfParameter struct {
-	VrfName      types.String `tfsdk:"vrfName"`
-	VrfInterface types.String `tfsdk:"vrfInterface"`
-	VsysId       types.String `tfsdk:"vsysId"`
-	VsysName     types.String `tfsdk:"vsysName"`
-	VrfId        types.String `tfsdk:"vrfId"`
+type ReadTunIfParameter struct {
+	VsysName  types.String `tfsdk:"vsysName"`
+	VrfName   types.String `tfsdk:"vrfName"`
+	IfName    types.String `tfsdk:"ifName"`
+	TunId     types.String `tfsdk:"tunId"`
+	TunIp     types.String `tfsdk:"tunIp"`
+	AppMode   types.String `tfsdk:"appMode"`
+	IpsecDesc types.String `tfsdk:"ipsecDesc"`
 }
 
-func (r *VrfResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_Vrf"
+func (r *TunIfResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_TunIf"
 }
 
-func (r *VrfResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *TunIfResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -91,11 +95,11 @@ func (r *VrfResource) Schema(ctx context.Context, req resource.SchemaRequest, re
 	}
 }
 
-func (r *VrfResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *TunIfResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -111,46 +115,46 @@ func (r *VrfResource) Configure(ctx context.Context, req resource.ConfigureReque
 	r.client = client
 }
 
-func (r *VrfResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *VrfResourceModel
+func (r *TunIfResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *TunIfResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddVrfRequest(ctx, "POST", r.client, data.AddVrfParameter)
+	sendToweb_AddTunIfRequest(ctx, "POST", r.client, data.AddTunIfParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VrfResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *VrfResourceModel
+func (r *TunIfResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *TunIfResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadVrfRequest(ctx, "GET", r.client, data.ReadVrfParameter)
+	sendToweb_ReadTunIfRequest(ctx, "GET", r.client, data.ReadTunIfParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VrfResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *VrfResourceModel
+func (r *TunIfResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *TunIfResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateVrfRequest(ctx, "PUT", r.client, data.UpdateVrfParameter)
+	sendToweb_UpdateTunIfRequest(ctx, "PUT", r.client, data.UpdateTunIfParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VrfResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *VrfResourceModel
+func (r *TunIfResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *TunIfResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelVrfRequest(ctx, "DELETE", r.client, data.DelVrfParameter)
+	sendToweb_DelTunIfRequest(ctx, "DELETE", r.client, data.DelTunIfParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -159,15 +163,15 @@ func (r *VrfResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	}
 }
 
-func (r *VrfResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *TunIfResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVrfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVrfParameter) {
+func sendToweb_AddTunIfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddTunIfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vrf/vrflist/vrflist"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/tunIf"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -185,11 +189,11 @@ func sendToweb_AddVrfRequest(ctx context.Context, reqmethod string, c *Client, R
 	}
 }
 
-func sendToweb_UpdateVrfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVrfParameter) {
+func sendToweb_UpdateTunIfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateTunIfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vrf/vrflist/vrflist"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/tunIf"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -207,11 +211,11 @@ func sendToweb_UpdateVrfRequest(ctx context.Context, reqmethod string, c *Client
 	}
 }
 
-func sendToweb_DelVrfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVrfParameter) {
+func sendToweb_DelTunIfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelTunIfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vrf/vrflist/vrflist"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/tunIf"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -229,11 +233,11 @@ func sendToweb_DelVrfRequest(ctx context.Context, reqmethod string, c *Client, R
 	}
 }
 
-func sendToweb_ReadVrfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVrfParameter) {
+func sendToweb_ReadTunIfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadTunIfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vrf/vrflist/vrflist"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/tunIf"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -24,7 +25,7 @@ func NewQosPolicyResource() resource.Resource {
 }
 
 type QosPolicyResource struct {
-	client *Client
+	client *provider.Client
 }
 
 type QosPolicyResourceModel struct {
@@ -132,7 +133,7 @@ func (r *QosPolicyResource) Configure(ctx context.Context, req resource.Configur
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -200,7 +201,7 @@ func (r *QosPolicyResource) ImportState(ctx context.Context, req resource.Import
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddQosPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddQosPolicyParameter) {
+func sendToweb_AddQosPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddQosPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -222,7 +223,7 @@ func sendToweb_AddQosPolicyRequest(ctx context.Context, reqmethod string, c *Cli
 	}
 }
 
-func sendToweb_UpdateQosPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateQosPolicyParameter) {
+func sendToweb_UpdateQosPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateQosPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -244,7 +245,7 @@ func sendToweb_UpdateQosPolicyRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_DelQosPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelQosPolicyParameter) {
+func sendToweb_DelQosPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelQosPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -266,7 +267,7 @@ func sendToweb_DelQosPolicyRequest(ctx context.Context, reqmethod string, c *Cli
 	}
 }
 
-func sendToweb_ReadQosPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadQosPolicyParameter) {
+func sendToweb_ReadQosPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadQosPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

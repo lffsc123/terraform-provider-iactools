@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,56 +16,51 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// IPSec保护网段
-var _ resource.Resource = &TunIfResource{}
-var _ resource.ResourceWithImportState = &TunIfResource{}
+// VPN IP资源组
+var _ resource.Resource = &VpnIpResGroupResource{}
+var _ resource.ResourceWithImportState = &VpnIpResGroupResource{}
 
-func NewTunIfResource() resource.Resource {
-	return &TunIfResource{}
+func NewVpnIpResGroupResource() resource.Resource {
+	return &VpnIpResGroupResource{}
 }
 
-type TunIfResource struct {
-	client *Client
+type VpnIpResGroupResource struct {
+	client *provider.Client
 }
 
-type TunIfResourceModel struct {
-	AddTunIfParameter    AddTunIfParameter    `tfsdk:"addTunIfParameter"`
-	UpdateTunIfParameter UpdateTunIfParameter `tfsdk:"updateTunIfParameter"`
-	DelTunIfParameter    DelTunIfParameter    `tfsdk:"delTunIfParameter"`
-	ReadTunIfParameter   ReadTunIfParameter   `tfsdk:"readTunIfParameter"`
+type VpnIpResGroupResourceModel struct {
+	AddVpnIpResGroupParameter    AddVpnIpResGroupParameter    `tfsdk:"addVpnIpResGroupParameter"`
+	UpdateVpnIpResGroupParameter UpdateVpnIpResGroupParameter `tfsdk:"updateVpnIpResGroupParameter"`
+	DelVpnIpResGroupParameter    DelVpnIpResGroupParameter    `tfsdk:"delVpnIpResGroupParameter"`
+	ReadVpnIpResGroupParameter   ReadVpnIpResGroupParameter   `tfsdk:"readVpnIpResGroupParameter"`
 }
 
-type AddTunIfParameter struct {
-	TunId     types.String `tfsdk:"tunId"`
-	TunIp     types.String `tfsdk:"tunIp"`
-	IpsecDesc types.String `tfsdk:"ipsecDesc"`
+type AddVpnIpResGroupParameter struct {
+	VsysName   types.String `tfsdk:"vsysName"`
+	resGrpName types.String `tfsdk:"resGrpName"`
+	ipResNames types.String `tfsdk:"ipResNames"`
 }
 
-type UpdateTunIfParameter struct {
-	IfName    types.String `tfsdk:"ifName"`
-	TunIp     types.String `tfsdk:"tunIp"`
-	IpsecDesc types.String `tfsdk:"ipsecDesc"`
+type UpdateVpnIpResGroupParameter struct {
+	VsysName   types.String `tfsdk:"vsysName"`
+	resGrpName types.String `tfsdk:"resGrpName"`
+	ipResNames types.String `tfsdk:"ipResNames"`
 }
 
-type DelTunIfParameter struct {
-	IfName types.String `tfsdk:"ifName"`
+type DelVpnIpResGroupParameter struct {
+	VsysName   types.String `tfsdk:"vsysName"`
+	resGrpName types.String `tfsdk:"resGrpName"`
 }
 
-type ReadTunIfParameter struct {
-	VsysName  types.String `tfsdk:"vsysName"`
-	VrfName   types.String `tfsdk:"vrfName"`
-	IfName    types.String `tfsdk:"ifName"`
-	TunId     types.String `tfsdk:"tunId"`
-	TunIp     types.String `tfsdk:"tunIp"`
-	AppMode   types.String `tfsdk:"appMode"`
-	IpsecDesc types.String `tfsdk:"ipsecDesc"`
+type ReadVpnIpResGroupParameter struct {
+	VsysName types.String `tfsdk:"vsysName"`
 }
 
-func (r *TunIfResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_TunIf"
+func (r *VpnIpResGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_VpnIpResGroup"
 }
 
-func (r *TunIfResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *VpnIpResGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -94,11 +90,11 @@ func (r *TunIfResource) Schema(ctx context.Context, req resource.SchemaRequest, 
 	}
 }
 
-func (r *TunIfResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *VpnIpResGroupResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -114,46 +110,46 @@ func (r *TunIfResource) Configure(ctx context.Context, req resource.ConfigureReq
 	r.client = client
 }
 
-func (r *TunIfResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *TunIfResourceModel
+func (r *VpnIpResGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *VpnIpResGroupResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddTunIfRequest(ctx, "POST", r.client, data.AddTunIfParameter)
+	sendToweb_AddVpnIpResGroupRequest(ctx, "POST", r.client, data.AddVpnIpResGroupParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *TunIfResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *TunIfResourceModel
+func (r *VpnIpResGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *VpnIpResGroupResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadTunIfRequest(ctx, "GET", r.client, data.ReadTunIfParameter)
+	sendToweb_ReadVpnIpResGroupRequest(ctx, "GET", r.client, data.ReadVpnIpResGroupParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *TunIfResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *TunIfResourceModel
+func (r *VpnIpResGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *VpnIpResGroupResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateTunIfRequest(ctx, "PUT", r.client, data.UpdateTunIfParameter)
+	sendToweb_UpdateVpnIpResGroupRequest(ctx, "PUT", r.client, data.UpdateVpnIpResGroupParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *TunIfResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *TunIfResourceModel
-	tflog.Info(ctx, " Delete Start *************")
+func (r *VpnIpResGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *VpnIpResGroupResourceModel
+	tflog.Info(ctx, " Delete Start  *************")
 
-	sendToweb_DelTunIfRequest(ctx, "DELETE", r.client, data.DelTunIfParameter)
+	sendToweb_DelVpnIpResGroupRequest(ctx, "DELETE", r.client, data.DelVpnIpResGroupParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -162,15 +158,15 @@ func (r *TunIfResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	}
 }
 
-func (r *TunIfResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *VpnIpResGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddTunIfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddTunIfParameter) {
+func sendToweb_AddVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVpnIpResGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/tunIf"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/resGrpInfo"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -188,11 +184,11 @@ func sendToweb_AddTunIfRequest(ctx context.Context, reqmethod string, c *Client,
 	}
 }
 
-func sendToweb_UpdateTunIfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateTunIfParameter) {
+func sendToweb_UpdateVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVpnIpResGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/tunIf"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/resGrpInfo"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -210,11 +206,11 @@ func sendToweb_UpdateTunIfRequest(ctx context.Context, reqmethod string, c *Clie
 	}
 }
 
-func sendToweb_DelTunIfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelTunIfParameter) {
+func sendToweb_DelVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVpnIpResGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/tunIf"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/resGrpInfo"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -232,11 +228,11 @@ func sendToweb_DelTunIfRequest(ctx context.Context, reqmethod string, c *Client,
 	}
 }
 
-func sendToweb_ReadTunIfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadTunIfParameter) {
+func sendToweb_ReadVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVpnIpResGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/tunIf"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ssl_vpn/sslvpn/resGrpInfo?vsysName=PublicSystem"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

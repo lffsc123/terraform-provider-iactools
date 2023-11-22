@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,53 +16,67 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// ip地址组
-var _ resource.Resource = &NetAddrGroupResource{}
-var _ resource.ResourceWithImportState = &NetAddrGroupResource{}
+// 服务对象
+var _ resource.Resource = &UsrObjResource{}
+var _ resource.ResourceWithImportState = &UsrObjResource{}
 
-func NewNetAddrGroupResource() resource.Resource {
-	return &NetAddrGroupResource{}
+func NewUsrObjResource() resource.Resource {
+	return &UsrObjResource{}
 }
 
-type NetAddrGroupResource struct {
-	client *Client
+type UsrObjResource struct {
+	client *provider.Client
 }
 
-type NetAddrGroupResourceModel struct {
-	AddNetAddrGroupParameter    AddNetAddrGroupParameter    `tfsdk:"addNetAddrGroupParameter"`
-	UpdateNetAddrGroupParameter UpdateNetAddrGroupParameter `tfsdk:"updateNetAddrGroupParameter"`
-	DelNetAddrGroupParameter    DelNetAddrGroupParameter    `tfsdk:"delNetAddrGroupParameter"`
-	ReadNetAddrGroupParameter   ReadNetAddrGroupParameter   `tfsdk:"readNetAddrGroupParameter"`
+type UsrObjResourceModel struct {
+	AddUsrObjParameter    AddUsrObjParameter    `tfsdk:"addUsrObjParameter"`
+	UpdateUsrObjParameter UpdateUsrObjParameter `tfsdk:"updateUsrObjParameter"`
+	DelUsrObjParameter    DelUsrObjParameter    `tfsdk:"delUsrObjParameter"`
+	ReadUsrObjParameter   ReadUsrObjParameter   `tfsdk:"readUsrObjParameter"`
 }
 
-type AddNetAddrGroupParameter struct {
-	VsysName    types.String `tfsdk:"vsysName"`
-	Name        types.String `tfsdk:"name"`
-	ObjNameList types.String `tfsdk:"objNameList"`
-	Desc        types.String `tfsdk:"desc"`
+type AddUsrObjParameter struct {
+	Name       types.String `tfsdk:"name"`
+	VfwName    types.String `tfsdk:"vfwName"`
+	Protocol   types.String `tfsdk:"protocol"`
+	SportStart types.String `tfsdk:"sportStart"`
+	SportEnd   types.String `tfsdk:"sportEnd"`
+	DportStart types.String `tfsdk:"dportStart"`
+	DportEnd   types.String `tfsdk:"dportEnd"`
+	Services   types.String `tfsdk:"services"`
+	Desc       types.String `tfsdk:"desc"`
 }
 
-type UpdateNetAddrGroupParameter struct {
-	VsysName    types.String `tfsdk:"vsysName"`
-	Name        types.String `tfsdk:"name"`
-	OldName     types.String `tfsdk:"oldName"`
-	ObjNameList types.String `tfsdk:"objNameList"`
-	Desc        types.String `tfsdk:"desc"`
+type UpdateUsrObjParameter struct {
+	Name       types.String `tfsdk:"name"`
+	VfwName    types.String `tfsdk:"vfwName"`
+	OldName    types.String `tfsdk:"oldName"`
+	Protocol   types.String `tfsdk:"protocol"`
+	SportStart types.String `tfsdk:"sportStart"`
+	SportEnd   types.String `tfsdk:"sportEnd"`
+	DportStart types.String `tfsdk:"dportStart"`
+	DportEnd   types.String `tfsdk:"dportEnd"`
+	Services   types.String `tfsdk:"services"`
+	Desc       types.String `tfsdk:"desc"`
 }
 
-type DelNetAddrGroupParameter struct {
-	VsysName     types.String `tfsdk:"vsysName"`
+type DelUsrObjParameter struct {
 	Name         types.String `tfsdk:"name"`
+	VfwName      types.String `tfsdk:"vfwName"`
 	DelAllEnable types.String `tfsdk:"delAllEnable"`
 }
 
-type ReadNetAddrGroupParameter struct {
+type ReadUsrObjParameter struct {
 	Id           types.String `tfsdk:"id"`
-	VsysName     types.String `tfsdk:"vsysName"`
+	VfwName      types.String `tfsdk:"vfwName"`
 	Name         types.String `tfsdk:"name"`
-	Oldname      types.String `tfsdk:"oldname"`
-	ObjNameList  types.String `tfsdk:"objNameList"`
-	Desc         types.String `tfsdk:"desc"`
+	OldName      types.String `tfsdk:"oldName"`
+	Protocol     types.String `tfsdk:"protocol"`
+	SportStart   types.String `tfsdk:"sportStart"`
+	SportEnd     types.String `tfsdk:"sportEnd"`
+	DportStart   types.String `tfsdk:"dportStart"`
+	DportEnd     types.String `tfsdk:"dportEnd"`
+	Services     types.String `tfsdk:"services"`
 	ReferNum     types.String `tfsdk:"referNum"`
 	DelAllEnable types.String `tfsdk:"delAllEnable"`
 	SearchValue  types.String `tfsdk:"searchValue"`
@@ -69,11 +84,11 @@ type ReadNetAddrGroupParameter struct {
 	Count        types.String `tfsdk:"count"`
 }
 
-func (r *NetAddrGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_NetAddrGroup"
+func (r *UsrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_UsrObj"
 }
 
-func (r *NetAddrGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *UsrObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -103,11 +118,11 @@ func (r *NetAddrGroupResource) Schema(ctx context.Context, req resource.SchemaRe
 	}
 }
 
-func (r *NetAddrGroupResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *UsrObjResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -123,70 +138,63 @@ func (r *NetAddrGroupResource) Configure(ctx context.Context, req resource.Confi
 	r.client = client
 }
 
-func (r *NetAddrGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *NetAddrGroupResourceModel
+func (r *UsrObjResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *UsrObjResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddNetAddrGroupRequest(ctx, "POST", r.client, data.AddNetAddrGroupParameter)
+	sendToweb_AddUsrObjRequest(ctx, "POST", r.client, data.AddUsrObjParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *NetAddrGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *NetAddrGroupResourceModel
+func (r *UsrObjResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *UsrObjResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Info(ctx, " read Start")
-	sendToweb_ReadNetAddrGroupRequest(ctx, "GET", r.client, data.ReadNetAddrGroupParameter)
+	tflog.Info(ctx, " read Start ***************")
+	sendToweb_ReadUsrObjRequest(ctx, "GET", r.client, data.ReadUsrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *NetAddrGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *NetAddrGroupResourceModel
+func (r *UsrObjResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *UsrObjResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateNetAddrGroupRequest(ctx, "PUT", r.client, data.UpdateNetAddrGroupParameter)
+	sendToweb_UpdateUsrObjRequest(ctx, "PUT", r.client, data.UpdateUsrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *NetAddrGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *NetAddrGroupResourceModel
-	tflog.Info(ctx, " Delete Start ***** *******")
+func (r *UsrObjResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *UsrObjResourceModel
+	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelNetAddrGroupRequest(ctx, "DELETE", r.client, data.DelNetAddrGroupParameter)
+	sendToweb_DelUsrObjRequest(ctx, "DELETE", r.client, data.DelUsrObjParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete example, got error: %s", err))
-	//     return
-	// }
 }
 
-func (r *NetAddrGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *UsrObjResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrGroupParameter) {
+func sendToweb_AddUsrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddUsrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist"
+	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -204,11 +212,11 @@ func sendToweb_AddNetAddrGroupRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_UpdateNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateNetAddrGroupParameter) {
+func sendToweb_UpdateUsrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateUsrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist"
+	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -226,11 +234,11 @@ func sendToweb_UpdateNetAddrGroupRequest(ctx context.Context, reqmethod string, 
 	}
 }
 
-func sendToweb_DelNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelNetAddrGroupParameter) {
+func sendToweb_DelUsrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelUsrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist"
+	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -248,11 +256,11 @@ func sendToweb_DelNetAddrGroupRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_ReadNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadNetAddrGroupParameter) {
+func sendToweb_ReadUsrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadUsrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist?vsysName=PublicSystem&offset=0&count=25"
+	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj?vfwName=vsys&searchValue=&offset=1&count=100"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

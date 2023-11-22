@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -24,7 +25,7 @@ func NewVpnUserGroupResource() resource.Resource {
 }
 
 type VpnUserGroupResource struct {
-	client *Client
+	client *provider.Client
 }
 
 type VpnUserGroupResourceModel struct {
@@ -95,7 +96,7 @@ func (r *VpnUserGroupResource) Configure(ctx context.Context, req resource.Confi
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -163,7 +164,7 @@ func (r *VpnUserGroupResource) ImportState(ctx context.Context, req resource.Imp
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVpnUserGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVpnUserGroupParameter) {
+func sendToweb_AddVpnUserGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVpnUserGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -185,7 +186,7 @@ func sendToweb_AddVpnUserGroupRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_UpdateVpnUserGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVpnUserGroupParameter) {
+func sendToweb_UpdateVpnUserGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVpnUserGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -207,7 +208,7 @@ func sendToweb_UpdateVpnUserGroupRequest(ctx context.Context, reqmethod string, 
 	}
 }
 
-func sendToweb_DelVpnUserGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVpnUserGroupParameter) {
+func sendToweb_DelVpnUserGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVpnUserGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -229,7 +230,7 @@ func sendToweb_DelVpnUserGroupRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_ReadVpnUserGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVpnUserGroupParameter) {
+func sendToweb_ReadVpnUserGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVpnUserGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

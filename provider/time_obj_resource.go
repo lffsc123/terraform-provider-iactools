@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,67 +16,68 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// IPSec保护网段
-var _ resource.Resource = &ProtectNetResource{}
-var _ resource.ResourceWithImportState = &ProtectNetResource{}
+// 服务对象
+var _ resource.Resource = &TimeObjResource{}
+var _ resource.ResourceWithImportState = &TimeObjResource{}
 
-func NewProtectNetResource() resource.Resource {
-	return &ProtectNetResource{}
+func NewTimeObjResource() resource.Resource {
+	return &TimeObjResource{}
 }
 
-type ProtectNetResource struct {
-	client *Client
+type TimeObjResource struct {
+	client *provider.Client
 }
 
-type ProtectNetResourceModel struct {
-	AddProtectNetParameter    AddProtectNetParameter    `tfsdk:"addProtectNetParameter"`
-	UpdateProtectNetParameter UpdateProtectNetParameter `tfsdk:"updateProtectNetParameter"`
-	DelProtectNetParameter    DelProtectNetParameter    `tfsdk:"delProtectNetParameter"`
-	ReadProtectNetParameter   ReadProtectNetParameter   `tfsdk:"readProtectNetParameter"`
+type TimeObjResourceModel struct {
+	AddTimeObjParameter    AddTimeObjParameter    `tfsdk:"addTimeObjParameter"`
+	UpdateTimeObjParameter UpdateTimeObjParameter `tfsdk:"updateTimeObjParameter"`
+	DelTimeObjParameter    DelTimeObjParameter    `tfsdk:"delTimeObjParameter"`
+	ReadTimeObjParameter   ReadTimeObjParameter   `tfsdk:"readTimeObjParameter"`
 }
 
-type AddProtectNetParameter struct {
-	IpVersion  types.String `tfsdk:"ipVersion"`
-	VsysName   types.String `tfsdk:"vsysName"`
-	Group      types.String `tfsdk:"group"`
-	Srcnetaddr types.String `tfsdk:"srcnetaddr"`
-	Srcnetmask types.String `tfsdk:"srcnetmask"`
-	Dstnetaddr types.String `tfsdk:"dstnetaddr"`
-	Dstnetmask types.String `tfsdk:"dstnetmask"`
+type AddTimeObjParameter struct {
+	VsysName  types.String `tfsdk:"vsysName"`
+	Name      types.String `tfsdk:"name"`
+	Mode      types.String `tfsdk:"mode"`
+	Week      types.String `tfsdk:"week"`
+	StartDay  types.String `tfsdk:"startDay"`
+	EndDay    types.String `tfsdk:"endDay"`
+	StartTime types.String `tfsdk:"startTime"`
+	EndTime   types.String `tfsdk:"endTime"`
 }
 
-type UpdateProtectNetParameter struct {
-	IpVersion  types.String `tfsdk:"ipVersion"`
-	VsysName   types.String `tfsdk:"vsysName"`
-	ResName    types.String `tfsdk:"resName"`
-	Group      types.String `tfsdk:"group"`
-	Srcnetaddr types.String `tfsdk:"srcnetaddr"`
-	Srcnetmask types.String `tfsdk:"srcnetmask"`
-	Dstnetaddr types.String `tfsdk:"dstnetaddr"`
-	Dstnetmask types.String `tfsdk:"dstnetmask"`
+type UpdateTimeObjParameter struct {
+	VsysName  types.String `tfsdk:"vsysName"`
+	Name      types.String `tfsdk:"name"`
+	Mode      types.String `tfsdk:"mode"`
+	Week      types.String `tfsdk:"week"`
+	StartDay  types.String `tfsdk:"startDay"`
+	EndDay    types.String `tfsdk:"endDay"`
+	StartTime types.String `tfsdk:"startTime"`
+	EndTime   types.String `tfsdk:"endTime"`
 }
 
-type DelProtectNetParameter struct {
+type DelTimeObjParameter struct {
 	VsysName types.String `tfsdk:"vsysName"`
-	Group    types.String `tfsdk:"group"`
+	Name     types.String `tfsdk:"name"`
 }
 
-type ReadProtectNetParameter struct {
-	IpVersion  types.String `tfsdk:"ipVersion"`
-	VsysName   types.String `tfsdk:"vsysName"`
-	ResName    types.String `tfsdk:"resName"`
-	Group      types.String `tfsdk:"group"`
-	Srcnetaddr types.String `tfsdk:"srcnetaddr"`
-	Srcnetmask types.String `tfsdk:"srcnetmask"`
-	Dstnetaddr types.String `tfsdk:"dstnetaddr"`
-	Dstnetmask types.String `tfsdk:"dstnetmask"`
+type ReadTimeObjParameter struct {
+	VsysName  types.String `tfsdk:"vsysName"`
+	Name      types.String `tfsdk:"name"`
+	Mode      types.String `tfsdk:"mode"`
+	Week      types.String `tfsdk:"week"`
+	StartDay  types.String `tfsdk:"startDay"`
+	EndDay    types.String `tfsdk:"endDay"`
+	StartTime types.String `tfsdk:"startTime"`
+	EndTime   types.String `tfsdk:"endTime"`
 }
 
-func (r *ProtectNetResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_ProtectNet"
+func (r *TimeObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_TimeObj"
 }
 
-func (r *ProtectNetResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *TimeObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -105,11 +107,11 @@ func (r *ProtectNetResource) Schema(ctx context.Context, req resource.SchemaRequ
 	}
 }
 
-func (r *ProtectNetResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *TimeObjResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -125,46 +127,46 @@ func (r *ProtectNetResource) Configure(ctx context.Context, req resource.Configu
 	r.client = client
 }
 
-func (r *ProtectNetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *ProtectNetResourceModel
+func (r *TimeObjResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *TimeObjResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddProtectNetRequest(ctx, "POST", r.client, data.AddProtectNetParameter)
+	sendToweb_AddTimeObjRequest(ctx, "POST", r.client, data.AddTimeObjParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *ProtectNetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *ProtectNetResourceModel
+func (r *TimeObjResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *TimeObjResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadProtectNetRequest(ctx, "GET", r.client, data.ReadProtectNetParameter)
+	sendToweb_ReadTimeObjRequest(ctx, "GET", r.client, data.ReadTimeObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *ProtectNetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *ProtectNetResourceModel
+func (r *TimeObjResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *TimeObjResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateProtectNetRequest(ctx, "PUT", r.client, data.UpdateProtectNetParameter)
+	sendToweb_UpdateTimeObjRequest(ctx, "PUT", r.client, data.UpdateTimeObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *ProtectNetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *ProtectNetResourceModel
+func (r *TimeObjResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *TimeObjResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelProtectNetRequest(ctx, "DELETE", r.client, data.DelProtectNetParameter)
+	sendToweb_DelTimeObjRequest(ctx, "DELETE", r.client, data.DelTimeObjParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -173,15 +175,15 @@ func (r *ProtectNetResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 }
 
-func (r *ProtectNetResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *TimeObjResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddProtectNetRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddProtectNetParameter) {
+func sendToweb_AddTimeObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddTimeObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/protectnetlist"
+	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -199,11 +201,11 @@ func sendToweb_AddProtectNetRequest(ctx context.Context, reqmethod string, c *Cl
 	}
 }
 
-func sendToweb_UpdateProtectNetRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateProtectNetParameter) {
+func sendToweb_UpdateTimeObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateTimeObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/protectnetlist"
+	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -221,11 +223,11 @@ func sendToweb_UpdateProtectNetRequest(ctx context.Context, reqmethod string, c 
 	}
 }
 
-func sendToweb_DelProtectNetRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelProtectNetParameter) {
+func sendToweb_DelTimeObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelTimeObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/protectnetlist"
+	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -243,11 +245,11 @@ func sendToweb_DelProtectNetRequest(ctx context.Context, reqmethod string, c *Cl
 	}
 }
 
-func sendToweb_ReadProtectNetRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadProtectNetParameter) {
+func sendToweb_ReadTimeObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadTimeObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/protectnetlist"
+	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj?vfwName=vsys&searchValue=&offset=1&count=100"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

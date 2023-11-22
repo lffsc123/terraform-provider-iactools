@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,55 +16,67 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// 虚拟系统
-var _ resource.Resource = &VsysResource{}
-var _ resource.ResourceWithImportState = &VsysResource{}
+// IPSec保护网段
+var _ resource.Resource = &ProtectNetResource{}
+var _ resource.ResourceWithImportState = &ProtectNetResource{}
 
-func NewVsysResource() resource.Resource {
-	return &VsysResource{}
+func NewProtectNetResource() resource.Resource {
+	return &ProtectNetResource{}
 }
 
-type VsysResource struct {
-	client *Client
+type ProtectNetResource struct {
+	client *provider.Client
 }
 
-type VsysResourceModel struct {
-	AddVsysParameter    AddVsysParameter    `tfsdk:"addVsysParameter"`
-	UpdateVsysParameter UpdateVsysParameter `tfsdk:"updateVsysParameter"`
-	DelVsysParameter    DelVsysParameter    `tfsdk:"delVsysParameter"`
-	ReadVsysParameter   ReadVsysParameter   `tfsdk:"readVsysParameter"`
+type ProtectNetResourceModel struct {
+	AddProtectNetParameter    AddProtectNetParameter    `tfsdk:"addProtectNetParameter"`
+	UpdateProtectNetParameter UpdateProtectNetParameter `tfsdk:"updateProtectNetParameter"`
+	DelProtectNetParameter    DelProtectNetParameter    `tfsdk:"delProtectNetParameter"`
+	ReadProtectNetParameter   ReadProtectNetParameter   `tfsdk:"readProtectNetParameter"`
 }
 
-type AddVsysParameter struct {
+type AddProtectNetParameter struct {
+	IpVersion  types.String `tfsdk:"ipVersion"`
+	VsysName   types.String `tfsdk:"vsysName"`
+	Group      types.String `tfsdk:"group"`
+	Srcnetaddr types.String `tfsdk:"srcnetaddr"`
+	Srcnetmask types.String `tfsdk:"srcnetmask"`
+	Dstnetaddr types.String `tfsdk:"dstnetaddr"`
+	Dstnetmask types.String `tfsdk:"dstnetmask"`
+}
+
+type UpdateProtectNetParameter struct {
+	IpVersion  types.String `tfsdk:"ipVersion"`
+	VsysName   types.String `tfsdk:"vsysName"`
+	ResName    types.String `tfsdk:"resName"`
+	Group      types.String `tfsdk:"group"`
+	Srcnetaddr types.String `tfsdk:"srcnetaddr"`
+	Srcnetmask types.String `tfsdk:"srcnetmask"`
+	Dstnetaddr types.String `tfsdk:"dstnetaddr"`
+	Dstnetmask types.String `tfsdk:"dstnetmask"`
+}
+
+type DelProtectNetParameter struct {
 	VsysName types.String `tfsdk:"vsysName"`
-	VsysType types.String `tfsdk:"vsysType"`
-	VsysId   types.String `tfsdk:"vsysId"`
-	VsysInfo types.String `tfsdk:"vsysInfo"`
+	Group    types.String `tfsdk:"group"`
 }
 
-type UpdateVsysParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
-	VsysType types.String `tfsdk:"vsysType"`
-	VsysId   types.String `tfsdk:"vsysId"`
-	VsysInfo types.String `tfsdk:"vsysInfo"`
+type ReadProtectNetParameter struct {
+	IpVersion  types.String `tfsdk:"ipVersion"`
+	VsysName   types.String `tfsdk:"vsysName"`
+	ResName    types.String `tfsdk:"resName"`
+	Group      types.String `tfsdk:"group"`
+	Srcnetaddr types.String `tfsdk:"srcnetaddr"`
+	Srcnetmask types.String `tfsdk:"srcnetmask"`
+	Dstnetaddr types.String `tfsdk:"dstnetaddr"`
+	Dstnetmask types.String `tfsdk:"dstnetmask"`
 }
 
-type DelVsysParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
+func (r *ProtectNetResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_ProtectNet"
 }
 
-type ReadVsysParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
-	VsysType types.String `tfsdk:"vsysType"`
-	VsysId   types.String `tfsdk:"vsysId"`
-	VsysInfo types.String `tfsdk:"vsysInfo"`
-}
-
-func (r *VsysResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_Vsys"
-}
-
-func (r *VsysResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *ProtectNetResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -93,11 +106,11 @@ func (r *VsysResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 	}
 }
 
-func (r *VsysResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *ProtectNetResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -113,46 +126,46 @@ func (r *VsysResource) Configure(ctx context.Context, req resource.ConfigureRequ
 	r.client = client
 }
 
-func (r *VsysResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *VsysResourceModel
+func (r *ProtectNetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *ProtectNetResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddVsysRequest(ctx, "POST", r.client, data.AddVsysParameter)
+	sendToweb_AddProtectNetRequest(ctx, "POST", r.client, data.AddProtectNetParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VsysResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *VsysResourceModel
+func (r *ProtectNetResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *ProtectNetResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadVsysRequest(ctx, "GET", r.client, data.ReadVsysParameter)
+	sendToweb_ReadProtectNetRequest(ctx, "GET", r.client, data.ReadProtectNetParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VsysResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *VsysResourceModel
+func (r *ProtectNetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *ProtectNetResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateVsysRequest(ctx, "PUT", r.client, data.UpdateVsysParameter)
+	sendToweb_UpdateProtectNetRequest(ctx, "PUT", r.client, data.UpdateProtectNetParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *VsysResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *VsysResourceModel
+func (r *ProtectNetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *ProtectNetResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelVsysRequest(ctx, "DELETE", r.client, data.DelVsysParameter)
+	sendToweb_DelProtectNetRequest(ctx, "DELETE", r.client, data.DelProtectNetParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -161,15 +174,15 @@ func (r *VsysResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 }
 
-func (r *VsysResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *ProtectNetResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVsysParameter) {
+func sendToweb_AddProtectNetRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddProtectNetParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/protectnetlist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -187,11 +200,11 @@ func sendToweb_AddVsysRequest(ctx context.Context, reqmethod string, c *Client, 
 	}
 }
 
-func sendToweb_UpdateVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVsysParameter) {
+func sendToweb_UpdateProtectNetRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateProtectNetParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/protectnetlist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -209,11 +222,11 @@ func sendToweb_UpdateVsysRequest(ctx context.Context, reqmethod string, c *Clien
 	}
 }
 
-func sendToweb_DelVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVsysParameter) {
+func sendToweb_DelProtectNetRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelProtectNetParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/protectnetlist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -231,11 +244,11 @@ func sendToweb_DelVsysRequest(ctx context.Context, reqmethod string, c *Client, 
 	}
 }
 
-func sendToweb_ReadVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVsysParameter) {
+func sendToweb_ReadProtectNetRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadProtectNetParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
+	targetUrl := c.HostURL + "/func/web_main/api/vpn/ipsec_vpn/ipsec/protectnetlist"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")

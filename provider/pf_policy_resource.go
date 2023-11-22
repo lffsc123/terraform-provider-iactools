@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -24,7 +25,7 @@ func NewPfPolicyResource() resource.Resource {
 }
 
 type PfPolicyResource struct {
-	client *Client
+	client *provider.Client
 }
 
 type PfPolicyResourceModel struct {
@@ -229,7 +230,7 @@ func (r *PfPolicyResource) Configure(ctx context.Context, req resource.Configure
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -297,7 +298,7 @@ func (r *PfPolicyResource) ImportState(ctx context.Context, req resource.ImportS
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddPfPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddPfPolicyParameter) {
+func sendToweb_AddPfPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddPfPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -319,7 +320,7 @@ func sendToweb_AddPfPolicyRequest(ctx context.Context, reqmethod string, c *Clie
 	}
 }
 
-func sendToweb_UpdatePfPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdatePfPolicyParameter) {
+func sendToweb_UpdatePfPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdatePfPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -341,7 +342,7 @@ func sendToweb_UpdatePfPolicyRequest(ctx context.Context, reqmethod string, c *C
 	}
 }
 
-func sendToweb_DelPfPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelPfPolicyParameter) {
+func sendToweb_DelPfPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelPfPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -363,7 +364,7 @@ func sendToweb_DelPfPolicyRequest(ctx context.Context, reqmethod string, c *Clie
 	}
 }
 
-func sendToweb_ReadPfPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadPfPolicyParameter) {
+func sendToweb_ReadPfPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadPfPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

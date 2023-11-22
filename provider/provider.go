@@ -112,23 +112,16 @@ func (p *ScaffoldingProvider) Configure(ctx context.Context, req provider.Config
 
 func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewRealServiceResource,
-		NewRealServiceListResource,
-		NewAddrPoolResource,
-		NewVirtualServiceResource,
 		NewSourceNatResource,
 		NewTargetNatResource,
 		NewIpv4RouterResource,
 		NewIpv4StrategyRouterResource,
 		NewSessionKeepResource,
-		NewAdxSlbMonitorResource,
 	}
 }
 
 func (p *ScaffoldingProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{
-		NewExampleDataSource,
-	}
+	return []func() datasource.DataSource{}
 }
 
 func New(version string) func() provider.Provider {

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -15,83 +16,72 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// IPv4路由
-var _ resource.Resource = &Ipv4RouterResource{}
-var _ resource.ResourceWithImportState = &Ipv4RouterResource{}
+// IP 地址对象
+var _ resource.Resource = &NetAddrObjResource{}
+var _ resource.ResourceWithImportState = &NetAddrObjResource{}
 
-func NewIpv4RouterResource() resource.Resource {
-	return &Ipv4RouterResource{}
+func NewNetAddrObjResource() resource.Resource {
+	return &NetAddrObjResource{}
 }
 
-type Ipv4RouterResource struct {
-	client *Client
+type NetAddrObjResource struct {
+	client *provider.Client
 }
 
-type Ipv4RouterResourceModel struct {
-	AddIpv4RouterParameter    AddIpv4RouterParameter    `tfsdk:"addIpv4RouterParameter"`
-	UpdateIpv4RouterParameter UpdateIpv4RouterParameter `tfsdk:"updateIpv4RouterParameter"`
-	DelIpv4RouterParameter    DelIpv4RouterParameter    `tfsdk:"delIpv4RouterParameter"`
-	ReadIpv4RouterParameter   ReadIpv4RouterParameter   `tfsdk:"readIpv4RouterParameter"`
+type NetAddrObjResourceModel struct {
+	AddNetAddrObjParameter    AddNetAddrObjParameter    `tfsdk:"addNetAddrObjParameter"`
+	UpdateNetAddrObjParameter UpdateNetAddrObjParameter `tfsdk:"updateNetAddrObjParameter"`
+	DelNetAddrObjParameter    DelNetAddrObjParameter    `tfsdk:"delNetAddrObjParameter"`
+	ReadNetAddrObjParameter   ReadNetAddrObjParameter   `tfsdk:"readNetAddrObjParameter"`
 }
 
-type AddIpv4RouterParameter struct {
+type AddNetAddrObjParameter struct {
 	IpVersion types.String `tfsdk:"ipVersion"`
-	VpnName   types.String `tfsdk:"vpnName"`
+	VsysName  types.String `tfsdk:"vsysName"`
+	Name      types.String `tfsdk:"name"`
+	Desc      types.String `tfsdk:"desc"`
 	Ip        types.String `tfsdk:"ip"`
-	Mask      types.String `tfsdk:"mask"`
-	Gateway   types.String `tfsdk:"gateway"`
-	Interface types.String `tfsdk:"interface"`
-	RouteType types.String `tfsdk:"routeType"`
-	Distance  types.String `tfsdk:"distance"`
-	Weight    types.String `tfsdk:"weight"`
-	BfdCheck  types.String `tfsdk:"bfdCheck"`
-	HcName    types.String `tfsdk:"hcName"`
-	Describe  types.String `tfsdk:"describe"`
-	Tag       types.String `tfsdk:"tag"`
+	ExpIp     types.String `tfsdk:"expIp"`
 }
 
-type UpdateIpv4RouterParameter struct {
+type UpdateNetAddrObjParameter struct {
+	IpVersion types.String `tfsdk:"ipVersion"`
+	VsysName  types.String `tfsdk:"vsysName"`
+	Name      types.String `tfsdk:"name"`
+	OldName   types.String `tfsdk:"oldName"`
+	Desc      types.String `tfsdk:"desc"`
+	Ip        types.String `tfsdk:"ip"`
+	ExpIp     types.String `tfsdk:"expIp"`
+}
+
+type DelNetAddrObjParameter struct {
 	IpVersion    types.String `tfsdk:"ipVersion"`
-	VpnName      types.String `tfsdk:"vpnName"`
+	VsysName     types.String `tfsdk:"vsysName"`
+	Name         types.String `tfsdk:"name"`
+	DelAllEnable types.String `tfsdk:"delAllEnable"`
+}
+
+type ReadNetAddrObjParameter struct {
+	IpVersion    types.String `tfsdk:"ipVersion"`
+	VsysName     types.String `tfsdk:"vsysName"`
+	Offset       types.String `tfsdk:"offset"`
+	Count        types.String `tfsdk:"count"`
+	SearchValue  types.String `tfsdk:"searchValue"`
+	Id           types.String `tfsdk:"id"`
+	Name         types.String `tfsdk:"name"`
+	OldName      types.String `tfsdk:"oldName"`
+	Desc         types.String `tfsdk:"desc"`
 	Ip           types.String `tfsdk:"ip"`
-	Mask         types.String `tfsdk:"mask"`
-	Gateway      types.String `tfsdk:"gateway"`
-	Interface    types.String `tfsdk:"interface"`
-	IpMod        types.String `tfsdk:"ipMod"`
-	MaskMod      types.String `tfsdk:"MaskMod"`
-	GatewayMod   types.String `tfsdk:"gatewayMod"`
-	InterfaceMod types.String `tfsdk:"interfaceMod"`
-	RouteTypeMod types.String `tfsdk:"routeTypeMod"`
-	Distance     types.String `tfsdk:"distance"`
-	Weight       types.String `tfsdk:"weight"`
-	BfdCheck     types.String `tfsdk:"bfdCheck"`
-	HcName       types.String `tfsdk:"hcName"`
-	Describe     types.String `tfsdk:"describe"`
-	Tag          types.String `tfsdk:"tag"`
+	ExpIp        types.String `tfsdk:"expIp"`
+	ReferNum     types.String `tfsdk:"referNum"`
+	DelAllEnable types.String `tfsdk:"delAllEnable"`
 }
 
-type DelIpv4RouterParameter struct {
-	IpVersion types.String `tfsdk:"ipVersion"`
-	VpnName   types.String `tfsdk:"vpnName"`
-	Ip        types.String `tfsdk:"ip"`
-	Mask      types.String `tfsdk:"mask"`
-	Gateway   types.String `tfsdk:"gateway"`
-	Interface types.String `tfsdk:"interface"`
-	RouteType types.String `tfsdk:"routeType"`
+func (r *NetAddrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = "dpsc_NetAddrObj"
 }
 
-type ReadIpv4RouterParameter struct {
-	IpVersion types.String `tfsdk:"ipVersion"`
-	VpnName   types.String `tfsdk:"vpnName"`
-	Ip        types.String `tfsdk:"ip"`
-	Mask      types.String `tfsdk:"mask"`
-}
-
-func (r *Ipv4RouterResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpsc_Ipv4Router"
-}
-
-func (r *Ipv4RouterResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *NetAddrObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"param": schema.SingleNestedAttribute{
@@ -100,17 +90,32 @@ func (r *Ipv4RouterResource) Schema(ctx context.Context, req resource.SchemaRequ
 					"name": schema.StringAttribute{
 						Required: true,
 					},
+					"ip_start": schema.StringAttribute{
+						Required: true,
+					},
+					"ip_end": schema.StringAttribute{
+						Required: true,
+					},
+					"ip_version": schema.StringAttribute{
+						Optional: true,
+					},
+					"vrrp_if_name": schema.StringAttribute{
+						Optional: true,
+					},
+					"vrrp_id": schema.StringAttribute{
+						Optional: true,
+					},
 				},
 			},
 		},
 	}
 }
 
-func (r *Ipv4RouterResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *NetAddrObjResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*Client)
+	client, ok := req.ProviderData.(*provider.Client)
 
 	if req.ProviderData == nil {
 		return
@@ -126,46 +131,46 @@ func (r *Ipv4RouterResource) Configure(ctx context.Context, req resource.Configu
 	r.client = client
 }
 
-func (r *Ipv4RouterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *Ipv4RouterResourceModel
+func (r *NetAddrObjResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *NetAddrObjResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddIpv4RouterRequest(ctx, "POST", r.client, data.AddIpv4RouterParameter)
+	tflog.Trace(ctx, "created a resource ****** ********")
+	sendToweb_AddNetAddrObjRequest(ctx, "POST", r.client, data.AddNetAddrObjParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *Ipv4RouterResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *Ipv4RouterResourceModel
+func (r *NetAddrObjResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *NetAddrObjResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	sendToweb_ReadIpv4RouterRequest(ctx, "GET", r.client, data.ReadIpv4RouterParameter)
+	sendToweb_ReadNetAddrObjRequest(ctx, "GET", r.client, data.ReadNetAddrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *Ipv4RouterResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *Ipv4RouterResourceModel
+func (r *NetAddrObjResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *NetAddrObjResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateIpv4RouterRequest(ctx, "PUT", r.client, data.UpdateIpv4RouterParameter)
+	sendToweb_UpdateNetAddrObjRequest(ctx, "PUT", r.client, data.UpdateNetAddrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *Ipv4RouterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *Ipv4RouterResourceModel
+func (r *NetAddrObjResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *NetAddrObjResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelIpv4RouterRequest(ctx, "DELETE", r.client, data.DelIpv4RouterParameter)
+	sendToweb_DelNetAddrObjRequest(ctx, "DELETE", r.client, data.DelNetAddrObjParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -181,11 +186,11 @@ func (r *Ipv4RouterResource) Delete(ctx context.Context, req resource.DeleteRequ
 	// }
 }
 
-func (r *Ipv4RouterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *NetAddrObjResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddIpv4RouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4RouterParameter) {
+func sendToweb_AddNetAddrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddNetAddrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -207,7 +212,7 @@ func sendToweb_AddIpv4RouterRequest(ctx context.Context, reqmethod string, c *Cl
 	}
 }
 
-func sendToweb_UpdateIpv4RouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateIpv4RouterParameter) {
+func sendToweb_UpdateNetAddrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateNetAddrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -229,7 +234,7 @@ func sendToweb_UpdateIpv4RouterRequest(ctx context.Context, reqmethod string, c 
 	}
 }
 
-func sendToweb_DelIpv4RouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelIpv4RouterParameter) {
+func sendToweb_DelNetAddrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelNetAddrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -251,11 +256,11 @@ func sendToweb_DelIpv4RouterRequest(ctx context.Context, reqmethod string, c *Cl
 	}
 }
 
-func sendToweb_ReadIpv4RouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadIpv4RouterParameter) {
+func sendToweb_ReadNetAddrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadNetAddrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/rtm_api/restfulstaticroute/routeEntries?ip=123.123.123.123&mask=32& ipVersion=4"
+	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist?vsysName=PublicSystem&offset=0&count=25"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
