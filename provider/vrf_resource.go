@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewVrfResource() resource.Resource {
 }
 
 type VrfResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type VrfResourceModel struct {
@@ -96,7 +95,7 @@ func (r *VrfResource) Configure(ctx context.Context, req resource.ConfigureReque
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -164,7 +163,7 @@ func (r *VrfResource) ImportState(ctx context.Context, req resource.ImportStateR
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVrfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVrfParameter) {
+func sendToweb_AddVrfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVrfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -186,7 +185,7 @@ func sendToweb_AddVrfRequest(ctx context.Context, reqmethod string, c *provider.
 	}
 }
 
-func sendToweb_UpdateVrfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVrfParameter) {
+func sendToweb_UpdateVrfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVrfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -208,7 +207,7 @@ func sendToweb_UpdateVrfRequest(ctx context.Context, reqmethod string, c *provid
 	}
 }
 
-func sendToweb_DelVrfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVrfParameter) {
+func sendToweb_DelVrfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVrfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -230,7 +229,7 @@ func sendToweb_DelVrfRequest(ctx context.Context, reqmethod string, c *provider.
 	}
 }
 
-func sendToweb_ReadVrfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVrfParameter) {
+func sendToweb_ReadVrfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVrfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

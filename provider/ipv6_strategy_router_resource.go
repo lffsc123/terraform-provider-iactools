@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewIpv6StrategyRouterResource() resource.Resource {
 }
 
 type Ipv6StrategyRouterResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type Ipv6StrategyRouterResourceModel struct {
@@ -138,7 +137,7 @@ func (r *Ipv6StrategyRouterResource) Configure(ctx context.Context, req resource
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -213,7 +212,7 @@ func (r *Ipv6StrategyRouterResource) ImportState(ctx context.Context, req resour
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddIpv6StrategyRouterParameter) {
+func sendToweb_AddIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv6StrategyRouterParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -235,7 +234,7 @@ func sendToweb_AddIpv6StrategyRouterRequest(ctx context.Context, reqmethod strin
 	}
 }
 
-func sendToweb_UpdateIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateIpv6StrategyRouterParameter) {
+func sendToweb_UpdateIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateIpv6StrategyRouterParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -257,7 +256,7 @@ func sendToweb_UpdateIpv6StrategyRouterRequest(ctx context.Context, reqmethod st
 	}
 }
 
-func sendToweb_DelIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelIpv6StrategyRouterParameter) {
+func sendToweb_DelIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelIpv6StrategyRouterParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -279,7 +278,7 @@ func sendToweb_DelIpv6StrategyRouterRequest(ctx context.Context, reqmethod strin
 	}
 }
 
-func sendToweb_ReadIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadIpv6StrategyRouterParameter) {
+func sendToweb_ReadIpv6StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadIpv6StrategyRouterParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

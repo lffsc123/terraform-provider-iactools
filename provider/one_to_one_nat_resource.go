@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewOneToOneNatResource() resource.Resource {
 }
 
 type OneToOneNatResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type OneToOneNatResourceModel struct {
@@ -121,7 +120,7 @@ func (r *OneToOneNatResource) Configure(ctx context.Context, req resource.Config
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -196,7 +195,7 @@ func (r *OneToOneNatResource) ImportState(ctx context.Context, req resource.Impo
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddOneToOneNatRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddOneToOneNatParameter) {
+func sendToweb_AddOneToOneNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddOneToOneNatParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -218,7 +217,7 @@ func sendToweb_AddOneToOneNatRequest(ctx context.Context, reqmethod string, c *p
 	}
 }
 
-func sendToweb_UpdateOneToOneNatRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateOneToOneNatParameter) {
+func sendToweb_UpdateOneToOneNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateOneToOneNatParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -240,7 +239,7 @@ func sendToweb_UpdateOneToOneNatRequest(ctx context.Context, reqmethod string, c
 	}
 }
 
-func sendToweb_DelOneToOneNatRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelOneToOneNatParameter) {
+func sendToweb_DelOneToOneNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelOneToOneNatParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -262,7 +261,7 @@ func sendToweb_DelOneToOneNatRequest(ctx context.Context, reqmethod string, c *p
 	}
 }
 
-func sendToweb_ReadOneToOneNatRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadOneToOneNatParameter) {
+func sendToweb_ReadOneToOneNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadOneToOneNatParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

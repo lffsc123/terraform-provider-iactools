@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewNetAddrObjResource() resource.Resource {
 }
 
 type NetAddrObjResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type NetAddrObjResourceModel struct {
@@ -115,7 +114,7 @@ func (r *NetAddrObjResource) Configure(ctx context.Context, req resource.Configu
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -190,7 +189,7 @@ func (r *NetAddrObjResource) ImportState(ctx context.Context, req resource.Impor
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddNetAddrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddNetAddrObjParameter) {
+func sendToweb_AddNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -212,7 +211,7 @@ func sendToweb_AddNetAddrObjRequest(ctx context.Context, reqmethod string, c *pr
 	}
 }
 
-func sendToweb_UpdateNetAddrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateNetAddrObjParameter) {
+func sendToweb_UpdateNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateNetAddrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -234,7 +233,7 @@ func sendToweb_UpdateNetAddrObjRequest(ctx context.Context, reqmethod string, c 
 	}
 }
 
-func sendToweb_DelNetAddrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelNetAddrObjParameter) {
+func sendToweb_DelNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelNetAddrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -256,7 +255,7 @@ func sendToweb_DelNetAddrObjRequest(ctx context.Context, reqmethod string, c *pr
 	}
 }
 
-func sendToweb_ReadNetAddrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadNetAddrObjParameter) {
+func sendToweb_ReadNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadNetAddrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewTunIfResource() resource.Resource {
 }
 
 type TunIfResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type TunIfResourceModel struct {
@@ -99,7 +98,7 @@ func (r *TunIfResource) Configure(ctx context.Context, req resource.ConfigureReq
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -167,7 +166,7 @@ func (r *TunIfResource) ImportState(ctx context.Context, req resource.ImportStat
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddTunIfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddTunIfParameter) {
+func sendToweb_AddTunIfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddTunIfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -189,7 +188,7 @@ func sendToweb_AddTunIfRequest(ctx context.Context, reqmethod string, c *provide
 	}
 }
 
-func sendToweb_UpdateTunIfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateTunIfParameter) {
+func sendToweb_UpdateTunIfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateTunIfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -211,7 +210,7 @@ func sendToweb_UpdateTunIfRequest(ctx context.Context, reqmethod string, c *prov
 	}
 }
 
-func sendToweb_DelTunIfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelTunIfParameter) {
+func sendToweb_DelTunIfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelTunIfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -233,7 +232,7 @@ func sendToweb_DelTunIfRequest(ctx context.Context, reqmethod string, c *provide
 	}
 }
 
-func sendToweb_ReadTunIfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadTunIfParameter) {
+func sendToweb_ReadTunIfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadTunIfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

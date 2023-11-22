@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewVsysResource() resource.Resource {
 }
 
 type VsysResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type VsysResourceModel struct {
@@ -98,7 +97,7 @@ func (r *VsysResource) Configure(ctx context.Context, req resource.ConfigureRequ
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -166,7 +165,7 @@ func (r *VsysResource) ImportState(ctx context.Context, req resource.ImportState
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVsysRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVsysParameter) {
+func sendToweb_AddVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVsysParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -188,7 +187,7 @@ func sendToweb_AddVsysRequest(ctx context.Context, reqmethod string, c *provider
 	}
 }
 
-func sendToweb_UpdateVsysRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVsysParameter) {
+func sendToweb_UpdateVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVsysParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -210,7 +209,7 @@ func sendToweb_UpdateVsysRequest(ctx context.Context, reqmethod string, c *provi
 	}
 }
 
-func sendToweb_DelVsysRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVsysParameter) {
+func sendToweb_DelVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVsysParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -232,7 +231,7 @@ func sendToweb_DelVsysRequest(ctx context.Context, reqmethod string, c *provider
 	}
 }
 
-func sendToweb_ReadVsysRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVsysParameter) {
+func sendToweb_ReadVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVsysParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

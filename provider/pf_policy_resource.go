@@ -5,15 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"terraform-provider-dpsc/provider/dp"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"io/ioutil"
+	"net/http"
 )
 
 // 包过滤
@@ -25,7 +23,7 @@ func NewPfPolicyResource() resource.Resource {
 }
 
 type PfPolicyResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type PfPolicyResourceModel struct {
@@ -230,7 +228,7 @@ func (r *PfPolicyResource) Configure(ctx context.Context, req resource.Configure
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -298,7 +296,7 @@ func (r *PfPolicyResource) ImportState(ctx context.Context, req resource.ImportS
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddPfPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddPfPolicyParameter) {
+func sendToweb_AddPfPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddPfPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -320,7 +318,7 @@ func sendToweb_AddPfPolicyRequest(ctx context.Context, reqmethod string, c *prov
 	}
 }
 
-func sendToweb_UpdatePfPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdatePfPolicyParameter) {
+func sendToweb_UpdatePfPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdatePfPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -342,7 +340,7 @@ func sendToweb_UpdatePfPolicyRequest(ctx context.Context, reqmethod string, c *p
 	}
 }
 
-func sendToweb_DelPfPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelPfPolicyParameter) {
+func sendToweb_DelPfPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelPfPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -364,7 +362,7 @@ func sendToweb_DelPfPolicyRequest(ctx context.Context, reqmethod string, c *prov
 	}
 }
 
-func sendToweb_ReadPfPolicyRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadPfPolicyParameter) {
+func sendToweb_ReadPfPolicyRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadPfPolicyParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

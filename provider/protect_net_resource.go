@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewProtectNetResource() resource.Resource {
 }
 
 type ProtectNetResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type ProtectNetResourceModel struct {
@@ -110,7 +109,7 @@ func (r *ProtectNetResource) Configure(ctx context.Context, req resource.Configu
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -178,7 +177,7 @@ func (r *ProtectNetResource) ImportState(ctx context.Context, req resource.Impor
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddProtectNetRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddProtectNetParameter) {
+func sendToweb_AddProtectNetRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddProtectNetParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -200,7 +199,7 @@ func sendToweb_AddProtectNetRequest(ctx context.Context, reqmethod string, c *pr
 	}
 }
 
-func sendToweb_UpdateProtectNetRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateProtectNetParameter) {
+func sendToweb_UpdateProtectNetRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateProtectNetParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -222,7 +221,7 @@ func sendToweb_UpdateProtectNetRequest(ctx context.Context, reqmethod string, c 
 	}
 }
 
-func sendToweb_DelProtectNetRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelProtectNetParameter) {
+func sendToweb_DelProtectNetRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelProtectNetParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -244,7 +243,7 @@ func sendToweb_DelProtectNetRequest(ctx context.Context, reqmethod string, c *pr
 	}
 }
 
-func sendToweb_ReadProtectNetRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadProtectNetParameter) {
+func sendToweb_ReadProtectNetRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadProtectNetParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

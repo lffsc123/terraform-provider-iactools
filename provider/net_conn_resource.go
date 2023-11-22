@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewNetConnResource() resource.Resource {
 }
 
 type NetConnResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type NetConnResourceModel struct {
@@ -165,7 +164,7 @@ func (r *NetConnResource) Configure(ctx context.Context, req resource.ConfigureR
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -233,7 +232,7 @@ func (r *NetConnResource) ImportState(ctx context.Context, req resource.ImportSt
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddNetConnRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddNetConnParameter) {
+func sendToweb_AddNetConnRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetConnParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -255,7 +254,7 @@ func sendToweb_AddNetConnRequest(ctx context.Context, reqmethod string, c *provi
 	}
 }
 
-func sendToweb_UpdateNetConnRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateNetConnParameter) {
+func sendToweb_UpdateNetConnRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateNetConnParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -277,7 +276,7 @@ func sendToweb_UpdateNetConnRequest(ctx context.Context, reqmethod string, c *pr
 	}
 }
 
-func sendToweb_DelNetConnRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelNetConnParameter) {
+func sendToweb_DelNetConnRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelNetConnParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -299,7 +298,7 @@ func sendToweb_DelNetConnRequest(ctx context.Context, reqmethod string, c *provi
 	}
 }
 
-func sendToweb_ReadNetConnRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadNetConnParameter) {
+func sendToweb_ReadNetConnRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadNetConnParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

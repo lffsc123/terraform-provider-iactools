@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewUsrObjResource() resource.Resource {
 }
 
 type UsrObjResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type UsrObjResourceModel struct {
@@ -122,7 +121,7 @@ func (r *UsrObjResource) Configure(ctx context.Context, req resource.ConfigureRe
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -190,7 +189,7 @@ func (r *UsrObjResource) ImportState(ctx context.Context, req resource.ImportSta
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddUsrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddUsrObjParameter) {
+func sendToweb_AddUsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddUsrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -212,7 +211,7 @@ func sendToweb_AddUsrObjRequest(ctx context.Context, reqmethod string, c *provid
 	}
 }
 
-func sendToweb_UpdateUsrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateUsrObjParameter) {
+func sendToweb_UpdateUsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateUsrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -234,7 +233,7 @@ func sendToweb_UpdateUsrObjRequest(ctx context.Context, reqmethod string, c *pro
 	}
 }
 
-func sendToweb_DelUsrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelUsrObjParameter) {
+func sendToweb_DelUsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelUsrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -256,7 +255,7 @@ func sendToweb_DelUsrObjRequest(ctx context.Context, reqmethod string, c *provid
 	}
 }
 
-func sendToweb_ReadUsrObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadUsrObjParameter) {
+func sendToweb_ReadUsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadUsrObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

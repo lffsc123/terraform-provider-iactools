@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewQosFlowResource() resource.Resource {
 }
 
 type QosFlowResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type QosFlowResourceModel struct {
@@ -130,7 +129,7 @@ func (r *QosFlowResource) Configure(ctx context.Context, req resource.ConfigureR
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -198,7 +197,7 @@ func (r *QosFlowResource) ImportState(ctx context.Context, req resource.ImportSt
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddQosFlowRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddQosFlowParameter) {
+func sendToweb_AddQosFlowRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddQosFlowParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -220,7 +219,7 @@ func sendToweb_AddQosFlowRequest(ctx context.Context, reqmethod string, c *provi
 	}
 }
 
-func sendToweb_UpdateQosFlowRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateQosFlowParameter) {
+func sendToweb_UpdateQosFlowRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateQosFlowParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -242,7 +241,7 @@ func sendToweb_UpdateQosFlowRequest(ctx context.Context, reqmethod string, c *pr
 	}
 }
 
-func sendToweb_DelQosFlowRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelQosFlowParameter) {
+func sendToweb_DelQosFlowRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelQosFlowParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -264,7 +263,7 @@ func sendToweb_DelQosFlowRequest(ctx context.Context, reqmethod string, c *provi
 	}
 }
 
-func sendToweb_ReadQosFlowRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadQosFlowParameter) {
+func sendToweb_ReadQosFlowRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadQosFlowParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

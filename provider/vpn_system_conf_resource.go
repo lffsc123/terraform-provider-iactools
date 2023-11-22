@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewVpnSystemConfResource() resource.Resource {
 }
 
 type VpnSystemConfResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type VpnSystemConfResourceModel struct {
@@ -90,7 +89,7 @@ func (r *VpnSystemConfResource) Configure(ctx context.Context, req resource.Conf
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -180,7 +179,7 @@ func (r *VpnSystemConfResource) ImportState(ctx context.Context, req resource.Im
 //	}
 //}
 
-func sendToweb_UpdateVpnSystemConfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVpnSystemConfParameter) {
+func sendToweb_UpdateVpnSystemConfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVpnSystemConfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -224,7 +223,7 @@ func sendToweb_UpdateVpnSystemConfRequest(ctx context.Context, reqmethod string,
 //	}
 //}
 
-func sendToweb_ReadVpnSystemConfRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVpnSystemConfParameter) {
+func sendToweb_ReadVpnSystemConfRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVpnSystemConfParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

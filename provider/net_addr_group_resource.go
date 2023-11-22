@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewNetAddrGroupResource() resource.Resource {
 }
 
 type NetAddrGroupResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type NetAddrGroupResourceModel struct {
@@ -108,7 +107,7 @@ func (r *NetAddrGroupResource) Configure(ctx context.Context, req resource.Confi
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -183,7 +182,7 @@ func (r *NetAddrGroupResource) ImportState(ctx context.Context, req resource.Imp
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddNetAddrGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddNetAddrGroupParameter) {
+func sendToweb_AddNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -205,7 +204,7 @@ func sendToweb_AddNetAddrGroupRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_UpdateNetAddrGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateNetAddrGroupParameter) {
+func sendToweb_UpdateNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateNetAddrGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -227,7 +226,7 @@ func sendToweb_UpdateNetAddrGroupRequest(ctx context.Context, reqmethod string, 
 	}
 }
 
-func sendToweb_DelNetAddrGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelNetAddrGroupParameter) {
+func sendToweb_DelNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelNetAddrGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -249,7 +248,7 @@ func sendToweb_DelNetAddrGroupRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_ReadNetAddrGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadNetAddrGroupParameter) {
+func sendToweb_ReadNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadNetAddrGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

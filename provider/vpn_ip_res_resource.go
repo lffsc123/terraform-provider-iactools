@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewVpnIpResResource() resource.Resource {
 }
 
 type VpnIpResResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type VpnIpResResourceModel struct {
@@ -96,7 +95,7 @@ func (r *VpnIpResResource) Configure(ctx context.Context, req resource.Configure
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -164,7 +163,7 @@ func (r *VpnIpResResource) ImportState(ctx context.Context, req resource.ImportS
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVpnIpResRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVpnIpResParameter) {
+func sendToweb_AddVpnIpResRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVpnIpResParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -186,7 +185,7 @@ func sendToweb_AddVpnIpResRequest(ctx context.Context, reqmethod string, c *prov
 	}
 }
 
-func sendToweb_UpdateVpnIpResRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVpnIpResParameter) {
+func sendToweb_UpdateVpnIpResRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVpnIpResParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -208,7 +207,7 @@ func sendToweb_UpdateVpnIpResRequest(ctx context.Context, reqmethod string, c *p
 	}
 }
 
-func sendToweb_DelVpnIpResRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVpnIpResParameter) {
+func sendToweb_DelVpnIpResRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVpnIpResParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -230,7 +229,7 @@ func sendToweb_DelVpnIpResRequest(ctx context.Context, reqmethod string, c *prov
 	}
 }
 
-func sendToweb_ReadVpnIpResRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVpnIpResParameter) {
+func sendToweb_ReadVpnIpResRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVpnIpResParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

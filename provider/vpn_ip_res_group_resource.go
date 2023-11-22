@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewVpnIpResGroupResource() resource.Resource {
 }
 
 type VpnIpResGroupResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type VpnIpResGroupResourceModel struct {
@@ -94,7 +93,7 @@ func (r *VpnIpResGroupResource) Configure(ctx context.Context, req resource.Conf
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -162,7 +161,7 @@ func (r *VpnIpResGroupResource) ImportState(ctx context.Context, req resource.Im
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVpnIpResGroupParameter) {
+func sendToweb_AddVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVpnIpResGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -184,7 +183,7 @@ func sendToweb_AddVpnIpResGroupRequest(ctx context.Context, reqmethod string, c 
 	}
 }
 
-func sendToweb_UpdateVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVpnIpResGroupParameter) {
+func sendToweb_UpdateVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVpnIpResGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -206,7 +205,7 @@ func sendToweb_UpdateVpnIpResGroupRequest(ctx context.Context, reqmethod string,
 	}
 }
 
-func sendToweb_DelVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVpnIpResGroupParameter) {
+func sendToweb_DelVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVpnIpResGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -228,7 +227,7 @@ func sendToweb_DelVpnIpResGroupRequest(ctx context.Context, reqmethod string, c 
 	}
 }
 
-func sendToweb_ReadVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVpnIpResGroupParameter) {
+func sendToweb_ReadVpnIpResGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVpnIpResGroupParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

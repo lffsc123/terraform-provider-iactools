@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewVpnIpPoolResource() resource.Resource {
 }
 
 type VpnIpPoolResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type VpnIpPoolResourceModel struct {
@@ -98,7 +97,7 @@ func (r *VpnIpPoolResource) Configure(ctx context.Context, req resource.Configur
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -166,7 +165,7 @@ func (r *VpnIpPoolResource) ImportState(ctx context.Context, req resource.Import
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVpnIpPoolRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddVpnIpPoolParameter) {
+func sendToweb_AddVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVpnIpPoolParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -188,7 +187,7 @@ func sendToweb_AddVpnIpPoolRequest(ctx context.Context, reqmethod string, c *pro
 	}
 }
 
-func sendToweb_UpdateVpnIpPoolRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateVpnIpPoolParameter) {
+func sendToweb_UpdateVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVpnIpPoolParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -210,7 +209,7 @@ func sendToweb_UpdateVpnIpPoolRequest(ctx context.Context, reqmethod string, c *
 	}
 }
 
-func sendToweb_DelVpnIpPoolRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelVpnIpPoolParameter) {
+func sendToweb_DelVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVpnIpPoolParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -232,7 +231,7 @@ func sendToweb_DelVpnIpPoolRequest(ctx context.Context, reqmethod string, c *pro
 	}
 }
 
-func sendToweb_ReadVpnIpPoolRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadVpnIpPoolParameter) {
+func sendToweb_ReadVpnIpPoolRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVpnIpPoolParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)

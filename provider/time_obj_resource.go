@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"terraform-provider-dpsc/provider/dp"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +24,7 @@ func NewTimeObjResource() resource.Resource {
 }
 
 type TimeObjResource struct {
-	client *provider.Client
+	client *Client
 }
 
 type TimeObjResourceModel struct {
@@ -111,7 +110,7 @@ func (r *TimeObjResource) Configure(ctx context.Context, req resource.ConfigureR
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*provider.Client)
+	client, ok := req.ProviderData.(*Client)
 
 	if req.ProviderData == nil {
 		return
@@ -179,7 +178,7 @@ func (r *TimeObjResource) ImportState(ctx context.Context, req resource.ImportSt
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddTimeObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo AddTimeObjParameter) {
+func sendToweb_AddTimeObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddTimeObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -201,7 +200,7 @@ func sendToweb_AddTimeObjRequest(ctx context.Context, reqmethod string, c *provi
 	}
 }
 
-func sendToweb_UpdateTimeObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo UpdateTimeObjParameter) {
+func sendToweb_UpdateTimeObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateTimeObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -223,7 +222,7 @@ func sendToweb_UpdateTimeObjRequest(ctx context.Context, reqmethod string, c *pr
 	}
 }
 
-func sendToweb_DelTimeObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo DelTimeObjParameter) {
+func sendToweb_DelTimeObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelTimeObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
@@ -245,7 +244,7 @@ func sendToweb_DelTimeObjRequest(ctx context.Context, reqmethod string, c *provi
 	}
 }
 
-func sendToweb_ReadTimeObjRequest(ctx context.Context, reqmethod string, c *provider.Client, Rsinfo ReadTimeObjParameter) {
+func sendToweb_ReadTimeObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadTimeObjParameter) {
 	requstData := Rsinfo
 
 	body, _ := json.Marshal(requstData)
