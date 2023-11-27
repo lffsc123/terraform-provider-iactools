@@ -221,7 +221,10 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 			Act:     Rsinfo.Act.ValueString(),
 		}
 	} else if reqmethod == "GET" {
-
+		sendData = AddIpv4StrategyRouterRequestModel{
+			RtpName: Rsinfo.RtpName.ValueString(),
+			Act:     Rsinfo.Act.ValueString(),
+		}
 	} else if reqmethod == "PUT" {
 		sendData = AddIpv4StrategyRouterRequestModel{
 			RtpName: Rsinfo.RtpName.ValueString(),
