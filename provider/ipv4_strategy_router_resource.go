@@ -223,7 +223,10 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 	} else if reqmethod == "GET" {
 
 	} else if reqmethod == "PUT" {
-
+		sendData = AddIpv4StrategyRouterRequestModel{
+			RtpName: Rsinfo.RtpName.ValueString(),
+			Act:     Rsinfo.Act.ValueString(),
+		}
 	} else if reqmethod == "DELETE" {
 		sendData = AddIpv4StrategyRouterRequestModel{
 			RtpName: Rsinfo.RtpName.ValueString(),
@@ -234,7 +237,8 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 		AddIpv4StrategyRouterRequestModel: sendData,
 	}
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
+	//targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
+	targetUrl := c.HostURL + "https://www.baidu.com"
 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
