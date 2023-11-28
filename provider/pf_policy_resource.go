@@ -205,26 +205,17 @@ func (r *PfPolicyResource) Metadata(ctx context.Context, req resource.MetadataRe
 func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"param": schema.SingleNestedAttribute{
+			"securitypolicylist": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_start": schema.StringAttribute{
+					"enabled": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_end": schema.StringAttribute{
+					"action": schema.StringAttribute{
 						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
-						Optional: true,
 					},
 				},
 			},
