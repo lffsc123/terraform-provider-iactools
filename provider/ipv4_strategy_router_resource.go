@@ -154,12 +154,15 @@ func (r *Ipv4StrategyRouterResource) Configure(ctx context.Context, req resource
 }
 
 func (r *Ipv4StrategyRouterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+
+	tflog.Debug(ctx, "开始执行=========")
+
 	var data *Ipv4StrategyRouterResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
+		tflog.Debug(ctx, "出现异常=======1")
 		return
 	}
-	tflog.Trace(ctx, "created a resource **************")
 	sendToweb_Ipv4StrategyRouterRequest(ctx, "POST", r.client, data.AddIpv4StrategyRouterParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -240,15 +243,13 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 		AddIpv4StrategyRouterRequestModel: sendData,
 	}
 	body, _ := json.Marshal(requstData)
-	//targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
-	targetUrl := "http://192.168.131.115:1888/api/ems-data-maintenance/equipment/detail?id=1716752407464554497"
+	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
+	//targetUrl := "http://192.168.131.115:1888/api/ems-data-maintenance/equipment/detail?id=1716752407464554497"
 
-	req, _ := http.NewRequest("GET", targetUrl, bytes.NewBuffer(body))
-	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Blade-Auth", "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX25hbWUiOiJhZG1pbiIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsImF2YXRhciI6Imh0dHBzOi8vZ3cuYWxpcGF5b2JqZWN0cy5jb20vem9zL3Jtc3BvcnRhbC9CaWF6ZmFueG1hbU5Sb3h4VnhrYS5wbmciLCJhdXRob3JpdGllcyI6WyJhZG1pbmlzdHJhdG9yIl0sImNsaWVudF9pZCI6InNhYmVyIiwicm9sZV9uYW1lIjoiYWRtaW5pc3RyYXRvciIsImxpY2Vuc2UiOiJwb3dlcmVkIGJ5IGJsYWRleCIsInBvc3RfaWQiOiIxMTIzNTk4ODE3NzM4Njc1MjAxIiwidXNlcl9pZCI6IjExMjM1OTg4MjE3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSIsInNjb3BlIjpbImFsbCJdLCJuaWNrX25hbWUiOiLnrqHnkIblkZgiLCJvYXV0aF9pZCI6IiIsImRldGFpbCI6eyJ0eXBlIjoid2ViIn0sImV4cCI6MTcwMTE1MTMxOSwiZGVwdF9pZCI6IjExMjM1OTg4MTM3Mzg2NzUyMDEiLCJqdGkiOiIxN2RhMjhiYi02NTZiLTQyM2QtYWY1ZC05MjNjZGUwMjkzNGQiLCJhY2NvdW50IjoiYWRtaW4ifQ.EXRMawBpfJdg3zXR7fiHGIn94FWpB4u696XM3KjiIF0")
-	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
 
 	// 创建一个HTTP客户端并发送请求
 	tr := &http.Transport{
@@ -257,7 +258,7 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 	client := &http.Client{Transport: tr}
 	respn, err := client.Do(req)
 	if err != nil {
-		fmt.Println("发送请求失败：", err)
+		tflog.Debug(ctx, "发送请求失败======="+err.Error())
 		return
 	}
 	defer respn.Body.Close()
@@ -268,8 +269,8 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 		return
 	}
 	// 打印响应结果
-	fmt.Println("响应状态码:", respn.Status)
-	fmt.Println("响应体:", string(body))
+	tflog.Debug(ctx, "响应状态码======="+string(respn.Status))
+	tflog.Debug(ctx, "响应体======="+string(body))
 }
 
 //func sendToweb_UpdateIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
