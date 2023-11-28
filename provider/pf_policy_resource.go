@@ -334,14 +334,14 @@ func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo 
 	respn, err := client.Do(req)
 	if err != nil {
 		tflog.Error(ctx, "发送请求失败======="+err.Error())
-		return
+		panic("发送请求失败=======")
 	}
 	defer respn.Body.Close()
 
 	body, err2 := io.ReadAll(respn.Body)
 	if err2 != nil {
 		tflog.Error(ctx, "发送请求失败======="+err2.Error())
-		return
+		panic("发送请求失败=======")
 	}
 	// 打印响应结果
 	tflog.Info(ctx, "响应状态码======="+string(respn.Status))
