@@ -240,13 +240,15 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 		AddIpv4StrategyRouterRequestModel: sendData,
 	}
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
-	//targetUrl := "https://www.baidu.com"
+	//targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
+	targetUrl := "http://192.168.131.115:1888/api/ems-data-maintenance/equipment/detail?id=1716752407464554497"
 
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req, _ := http.NewRequest("GET", targetUrl, bytes.NewBuffer(body))
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	req.Header.Set("Blade-Auth", "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJ1c2VyX25hbWUiOiJhZG1pbiIsInJlYWxfbmFtZSI6IueuoeeQhuWRmCIsImF2YXRhciI6Imh0dHBzOi8vZ3cuYWxpcGF5b2JqZWN0cy5jb20vem9zL3Jtc3BvcnRhbC9CaWF6ZmFueG1hbU5Sb3h4VnhrYS5wbmciLCJhdXRob3JpdGllcyI6WyJhZG1pbmlzdHJhdG9yIl0sImNsaWVudF9pZCI6InNhYmVyIiwicm9sZV9uYW1lIjoiYWRtaW5pc3RyYXRvciIsImxpY2Vuc2UiOiJwb3dlcmVkIGJ5IGJsYWRleCIsInBvc3RfaWQiOiIxMTIzNTk4ODE3NzM4Njc1MjAxIiwidXNlcl9pZCI6IjExMjM1OTg4MjE3Mzg2NzUyMDEiLCJyb2xlX2lkIjoiMTEyMzU5ODgxNjczODY3NTIwMSIsInNjb3BlIjpbImFsbCJdLCJuaWNrX25hbWUiOiLnrqHnkIblkZgiLCJvYXV0aF9pZCI6IiIsImRldGFpbCI6eyJ0eXBlIjoid2ViIn0sImV4cCI6MTcwMTE0NTIxMywiZGVwdF9pZCI6IjExMjM1OTg4MTM3Mzg2NzUyMDEiLCJqdGkiOiI1M2YxNWQxMi1lZjRlLTQyMDEtODAzNC0xMzRmMWQ3NjA0MTUiLCJhY2NvdW50IjoiYWRtaW4ifQ.84k6JLWWC6v60-ii6xlQcuV8YzShd6hquZgqdA3Y2wQ")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
 
 	// 创建一个HTTP客户端并发送请求
 	tr := &http.Transport{
