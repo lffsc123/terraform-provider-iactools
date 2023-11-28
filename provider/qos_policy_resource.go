@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-// 包过滤
+// Qos策略
 var _ resource.Resource = &QosPolicyResource{}
 var _ resource.ResourceWithImportState = &QosPolicyResource{}
 
