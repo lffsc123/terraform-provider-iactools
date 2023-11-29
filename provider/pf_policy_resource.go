@@ -35,170 +35,99 @@ type AddPfPolicyRequest struct {
 	AddPfPolicyRequestModel AddPfPolicyRequestModel `json:"securitypolicylist"`
 }
 
+// 调用接口参数
 type AddPfPolicyRequestModel struct {
-	Name         string `json:"name"`
-	Enabled      string `json:"enabled"`
-	Action       string `json:"action"`
-	DelAllEnable string `json:"delallEnable"`
+	Name                    string `json:"name"`
+	Enabled                 string `json:"enabled"`
+	Action                  string `json:"action"`
+	DelAllEnable            string `json:"delAllEnable"`
+	IpVersion               string `json:"ipVersion"`
+	VsysName                string `json:"vsysName"`
+	GroupName               string `json:"groupName"`
+	TargetName              string `json:"targetName"`
+	Position                string `json:"position"`
+	SourceSecurityZone      string `json:"sourceSecurityZone"`
+	DestinationSecurityZone string `json:"destinationSecurityZone"`
+	SourceIpObjects         string `json:"sourceIpObjects"`
+	SourceIpGroups          string `json:"sourceIpGroups"`
+	SourceDomains           string `json:"sourceDomains"`
+	SourceMacObjects        string `json:"sourceMacObjects"`
+	SourceMacGroups         string `json:"sourceMacGroups"`
+	DestinationIpObjects    string `json:"destinationIpObjects"`
+	DestinationIpGroups     string `json:"destinationIpGroups"`
+	DestinationDomains      string `json:"destinationDomains"`
+	DestinationMacObjects   string `json:"destinationMacObjects"`
+	DestinationMacGroups    string `json:"destinationMacGroups"`
+	ServicePreObjects       string `json:"servicePreObjects"`
+	ServiceUsrObjects       string `json:"serviceUsrObjects"`
+	ServiceGroups           string `json:"serviceGroups"`
+	UserObjects             string `json:"userObjects"`
+	UserGroups              string `json:"userGroups"`
+	Description             string `json:"describe"`
+	EffectName              string `json:"effectName"`
+	Matchlog                string `json:"matchlog"`
+	Sessionlog              string `json:"sessionlog"`
+	Longsession             string `json:"longsession"`
+	Agingtime               string `json:"agingtime"`
+	Fragdrop                string `json:"fragdrop"`
+	Dscp                    string `json:"dscp"`
+	Cos                     string `json:"cos"`
+	RltGroup                string `json:"rltGroup"`
+	RltUser                 string `json:"rltUser"`
+	Acctl                   string `json:"acctl"`
+	UrlClass                string `json:"urlClass"`
+	UrlSenior               string `json:"urlSenior"`
+	Cam                     string `json:"cam"`
+	Ips                     string `json:"ips"`
+	Av                      string `json:"av"`
 }
 
+// 接收外部参数
 type AddPfPolicyParameter struct {
-	Name         types.String `tfsdk:"name"`
-	Enabled      types.String `tfsdk:"enabled"`
-	Action       types.String `tfsdk:"action"`
-	DelAllEnable types.String `tfsdk:"delAllEnable"`
-	//IpVersion               types.String `tfsdk:"ipVersion"`
-	//VsysName                types.String `tfsdk:"vsysName"`
-	//GroupName               types.String `tfsdk:"groupName"`
-	//TargetName              types.String `tfsdk:"targetName"`
-	//Position                types.String `tfsdk:"position"`
-	//SourceSecurityZone      types.String `tfsdk:"sourceSecurityZone"`
-	//DestinationSecurityZone types.String `tfsdk:"destinationSecurityZone"`
-	//SourceIpObjects         types.String `tfsdk:"sourceIpObjects"`
-	//SourceIpGroups          types.String `tfsdk:"sourceIpGroups"`
-	//SourceDomains           types.String `tfsdk:"sourceDomains"`
-	//SourceMacObjects        types.String `tfsdk:"sourceMacObjects"`
-	//SourceMacGroups         types.String `tfsdk:"sourceMacGroups"`
-	//DestinationIpObjects    types.String `tfsdk:"destinationIpObjects"`
-	//DestinationIpGroups     types.String `tfsdk:"destinationIpGroups"`
-	//DestinationDomains      types.String `tfsdk:"destinationDomains"`
-	//DestinationMacObjects   types.String `tfsdk:"destinationMacObjects"`
-	//DestinationMacGroups    types.String `tfsdk:"destinationMacGroups"`
-	//ServicePreObjects       types.String `tfsdk:"servicePreObjects"`
-	//ServiceUsrObjects       types.String `tfsdk:"serviceUsrObjects"`
-	//ServiceGroups           types.String `tfsdk:"serviceGroups"`
-	//UserObjects             types.String `tfsdk:"userObjects"`
-	//UserGroups              types.String `tfsdk:"userGroups"`
-	//Description             types.String `tfsdk:"description"`
-	//EffectName              types.String `tfsdk:"effectName"`
-	//Matchlog                types.String `tfsdk:"matchlog"`
-	//Sessionlog              types.String `tfsdk:"sessionlog"`
-	//Longsession             types.String `tfsdk:"longsession"`
-	//Agingtime               types.String `tfsdk:"agingtime"`
-	//Fragdrop                types.String `tfsdk:"fragdrop"`
-	//Dscp                    types.String `tfsdk:"dscp"`
-	//Cos                     types.String `tfsdk:"cos"`
-	//RltGroup                types.String `tfsdk:"rltGroup"`
-	//RltUser                 types.String `tfsdk:"rltUser"`
-	//Acctl                   types.String `tfsdk:"acctl"`
-	//UrlClass                types.String `tfsdk:"urlClass"`
-	//UrlSenior               types.String `tfsdk:"urlSenior"`
-	//Cam                     types.String `tfsdk:"cam"`
-	//Ips                     types.String `tfsdk:"ips"`
-	//Av                      types.String `tfsdk:"av"`
+	Name                    types.String `tfsdk:"name"`
+	Enabled                 types.String `tfsdk:"enabled"`
+	Action                  types.String `tfsdk:"action"`
+	DelAllEnable            types.String `tfsdk:"delAllEnable"`
+	IpVersion               types.String `tfsdk:"ipVersion"`
+	VsysName                types.String `tfsdk:"vsysName"`
+	GroupName               types.String `tfsdk:"groupName"`
+	TargetName              types.String `tfsdk:"targetName"`
+	Position                types.String `tfsdk:"position"`
+	SourceSecurityZone      types.String `tfsdk:"sourceSecurityZone"`
+	DestinationSecurityZone types.String `tfsdk:"destinationSecurityZone"`
+	SourceIpObjects         types.String `tfsdk:"sourceIpObjects"`
+	SourceIpGroups          types.String `tfsdk:"sourceIpGroups"`
+	SourceDomains           types.String `tfsdk:"sourceDomains"`
+	SourceMacObjects        types.String `tfsdk:"sourceMacObjects"`
+	SourceMacGroups         types.String `tfsdk:"sourceMacGroups"`
+	DestinationIpObjects    types.String `tfsdk:"destinationIpObjects"`
+	DestinationIpGroups     types.String `tfsdk:"destinationIpGroups"`
+	DestinationDomains      types.String `tfsdk:"destinationDomains"`
+	DestinationMacObjects   types.String `tfsdk:"destinationMacObjects"`
+	DestinationMacGroups    types.String `tfsdk:"destinationMacGroups"`
+	ServicePreObjects       types.String `tfsdk:"servicePreObjects"`
+	ServiceUsrObjects       types.String `tfsdk:"serviceUsrObjects"`
+	ServiceGroups           types.String `tfsdk:"serviceGroups"`
+	UserObjects             types.String `tfsdk:"userObjects"`
+	UserGroups              types.String `tfsdk:"userGroups"`
+	Description             types.String `tfsdk:"describe"`
+	EffectName              types.String `tfsdk:"effectName"`
+	Matchlog                types.String `tfsdk:"matchlog"`
+	Sessionlog              types.String `tfsdk:"sessionlog"`
+	Longsession             types.String `tfsdk:"longsession"`
+	Agingtime               types.String `tfsdk:"agingtime"`
+	Fragdrop                types.String `tfsdk:"fragdrop"`
+	Dscp                    types.String `tfsdk:"dscp"`
+	Cos                     types.String `tfsdk:"cos"`
+	RltGroup                types.String `tfsdk:"rltGroup"`
+	RltUser                 types.String `tfsdk:"rltUser"`
+	Acctl                   types.String `tfsdk:"acctl"`
+	UrlClass                types.String `tfsdk:"urlClass"`
+	UrlSenior               types.String `tfsdk:"urlSenior"`
+	Cam                     types.String `tfsdk:"cam"`
+	Ips                     types.String `tfsdk:"ips"`
+	Av                      types.String `tfsdk:"av"`
 }
-
-//type UpdatePfPolicyParameter struct {
-//	IpVersion               types.String `tfsdk:"ipVersion"`
-//	VsysName                types.String `tfsdk:"vsysName"`
-//	GroupName               types.String `tfsdk:"groupName"`
-//	TargetName              types.String `tfsdk:"targetName"`
-//	Position                types.String `tfsdk:"position"`
-//	Name                    types.String `tfsdk:"name"`
-//	OldName                 types.String `tfsdk:"oldName"`
-//	SourceSecurityZone      types.String `tfsdk:"sourceSecurityZone"`
-//	DestinationSecurityZone types.String `tfsdk:"destinationSecurityZone"`
-//	Enabled                 types.String `tfsdk:"enabled"`
-//	Action                  types.String `tfsdk:"action"`
-//	SourceIpObjects         types.String `tfsdk:"sourceIpObjects"`
-//	SourceIpGroups          types.String `tfsdk:"sourceIpGroups"`
-//	SourceDomains           types.String `tfsdk:"sourceDomains"`
-//	SourceMacObjects        types.String `tfsdk:"sourceMacObjects"`
-//	SourceMacGroups         types.String `tfsdk:"sourceMacGroups"`
-//	DestinationIpObjects    types.String `tfsdk:"destinationIpObjects"`
-//	DestinationIpGroups     types.String `tfsdk:"destinationIpGroups"`
-//	DestinationDomains      types.String `tfsdk:"destinationDomains"`
-//	DestinationMacObjects   types.String `tfsdk:"destinationMacObjects"`
-//	DestinationMacGroups    types.String `tfsdk:"destinationMacGroups"`
-//	ServicePreObjects       types.String `tfsdk:"servicePreObjects"`
-//	ServiceUsrObjects       types.String `tfsdk:"serviceUsrObjects"`
-//	ServiceGroups           types.String `tfsdk:"serviceGroups"`
-//	UserObjects             types.String `tfsdk:"userObjects"`
-//	UserGroups              types.String `tfsdk:"userGroups"`
-//	Description             types.String `tfsdk:"description"`
-//	EffectName              types.String `tfsdk:"effectName"`
-//	Matchlog                types.String `tfsdk:"matchlog"`
-//	Sessionlog              types.String `tfsdk:"sessionlog"`
-//	Longsession             types.String `tfsdk:"longsession"`
-//	Agingtime               types.String `tfsdk:"agingtime"`
-//	Fragdrop                types.String `tfsdk:"fragdrop"`
-//	Dscp                    types.String `tfsdk:"dscp"`
-//	Cos                     types.String `tfsdk:"cos"`
-//	RltGroup                types.String `tfsdk:"rltGroup"`
-//	RltUser                 types.String `tfsdk:"rltUser"`
-//	Acctl                   types.String `tfsdk:"acctl"`
-//	UrlClass                types.String `tfsdk:"urlClass"`
-//	UrlSenior               types.String `tfsdk:"urlSenior"`
-//	Cam                     types.String `tfsdk:"cam"`
-//	Ips                     types.String `tfsdk:"ips"`
-//	Av                      types.String `tfsdk:"av"`
-//}
-//
-//type DelPfPolicyParameter struct {
-//	IpVersion    types.String `tfsdk:"ipVersion"`
-//	VsysName     types.String `tfsdk:"vsysName"`
-//	Name         types.String `tfsdk:"name"`
-//	DelAllEnable types.String `tfsdk:"delAllEnable"`
-//}
-//
-//type ReadPfPolicyParameter struct {
-//	IpVersion               types.String `tfsdk:"ipVersion"`
-//	VsysName                types.String `tfsdk:"vsysName"`
-//	Offset                  types.String `tfsdk:"offset"`
-//	Count                   types.String `tfsdk:"count"`
-//	GroupName               types.String `tfsdk:"groupName"`
-//	TargetName              types.String `tfsdk:"targetName"`
-//	Position                types.String `tfsdk:"position"`
-//	Name                    types.String `tfsdk:"name"`
-//	OldName                 types.String `tfsdk:"oldName"`
-//	SourceSecurityZone      types.String `tfsdk:"sourceSecurityZone"`
-//	DestinationSecurityZone types.String `tfsdk:"destinationSecurityZone"`
-//	Sourceaddress           types.String `tfsdk:"sourceaddress"`
-//	Destinationaddress      types.String `tfsdk:"destinationaddress"`
-//	Service                 types.String `tfsdk:"service"`
-//	Enabled                 types.String `tfsdk:"enabled"`
-//	Action                  types.String `tfsdk:"action"`
-//	MatchTime               types.String `tfsdk:"matchTime"`
-//	DelallEnable            types.String `tfsdk:"delallEnable"`
-//	Id                      types.String `tfsdk:"id"`
-//	SourceIpObjects         types.String `tfsdk:"sourceIpObjects"`
-//	SourceIpGroups          types.String `tfsdk:"sourceIpGroups"`
-//	SourceDomains           types.String `tfsdk:"sourceDomains"`
-//	SourceMacObjects        types.String `tfsdk:"sourceMacObjects"`
-//	SourceMacGroups         types.String `tfsdk:"sourceMacGroups"`
-//	DestinationIpObjects    types.String `tfsdk:"destinationIpObjects"`
-//	DestinationIpGroups     types.String `tfsdk:"destinationIpGroups"`
-//	DestinationDomains      types.String `tfsdk:"destinationDomains"`
-//	DestinationMacObjects   types.String `tfsdk:"destinationMacObjects"`
-//	DestinationMacGroups    types.String `tfsdk:"destinationMacGroups"`
-//	ServicePreObjects       types.String `tfsdk:"servicePreObjects"`
-//	ServiceUsrObjects       types.String `tfsdk:"serviceUsrObjects"`
-//	ServiceGroups           types.String `tfsdk:"serviceGroups"`
-//	UserObjects             types.String `tfsdk:"userObjects"`
-//	UserGroups              types.String `tfsdk:"userGroups"`
-//	Description             types.String `tfsdk:"description"`
-//	EffectName              types.String `tfsdk:"effectName"`
-//	Matchlog                types.String `tfsdk:"matchlog"`
-//	Sessionlog              types.String `tfsdk:"sessionlog"`
-//	Longsession             types.String `tfsdk:"longsession"`
-//	Agingtime               types.String `tfsdk:"agingtime"`
-//	Fragdrop                types.String `tfsdk:"fragdrop"`
-//	Dscp                    types.String `tfsdk:"dscp"`
-//	Cos                     types.String `tfsdk:"cos"`
-//	RltGroup                types.String `tfsdk:"rltGroup"`
-//	RltUser                 types.String `tfsdk:"rltUser"`
-//	Acctl                   types.String `tfsdk:"acctl"`
-//	UrlClass                types.String `tfsdk:"urlClass"`
-//	UrlSenior               types.String `tfsdk:"urlSenior"`
-//	Cam                     types.String `tfsdk:"cam"`
-//	Ips                     types.String `tfsdk:"ips"`
-//	Av                      types.String `tfsdk:"av"`
-//	Createtime              types.String `tfsdk:"createtime"`
-//	Modifytime              types.String `tfsdk:"modifytime"`
-//	Matchnum                types.String `tfsdk:"matchnum"`
-//	FlowStatisticsBytes     types.String `tfsdk:"flowStatisticsBytes"`
-//	FlowStatisticsPackets   types.String `tfsdk:"flowStatisticsPackets"`
-//}
 
 func (r *PfPolicyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = "dpfirewall_PfPolicy"
@@ -218,6 +147,9 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 					},
 					"action": schema.StringAttribute{
 						Required: true,
+					},
+					"av": schema.StringAttribute{
+						Required: false,
 					},
 				},
 			},
