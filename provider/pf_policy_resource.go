@@ -36,22 +36,24 @@ type AddPfPolicyRequest struct {
 }
 
 type AddPfPolicyRequestModel struct {
-	Name    string `json:"name"`
-	Enabled string `json:"enabled"`
-	Action  string `json:"action"`
+	Name         string `json:"name"`
+	Enabled      string `json:"enabled"`
+	Action       string `json:"action"`
+	DelAllEnable string `json:"delallEnable"`
 }
 
 type AddPfPolicyParameter struct {
+	Name         types.String `tfsdk:"name"`
+	Enabled      types.String `tfsdk:"enabled"`
+	Action       types.String `tfsdk:"action"`
+	DelAllEnable types.String `tfsdk:"delAllEnable"`
 	//IpVersion               types.String `tfsdk:"ipVersion"`
 	//VsysName                types.String `tfsdk:"vsysName"`
 	//GroupName               types.String `tfsdk:"groupName"`
 	//TargetName              types.String `tfsdk:"targetName"`
 	//Position                types.String `tfsdk:"position"`
-	Name types.String `tfsdk:"name"`
 	//SourceSecurityZone      types.String `tfsdk:"sourceSecurityZone"`
 	//DestinationSecurityZone types.String `tfsdk:"destinationSecurityZone"`
-	Enabled types.String `tfsdk:"enabled"`
-	Action  types.String `tfsdk:"action"`
 	//SourceIpObjects         types.String `tfsdk:"sourceIpObjects"`
 	//SourceIpGroups          types.String `tfsdk:"sourceIpGroups"`
 	//SourceDomains           types.String `tfsdk:"sourceDomains"`
@@ -282,7 +284,7 @@ func (r *PfPolicyResource) Delete(ctx context.Context, req resource.DeleteReques
 	var data *PfPolicyResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	//sendToweb_Request(ctx, "DELETE", r.client, data.AddPfPolicyParameter)
+	sendToweb_Request(ctx, "DELETE", r.client, data.AddPfPolicyParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -309,7 +311,9 @@ func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo 
 	} else if reqmethod == "PUT" {
 
 	} else if reqmethod == "DELETE" {
-
+		sendData = AddPfPolicyRequestModel{
+			DelAllEnable: "1",
+		}
 	}
 
 	requstData := AddPfPolicyRequest{
