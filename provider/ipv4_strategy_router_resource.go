@@ -163,7 +163,7 @@ func (r *Ipv4StrategyRouterResource) Create(ctx context.Context, req resource.Cr
 		tflog.Debug(ctx, "Create 出现异常=======")
 		return
 	}
-	sendToweb_Ipv4StrategyRouterRequest(ctx, "POST", r.client, data.AddIpv4StrategyRouterParameter)
+	//sendToweb_Ipv4StrategyRouterRequest(ctx, "POST", r.client, data.AddIpv4StrategyRouterParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
