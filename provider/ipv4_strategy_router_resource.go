@@ -1,7 +1,9 @@
 package provider
 
 import (
+	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -9,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"io"
+	"net/http"
 )
 
 // IPv4策略路由
@@ -17,10 +21,6 @@ var _ resource.ResourceWithImportState = &Ipv4StrategyRouterResource{}
 
 func NewIpv4StrategyRouterResource() resource.Resource {
 	return &Ipv4StrategyRouterResource{}
-}
-
-type GlobalVar struct {
-	rtpNameGlobal string
 }
 
 type Ipv4StrategyRouterResource struct {
@@ -194,7 +194,7 @@ func (r *Ipv4StrategyRouterResource) Delete(ctx context.Context, req resource.De
 	var data *Ipv4StrategyRouterResourceModel
 	tflog.Info(ctx, " Delete Start *************  ")
 
-	sendToweb_Ipv4StrategyRouterRequest(ctx, "DELETE", r.client, data.AddIpv4StrategyRouterParameter)
+	//sendToweb_Ipv4StrategyRouterRequest(ctx, "DELETE", r.client, data.AddIpv4StrategyRouterParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -217,16 +217,11 @@ func (r *Ipv4StrategyRouterResource) ImportState(ctx context.Context, req resour
 func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
 	tflog.Info(ctx, "请求开始===========")
 
-	var glo GlobalVar
-
 	var sendData AddIpv4StrategyRouterRequestModel
 	if reqmethod == "POST" {
 		sendData = AddIpv4StrategyRouterRequestModel{
 			RtpName: Rsinfo.RtpName.ValueString(),
 			Act:     Rsinfo.Act.ValueString(),
-		}
-		glo = GlobalVar{
-			rtpNameGlobal: Rsinfo.RtpName.ValueString(),
 		}
 	} else if reqmethod == "GET" {
 		sendData = AddIpv4StrategyRouterRequestModel{
@@ -240,7 +235,7 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 		}
 	} else if reqmethod == "DELETE" {
 		sendData = AddIpv4StrategyRouterRequestModel{
-			RtpName: glo.rtpNameGlobal,
+			RtpName: Rsinfo.RtpName.ValueString(),
 		}
 	}
 
@@ -251,38 +246,38 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 
 	tflog.Info(ctx, "请求体============:"+string(body))
 
-	//targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
-	////targetUrl := "http://192.168.131.115:1888/api/ems-data-maintenance/equipment/detail?id=1716752407464554497"
-	//
-	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	//req.Header.Set("Content-Type", "application/json")
-	//req.Header.Set("Accept", "application/json")
-	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	//
-	//// 创建一个HTTP客户端并发送请求
-	//tr := &http.Transport{
-	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	//}
-	//client := &http.Client{Transport: tr}
-	//respn, err := client.Do(req)
-	//if err != nil {
-	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
-	//	panic("发送请求失败=======")
-	//}
-	//defer respn.Body.Close()
-	//
-	//body, err2 := io.ReadAll(respn.Body)
-	//if err2 != nil {
-	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
-	//	panic("发送请求失败=======")
-	//}
-	//// 打印响应结果
-	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
-	//tflog.Info(ctx, "响应体======="+string(body))
-	//
-	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
-	//	panic("请求响应失败=======")
-	//}
+	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
+	//targetUrl := "http://192.168.131.115:1888/api/ems-data-maintenance/equipment/detail?id=1716752407464554497"
+
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+
+	// 创建一个HTTP客户端并发送请求
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	respn, err := client.Do(req)
+	if err != nil {
+		tflog.Error(ctx, "发送请求失败======="+err.Error())
+		panic("发送请求失败=======")
+	}
+	defer respn.Body.Close()
+
+	body, err2 := io.ReadAll(respn.Body)
+	if err2 != nil {
+		tflog.Error(ctx, "发送请求失败======="+err2.Error())
+		panic("发送请求失败=======")
+	}
+	// 打印响应结果
+	tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	tflog.Info(ctx, "响应体======="+string(body))
+
+	if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+		panic("请求响应失败=======")
+	}
 }
 
 //func sendToweb_UpdateIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {

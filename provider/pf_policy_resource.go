@@ -184,7 +184,7 @@ func (r *PfPolicyResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_Request(ctx, "POST", r.client, data.AddPfPolicyParameter)
+	//sendToweb_Request(ctx, "POST", r.client, data.AddPfPolicyParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -216,7 +216,7 @@ func (r *PfPolicyResource) Delete(ctx context.Context, req resource.DeleteReques
 	var data *PfPolicyResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_Request(ctx, "DELETE", r.client, data.AddPfPolicyParameter)
+	//sendToweb_Request(ctx, "DELETE", r.client, data.AddPfPolicyParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
