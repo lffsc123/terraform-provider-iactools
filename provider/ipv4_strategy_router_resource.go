@@ -215,6 +215,8 @@ func (r *Ipv4StrategyRouterResource) ImportState(ctx context.Context, req resour
 }
 
 func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
+	tflog.Info(ctx, "请求开始===========")
+
 	var glo GlobalVar
 
 	var sendData AddIpv4StrategyRouterRequestModel
