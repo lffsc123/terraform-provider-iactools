@@ -263,7 +263,7 @@ func (r *PfPolicyResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_Request(ctx, "GET", r.client, data.AddPfPolicyParameter)
+	//sendToweb_Request(ctx, "GET", r.client, data.AddPfPolicyParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -274,7 +274,7 @@ func (r *PfPolicyResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_Request(ctx, "PUT", r.client, data.AddPfPolicyParameter)
+	//sendToweb_Request(ctx, "PUT", r.client, data.AddPfPolicyParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -282,7 +282,7 @@ func (r *PfPolicyResource) Delete(ctx context.Context, req resource.DeleteReques
 	var data *PfPolicyResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_Request(ctx, "DELETE", r.client, data.AddPfPolicyParameter)
+	//sendToweb_Request(ctx, "DELETE", r.client, data.AddPfPolicyParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 

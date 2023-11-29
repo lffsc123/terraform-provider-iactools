@@ -176,7 +176,7 @@ func (r *Ipv4StrategyRouterResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	sendToweb_Ipv4StrategyRouterRequest(ctx, "GET", r.client, data.AddIpv4StrategyRouterParameter)
+	//sendToweb_Ipv4StrategyRouterRequest(ctx, "GET", r.client, data.AddIpv4StrategyRouterParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -187,7 +187,7 @@ func (r *Ipv4StrategyRouterResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_Ipv4StrategyRouterRequest(ctx, "PUT", r.client, data.AddIpv4StrategyRouterParameter)
+	//sendToweb_Ipv4StrategyRouterRequest(ctx, "PUT", r.client, data.AddIpv4StrategyRouterParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
