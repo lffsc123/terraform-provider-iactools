@@ -137,7 +137,7 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"securitypolicylist": schema.SingleNestedAttribute{
-				Required: true,
+				//Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
 						Required: true,
