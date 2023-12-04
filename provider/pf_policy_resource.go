@@ -144,9 +144,12 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 					"action": schema.StringAttribute{
 						Required: true,
 					},
-					//"ipversion": schema.StringAttribute{
-					//	Required: false,
-					//},
+					"delallenable": schema.StringAttribute{
+						Required: true,
+					},
+					"ipversion": schema.StringAttribute{
+						Required: false,
+					},
 					"vsysname": schema.StringAttribute{
 						Required: true,
 					},
