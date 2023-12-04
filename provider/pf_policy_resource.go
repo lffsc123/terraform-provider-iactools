@@ -83,31 +83,31 @@ type AddPfPolicyParameter struct {
 	Name                    types.String `tfsdk:"name"`
 	Enabled                 types.String `tfsdk:"enabled"`
 	Action                  types.String `tfsdk:"action"`
-	DelAllEnable            types.String `tfsdk:"delAllEnable"`
-	IpVersion               types.String `tfsdk:"ipVersion"`
-	VsysName                types.String `tfsdk:"vsysName"`
-	GroupName               types.String `tfsdk:"groupName"`
-	TargetName              types.String `tfsdk:"targetName"`
+	DelAllEnable            types.String `tfsdk:"delallenable"`
+	IpVersion               types.String `tfsdk:"ipversion"`
+	VsysName                types.String `tfsdk:"vsysname"`
+	GroupName               types.String `tfsdk:"groupname"`
+	TargetName              types.String `tfsdk:"targetname"`
 	Position                types.String `tfsdk:"position"`
-	SourceSecurityZone      types.String `tfsdk:"sourceSecurityZone"`
-	DestinationSecurityZone types.String `tfsdk:"destinationSecurityZone"`
-	SourceIpObjects         types.String `tfsdk:"sourceIpObjects"`
-	SourceIpGroups          types.String `tfsdk:"sourceIpGroups"`
-	SourceDomains           types.String `tfsdk:"sourceDomains"`
-	SourceMacObjects        types.String `tfsdk:"sourceMacObjects"`
-	SourceMacGroups         types.String `tfsdk:"sourceMacGroups"`
-	DestinationIpObjects    types.String `tfsdk:"destinationIpObjects"`
-	DestinationIpGroups     types.String `tfsdk:"destinationIpGroups"`
-	DestinationDomains      types.String `tfsdk:"destinationDomains"`
-	DestinationMacObjects   types.String `tfsdk:"destinationMacObjects"`
-	DestinationMacGroups    types.String `tfsdk:"destinationMacGroups"`
-	ServicePreObjects       types.String `tfsdk:"servicePreObjects"`
-	ServiceUsrObjects       types.String `tfsdk:"serviceUsrObjects"`
-	ServiceGroups           types.String `tfsdk:"serviceGroups"`
-	UserObjects             types.String `tfsdk:"userObjects"`
-	UserGroups              types.String `tfsdk:"userGroups"`
+	SourceSecurityZone      types.String `tfsdk:"sourcesecurityzone"`
+	DestinationSecurityZone types.String `tfsdk:"destinationsecurityzone"`
+	SourceIpObjects         types.String `tfsdk:"sourceipobjects"`
+	SourceIpGroups          types.String `tfsdk:"sourceipgroups"`
+	SourceDomains           types.String `tfsdk:"sourcedomains"`
+	SourceMacObjects        types.String `tfsdk:"sourcemacobjects"`
+	SourceMacGroups         types.String `tfsdk:"sourcemacgroups"`
+	DestinationIpObjects    types.String `tfsdk:"destinationipobjects"`
+	DestinationIpGroups     types.String `tfsdk:"destinationipgroups"`
+	DestinationDomains      types.String `tfsdk:"destinationdomains"`
+	DestinationMacObjects   types.String `tfsdk:"destinationmacobjects"`
+	DestinationMacGroups    types.String `tfsdk:"destinationmacgroups"`
+	ServicePreObjects       types.String `tfsdk:"servicepreobjects"`
+	ServiceUsrObjects       types.String `tfsdk:"serviceusrobjects"`
+	ServiceGroups           types.String `tfsdk:"servicegroups"`
+	UserObjects             types.String `tfsdk:"userobjects"`
+	UserGroups              types.String `tfsdk:"usergroups"`
 	Description             types.String `tfsdk:"describe"`
-	EffectName              types.String `tfsdk:"effectName"`
+	EffectName              types.String `tfsdk:"effectname"`
 	Matchlog                types.String `tfsdk:"matchlog"`
 	Sessionlog              types.String `tfsdk:"sessionlog"`
 	Longsession             types.String `tfsdk:"longsession"`
@@ -115,11 +115,11 @@ type AddPfPolicyParameter struct {
 	Fragdrop                types.String `tfsdk:"fragdrop"`
 	Dscp                    types.String `tfsdk:"dscp"`
 	Cos                     types.String `tfsdk:"cos"`
-	RltGroup                types.String `tfsdk:"rltGroup"`
-	RltUser                 types.String `tfsdk:"rltUser"`
+	RltGroup                types.String `tfsdk:"rltgroup"`
+	RltUser                 types.String `tfsdk:"rltuser"`
 	Acctl                   types.String `tfsdk:"acctl"`
-	UrlClass                types.String `tfsdk:"urlClass"`
-	UrlSenior               types.String `tfsdk:"urlSenior"`
+	UrlClass                types.String `tfsdk:"urlclass"`
+	UrlSenior               types.String `tfsdk:"urlsenior"`
 	Cam                     types.String `tfsdk:"cam"`
 	Ips                     types.String `tfsdk:"ips"`
 	Av                      types.String `tfsdk:"av"`
