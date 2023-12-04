@@ -148,7 +148,7 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 						Required: true,
 					},
 					"ipversion": schema.StringAttribute{
-						Required: false,
+						Optional: true,
 					},
 					"vsysname": schema.StringAttribute{
 						Required: true,
