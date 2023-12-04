@@ -148,22 +148,22 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 					"action": schema.StringAttribute{
 						Required: true,
 					},
-					"ipVersion": schema.StringAttribute{
+					"ipversion": schema.StringAttribute{
 						Required: false,
 					},
-					"vsysName": schema.StringAttribute{
+					"vsysname": schema.StringAttribute{
 						Required: true,
 					},
-					"groupName": schema.StringAttribute{
+					"groupname": schema.StringAttribute{
 						Required: true,
 					},
-					"targetName": schema.StringAttribute{
+					"targetname": schema.StringAttribute{
 						Required: true,
 					},
 					"position": schema.StringAttribute{
 						Required: true,
 					},
-					"effectName": schema.StringAttribute{
+					"effectname": schema.StringAttribute{
 						Required: true,
 					},
 					"matchlog": schema.StringAttribute{
@@ -181,55 +181,55 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 					"fragdrop": schema.StringAttribute{
 						Required: true,
 					},
-					"sourceSecurityZone": schema.StringAttribute{
+					"sourcesecurityzone": schema.StringAttribute{
 						Required: true,
 					},
-					"destinationSecurityZone": schema.StringAttribute{
+					"destinationsecurityzone": schema.StringAttribute{
 						Required: true,
 					},
-					"sourceIpObjects": schema.StringAttribute{
+					"sourceipobjects": schema.StringAttribute{
 						Required: true,
 					},
-					"sourceIpGroups": schema.StringAttribute{
+					"sourceipgroups": schema.StringAttribute{
 						Required: true,
 					},
-					"sourceDomains": schema.StringAttribute{
+					"sourcedomains": schema.StringAttribute{
 						Required: true,
 					},
-					"sourceMacObjects": schema.StringAttribute{
+					"sourcemacobjects": schema.StringAttribute{
 						Required: true,
 					},
-					"sourceMacGroups": schema.StringAttribute{
+					"sourcemacgroups": schema.StringAttribute{
 						Required: true,
 					},
-					"destinationIpObjects": schema.StringAttribute{
+					"destinationipobjects": schema.StringAttribute{
 						Required: true,
 					},
-					"destinationIpGroups": schema.StringAttribute{
+					"destinationipgroups": schema.StringAttribute{
 						Required: true,
 					},
-					"destinationDomains": schema.StringAttribute{
+					"destinationdomains": schema.StringAttribute{
 						Required: true,
 					},
-					"destinationMacObjects": schema.StringAttribute{
+					"destinationmacobjects": schema.StringAttribute{
 						Required: true,
 					},
-					"destinationMacGroups": schema.StringAttribute{
+					"destinationmacgroups": schema.StringAttribute{
 						Required: true,
 					},
-					"servicePreObjects": schema.StringAttribute{
+					"servicepreobjects": schema.StringAttribute{
 						Required: true,
 					},
-					"serviceUsrObjects": schema.StringAttribute{
+					"serviceusrobjects": schema.StringAttribute{
 						Required: true,
 					},
-					"serviceGroups": schema.StringAttribute{
+					"servicegroups": schema.StringAttribute{
 						Required: true,
 					},
-					"userObjects": schema.StringAttribute{
+					"userobjects": schema.StringAttribute{
 						Required: true,
 					},
-					"userGroups": schema.StringAttribute{
+					"usergroups": schema.StringAttribute{
 						Required: true,
 					},
 					"describe": schema.StringAttribute{
@@ -241,19 +241,19 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 					"cos": schema.StringAttribute{
 						Required: true,
 					},
-					"rltGroup": schema.StringAttribute{
+					"rltgroup": schema.StringAttribute{
 						Required: true,
 					},
-					"rltUser": schema.StringAttribute{
+					"rltuser": schema.StringAttribute{
 						Required: true,
 					},
 					"acctl": schema.StringAttribute{
 						Required: true,
 					},
-					"urlClass": schema.StringAttribute{
+					"urlclass": schema.StringAttribute{
 						Required: true,
 					},
-					"urlSenior": schema.StringAttribute{
+					"urlsenior": schema.StringAttribute{
 						Required: true,
 					},
 					"cam": schema.StringAttribute{
