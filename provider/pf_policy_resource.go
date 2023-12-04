@@ -137,7 +137,7 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"securitypolicylist": schema.SingleNestedAttribute{
-				//Required: true,
+				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
 						Required: true,
@@ -148,8 +148,122 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 					"action": schema.StringAttribute{
 						Required: true,
 					},
-					"av": schema.StringAttribute{
+					"ipVersion": schema.StringAttribute{
 						Required: false,
+					},
+					"vsysName": schema.StringAttribute{
+						Required: true,
+					},
+					"groupName": schema.StringAttribute{
+						Required: true,
+					},
+					"targetName": schema.StringAttribute{
+						Required: true,
+					},
+					"position": schema.StringAttribute{
+						Required: true,
+					},
+					"effectName": schema.StringAttribute{
+						Required: true,
+					},
+					"matchlog": schema.StringAttribute{
+						Required: true,
+					},
+					"sessionlog": schema.StringAttribute{
+						Required: true,
+					},
+					"longsession": schema.StringAttribute{
+						Required: true,
+					},
+					"agingtime": schema.StringAttribute{
+						Required: true,
+					},
+					"fragdrop": schema.StringAttribute{
+						Required: true,
+					},
+					"sourceSecurityZone": schema.StringAttribute{
+						Required: true,
+					},
+					"destinationSecurityZone": schema.StringAttribute{
+						Required: true,
+					},
+					"sourceIpObjects": schema.StringAttribute{
+						Required: true,
+					},
+					"sourceIpGroups": schema.StringAttribute{
+						Required: true,
+					},
+					"sourceDomains": schema.StringAttribute{
+						Required: true,
+					},
+					"sourceMacObjects": schema.StringAttribute{
+						Required: true,
+					},
+					"sourceMacGroups": schema.StringAttribute{
+						Required: true,
+					},
+					"destinationIpObjects": schema.StringAttribute{
+						Required: true,
+					},
+					"destinationIpGroups": schema.StringAttribute{
+						Required: true,
+					},
+					"destinationDomains": schema.StringAttribute{
+						Required: true,
+					},
+					"destinationMacObjects": schema.StringAttribute{
+						Required: true,
+					},
+					"destinationMacGroups": schema.StringAttribute{
+						Required: true,
+					},
+					"servicePreObjects": schema.StringAttribute{
+						Required: true,
+					},
+					"serviceUsrObjects": schema.StringAttribute{
+						Required: true,
+					},
+					"serviceGroups": schema.StringAttribute{
+						Required: true,
+					},
+					"userObjects": schema.StringAttribute{
+						Required: true,
+					},
+					"userGroups": schema.StringAttribute{
+						Required: true,
+					},
+					"describe": schema.StringAttribute{
+						Required: true,
+					},
+					"dscp": schema.StringAttribute{
+						Required: true,
+					},
+					"cos": schema.StringAttribute{
+						Required: true,
+					},
+					"rltGroup": schema.StringAttribute{
+						Required: true,
+					},
+					"rltUser": schema.StringAttribute{
+						Required: true,
+					},
+					"acctl": schema.StringAttribute{
+						Required: true,
+					},
+					"urlClass": schema.StringAttribute{
+						Required: true,
+					},
+					"urlSenior": schema.StringAttribute{
+						Required: true,
+					},
+					"cam": schema.StringAttribute{
+						Required: true,
+					},
+					"ips": schema.StringAttribute{
+						Required: true,
+					},
+					"av": schema.StringAttribute{
+						Required: true,
 					},
 				},
 			},
