@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"io"
-	"net/http"
 )
 
 // 包过滤
@@ -148,9 +144,9 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 					"action": schema.StringAttribute{
 						Required: true,
 					},
-					"ipversion": schema.StringAttribute{
-						Required: false,
-					},
+					//"ipversion": schema.StringAttribute{
+					//	Required: false,
+					//},
 					"vsysname": schema.StringAttribute{
 						Required: true,
 					},
@@ -348,9 +344,10 @@ func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo 
 	var sendData AddPfPolicyRequestModel
 	if reqmethod == "POST" {
 		sendData = AddPfPolicyRequestModel{
-			Name:    Rsinfo.Name.ValueString(),
-			Enabled: Rsinfo.Enabled.ValueString(),
-			Action:  Rsinfo.Action.ValueString(),
+			Name:      Rsinfo.Name.ValueString(),
+			Enabled:   Rsinfo.Enabled.ValueString(),
+			Action:    Rsinfo.Action.ValueString(),
+			IpVersion: Rsinfo.IpVersion.ValueString(),
 		}
 	} else if reqmethod == "GET" {
 
@@ -369,35 +366,35 @@ func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo 
 
 	tflog.Info(ctx, "请求体============:"+string(body))
 
-	targetUrl := c.HostURL + "/func/web_main/api/pf_policy/pf_policy/pf_policy/securitypolicylist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-
-	// 创建一个HTTP客户端并发送请求
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	respn, err := client.Do(req)
-	if err != nil {
-		tflog.Error(ctx, "发送请求失败======="+err.Error())
-		panic("发送请求失败=======")
-	}
-	defer respn.Body.Close()
-
-	body, err2 := io.ReadAll(respn.Body)
-	if err2 != nil {
-		tflog.Error(ctx, "发送请求失败======="+err2.Error())
-		panic("发送请求失败=======")
-	}
-	// 打印响应结果
-	tflog.Info(ctx, "响应状态码======="+string(respn.Status))
-	tflog.Info(ctx, "响应体======="+string(body))
-
-	if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
-		panic("请求响应失败=======")
-	}
+	//targetUrl := c.HostURL + "/func/web_main/api/pf_policy/pf_policy/pf_policy/securitypolicylist"
+	//
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "application/json")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//
+	//// 创建一个HTTP客户端并发送请求
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//client := &http.Client{Transport: tr}
+	//respn, err := client.Do(req)
+	//if err != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//defer respn.Body.Close()
+	//
+	//body, err2 := io.ReadAll(respn.Body)
+	//if err2 != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//// 打印响应结果
+	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	//tflog.Info(ctx, "响应体======="+string(body))
+	//
+	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+	//	panic("请求响应失败=======")
+	//}
 }
