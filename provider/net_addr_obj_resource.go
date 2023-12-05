@@ -1,13 +1,9 @@
 package provider
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -28,52 +24,31 @@ type NetAddrObjResource struct {
 }
 
 type NetAddrObjResourceModel struct {
-	AddNetAddrObjParameter    AddNetAddrObjParameter    `tfsdk:"addNetAddrObjParameter"`
-	UpdateNetAddrObjParameter UpdateNetAddrObjParameter `tfsdk:"updateNetAddrObjParameter"`
-	DelNetAddrObjParameter    DelNetAddrObjParameter    `tfsdk:"delNetAddrObjParameter"`
-	ReadNetAddrObjParameter   ReadNetAddrObjParameter   `tfsdk:"readNetAddrObjParameter"`
+	AddNetAddrObjParameter AddNetAddrObjParameter `tfsdk:"netaddrobjlist"`
 }
 
+type AddNetAddrObjRequest struct {
+	AddNetAddrObjRequestModel AddNetAddrObjRequestModel `json:"netaddrobjlist"`
+}
+
+// 调用接口参数
+type AddNetAddrObjRequestModel struct {
+	IpVersion string `json:"ipVersion"`
+	VsysName  string `json:"vsysName"`
+	Name      string `json:"name"`
+	Desc      string `json:"desc"`
+	Ip        string `json:"ip"`
+	ExpIp     string `json:"expIp"`
+}
+
+// 接收外部参数
 type AddNetAddrObjParameter struct {
-	IpVersion types.String `tfsdk:"ipVersion"`
-	VsysName  types.String `tfsdk:"vsysName"`
+	IpVersion types.String `tfsdk:"ipversion"`
+	VsysName  types.String `tfsdk:"vsysname"`
 	Name      types.String `tfsdk:"name"`
 	Desc      types.String `tfsdk:"desc"`
 	Ip        types.String `tfsdk:"ip"`
-	ExpIp     types.String `tfsdk:"expIp"`
-}
-
-type UpdateNetAddrObjParameter struct {
-	IpVersion types.String `tfsdk:"ipVersion"`
-	VsysName  types.String `tfsdk:"vsysName"`
-	Name      types.String `tfsdk:"name"`
-	OldName   types.String `tfsdk:"oldName"`
-	Desc      types.String `tfsdk:"desc"`
-	Ip        types.String `tfsdk:"ip"`
-	ExpIp     types.String `tfsdk:"expIp"`
-}
-
-type DelNetAddrObjParameter struct {
-	IpVersion    types.String `tfsdk:"ipVersion"`
-	VsysName     types.String `tfsdk:"vsysName"`
-	Name         types.String `tfsdk:"name"`
-	DelAllEnable types.String `tfsdk:"delAllEnable"`
-}
-
-type ReadNetAddrObjParameter struct {
-	IpVersion    types.String `tfsdk:"ipVersion"`
-	VsysName     types.String `tfsdk:"vsysName"`
-	Offset       types.String `tfsdk:"offset"`
-	Count        types.String `tfsdk:"count"`
-	SearchValue  types.String `tfsdk:"searchValue"`
-	Id           types.String `tfsdk:"id"`
-	Name         types.String `tfsdk:"name"`
-	OldName      types.String `tfsdk:"oldName"`
-	Desc         types.String `tfsdk:"desc"`
-	Ip           types.String `tfsdk:"ip"`
-	ExpIp        types.String `tfsdk:"expIp"`
-	ReferNum     types.String `tfsdk:"referNum"`
-	DelAllEnable types.String `tfsdk:"delAllEnable"`
+	ExpIp     types.String `tfsdk:"expip"`
 }
 
 func (r *NetAddrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -83,25 +58,25 @@ func (r *NetAddrObjResource) Metadata(ctx context.Context, req resource.Metadata
 func (r *NetAddrObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"param": schema.SingleNestedAttribute{
+			"netaddrobjlist": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
+					"ipversion": schema.StringAttribute{
+						Optional: true,
+					},
+					"vsysname": schema.StringAttribute{
+						Optional: true,
+					},
 					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
+					"desc": schema.StringAttribute{
 						Optional: true,
 					},
-					"vrrp_if_name": schema.StringAttribute{
+					"ip": schema.StringAttribute{
 						Optional: true,
 					},
-					"vrrp_id": schema.StringAttribute{
+					"expip": schema.StringAttribute{
 						Optional: true,
 					},
 				},
@@ -137,7 +112,7 @@ func (r *NetAddrObjResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 	tflog.Trace(ctx, "created a resource ****** ********")
-	sendToweb_AddNetAddrObjRequest(ctx, "POST", r.client, data.AddNetAddrObjParameter)
+	sendToweb_NetAddrObjRequest(ctx, "POST", r.client, data.AddNetAddrObjParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -150,7 +125,7 @@ func (r *NetAddrObjResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	sendToweb_ReadNetAddrObjRequest(ctx, "GET", r.client, data.ReadNetAddrObjParameter)
+	//sendToweb_NetAddrObjRequest(ctx, "GET", r.client, data.AddNetAddrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -161,7 +136,7 @@ func (r *NetAddrObjResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateNetAddrObjRequest(ctx, "PUT", r.client, data.UpdateNetAddrObjParameter)
+	//sendToweb_NetAddrObjRequest(ctx, "PUT", r.client, data.AddNetAddrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -169,7 +144,7 @@ func (r *NetAddrObjResource) Delete(ctx context.Context, req resource.DeleteRequ
 	var data *NetAddrObjResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelNetAddrObjRequest(ctx, "DELETE", r.client, data.DelNetAddrObjParameter)
+	//sendToweb_NetAddrObjRequest(ctx, "DELETE", r.client, data.AddNetAddrObjParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -189,90 +164,63 @@ func (r *NetAddrObjResource) ImportState(ctx context.Context, req resource.Impor
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrObjParameter) {
-	requstData := Rsinfo
+func sendToweb_NetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrObjParameter) {
 
+	var sendData AddNetAddrObjRequestModel
+	if reqmethod == "POST" {
+		sendData = AddNetAddrObjRequestModel{
+			IpVersion: Rsinfo.IpVersion.ValueString(),
+			Name:      Rsinfo.Name.ValueString(),
+			VsysName:  Rsinfo.VsysName.ValueString(),
+			Ip:        Rsinfo.Ip.ValueString(),
+			Desc:      Rsinfo.Desc.ValueString(),
+			ExpIp:     Rsinfo.ExpIp.ValueString(),
+		}
+	} else if reqmethod == "GET" {
+
+	} else if reqmethod == "PUT" {
+
+	} else if reqmethod == "DELETE" {
+
+	}
+
+	requstData := AddNetAddrObjRequest{
+		AddNetAddrObjRequestModel: sendData,
+	}
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist"
 
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
+	tflog.Info(ctx, "请求体============:"+string(body))
 
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
+	//targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist"
+	//
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "application/json")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//
+	//// 创建一个HTTP客户端并发送请求
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//client := &http.Client{Transport: tr}
+	//respn, err := client.Do(req)
+	//if err != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//defer respn.Body.Close()
+	//
+	//body, err2 := io.ReadAll(respn.Body)
+	//if err2 != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//// 打印响应结果
+	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	//tflog.Info(ctx, "响应体======="+string(body))
+	//
+	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+	//	panic("请求响应失败=======")
+	//}
 
-func sendToweb_UpdateNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateNetAddrObjParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_DelNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelNetAddrObjParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_ReadNetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadNetAddrObjParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist?vsysName=PublicSystem&offset=0&count=25"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
 }

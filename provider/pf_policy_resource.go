@@ -145,124 +145,124 @@ func (r *PfPolicyResource) Schema(ctx context.Context, req resource.SchemaReques
 						Required: true,
 					},
 					"delallenable": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"ipversion": schema.StringAttribute{
 						Optional: true,
 					},
 					"vsysname": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"groupname": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"targetname": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"position": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"effectname": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"matchlog": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"sessionlog": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"longsession": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"agingtime": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"fragdrop": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"sourcesecurityzone": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"destinationsecurityzone": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"sourceipobjects": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"sourceipgroups": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"sourcedomains": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"sourcemacobjects": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"sourcemacgroups": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"destinationipobjects": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"destinationipgroups": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"destinationdomains": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"destinationmacobjects": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"destinationmacgroups": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"servicepreobjects": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"serviceusrobjects": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"servicegroups": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"userobjects": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"usergroups": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"describe": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"dscp": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"cos": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"rltgroup": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"rltuser": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"acctl": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"urlclass": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"urlsenior": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"cam": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"ips": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"av": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 				},
 			},
@@ -297,7 +297,7 @@ func (r *PfPolicyResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	//sendToweb_Request(ctx, "POST", r.client, data.AddPfPolicyParameter)
+	sendToweb_Request(ctx, "POST", r.client, data.AddPfPolicyParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -347,10 +347,48 @@ func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo 
 	var sendData AddPfPolicyRequestModel
 	if reqmethod == "POST" {
 		sendData = AddPfPolicyRequestModel{
-			Name:      Rsinfo.Name.ValueString(),
-			Enabled:   Rsinfo.Enabled.ValueString(),
-			Action:    Rsinfo.Action.ValueString(),
-			IpVersion: Rsinfo.IpVersion.ValueString(),
+			Name:                    Rsinfo.Name.ValueString(),
+			Enabled:                 Rsinfo.Enabled.ValueString(),
+			Action:                  Rsinfo.Action.ValueString(),
+			IpVersion:               Rsinfo.IpVersion.ValueString(),
+			VsysName:                Rsinfo.VsysName.ValueString(),
+			GroupName:               Rsinfo.GroupName.ValueString(),
+			TargetName:              Rsinfo.TargetName.ValueString(),
+			Position:                Rsinfo.Position.ValueString(),
+			EffectName:              Rsinfo.EffectName.ValueString(),
+			Matchlog:                Rsinfo.Matchlog.ValueString(),
+			Sessionlog:              Rsinfo.Sessionlog.ValueString(),
+			Longsession:             Rsinfo.Longsession.ValueString(),
+			Agingtime:               Rsinfo.Agingtime.ValueString(),
+			Fragdrop:                Rsinfo.Fragdrop.ValueString(),
+			SourceSecurityZone:      Rsinfo.SourceSecurityZone.ValueString(),
+			DestinationSecurityZone: Rsinfo.DestinationSecurityZone.ValueString(),
+			SourceIpObjects:         Rsinfo.SourceIpObjects.ValueString(),
+			SourceIpGroups:          Rsinfo.SourceIpGroups.ValueString(),
+			SourceDomains:           Rsinfo.SourceDomains.ValueString(),
+			SourceMacObjects:        Rsinfo.SourceMacObjects.ValueString(),
+			SourceMacGroups:         Rsinfo.SourceMacGroups.ValueString(),
+			DestinationIpObjects:    Rsinfo.DestinationIpObjects.ValueString(),
+			DestinationIpGroups:     Rsinfo.DestinationIpGroups.ValueString(),
+			DestinationDomains:      Rsinfo.DestinationDomains.ValueString(),
+			DestinationMacObjects:   Rsinfo.DestinationMacObjects.ValueString(),
+			DestinationMacGroups:    Rsinfo.DestinationMacGroups.ValueString(),
+			ServicePreObjects:       Rsinfo.ServicePreObjects.ValueString(),
+			ServiceUsrObjects:       Rsinfo.ServiceUsrObjects.ValueString(),
+			ServiceGroups:           Rsinfo.ServiceGroups.ValueString(),
+			UserObjects:             Rsinfo.UserObjects.ValueString(),
+			UserGroups:              Rsinfo.UserGroups.ValueString(),
+			Description:             Rsinfo.Description.ValueString(),
+			Dscp:                    Rsinfo.Dscp.ValueString(),
+			Cos:                     Rsinfo.Cos.ValueString(),
+			RltGroup:                Rsinfo.RltGroup.ValueString(),
+			RltUser:                 Rsinfo.RltUser.ValueString(),
+			Acctl:                   Rsinfo.Acctl.ValueString(),
+			UrlClass:                Rsinfo.UrlClass.ValueString(),
+			UrlSenior:               Rsinfo.UrlSenior.ValueString(),
+			Cam:                     Rsinfo.Cam.ValueString(),
+			Ips:                     Rsinfo.Ips.ValueString(),
+			Av:                      Rsinfo.Av.ValueString(),
 		}
 	} else if reqmethod == "GET" {
 

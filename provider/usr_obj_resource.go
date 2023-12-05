@@ -1,13 +1,9 @@
 package provider
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -28,59 +24,37 @@ type UsrObjResource struct {
 }
 
 type UsrObjResourceModel struct {
-	AddUsrObjParameter    AddUsrObjParameter    `tfsdk:"addUsrObjParameter"`
-	UpdateUsrObjParameter UpdateUsrObjParameter `tfsdk:"updateUsrObjParameter"`
-	DelUsrObjParameter    DelUsrObjParameter    `tfsdk:"delUsrObjParameter"`
-	ReadUsrObjParameter   ReadUsrObjParameter   `tfsdk:"readUsrObjParameter"`
+	AddUsrObjParameter AddUsrObjParameter `tfsdk:"usrobj"`
 }
 
+type AddUsrObjRequest struct {
+	AddUsrObjRequestModel AddUsrObjRequestModel `json:"usrobj"`
+}
+
+// 调用接口参数
+type AddUsrObjRequestModel struct {
+	Name       string `json:"name"`
+	VfwName    string `json:"vfwName"`
+	Protocol   string `json:"protocol"`
+	SportStart string `json:"sportStart"`
+	SportEnd   string `json:"sportEnd"`
+	DportStart string `json:"dportStart"`
+	DportEnd   string `json:"dportEnd"`
+	Services   string `json:"services"`
+	Desc       string `json:"desc"`
+}
+
+// 接收外部参数
 type AddUsrObjParameter struct {
 	Name       types.String `tfsdk:"name"`
-	VfwName    types.String `tfsdk:"vfwName"`
+	VfwName    types.String `tfsdk:"vfwname"`
 	Protocol   types.String `tfsdk:"protocol"`
-	SportStart types.String `tfsdk:"sportStart"`
-	SportEnd   types.String `tfsdk:"sportEnd"`
-	DportStart types.String `tfsdk:"dportStart"`
-	DportEnd   types.String `tfsdk:"dportEnd"`
+	SportStart types.String `tfsdk:"sportstart"`
+	SportEnd   types.String `tfsdk:"sportend"`
+	DportStart types.String `tfsdk:"dportstart"`
+	DportEnd   types.String `tfsdk:"dportend"`
 	Services   types.String `tfsdk:"services"`
 	Desc       types.String `tfsdk:"desc"`
-}
-
-type UpdateUsrObjParameter struct {
-	Name       types.String `tfsdk:"name"`
-	VfwName    types.String `tfsdk:"vfwName"`
-	OldName    types.String `tfsdk:"oldName"`
-	Protocol   types.String `tfsdk:"protocol"`
-	SportStart types.String `tfsdk:"sportStart"`
-	SportEnd   types.String `tfsdk:"sportEnd"`
-	DportStart types.String `tfsdk:"dportStart"`
-	DportEnd   types.String `tfsdk:"dportEnd"`
-	Services   types.String `tfsdk:"services"`
-	Desc       types.String `tfsdk:"desc"`
-}
-
-type DelUsrObjParameter struct {
-	Name         types.String `tfsdk:"name"`
-	VfwName      types.String `tfsdk:"vfwName"`
-	DelAllEnable types.String `tfsdk:"delAllEnable"`
-}
-
-type ReadUsrObjParameter struct {
-	Id           types.String `tfsdk:"id"`
-	VfwName      types.String `tfsdk:"vfwName"`
-	Name         types.String `tfsdk:"name"`
-	OldName      types.String `tfsdk:"oldName"`
-	Protocol     types.String `tfsdk:"protocol"`
-	SportStart   types.String `tfsdk:"sportStart"`
-	SportEnd     types.String `tfsdk:"sportEnd"`
-	DportStart   types.String `tfsdk:"dportStart"`
-	DportEnd     types.String `tfsdk:"dportEnd"`
-	Services     types.String `tfsdk:"services"`
-	ReferNum     types.String `tfsdk:"referNum"`
-	DelAllEnable types.String `tfsdk:"delAllEnable"`
-	SearchValue  types.String `tfsdk:"searchValue"`
-	Offset       types.String `tfsdk:"offset"`
-	Count        types.String `tfsdk:"count"`
 }
 
 func (r *UsrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -90,25 +64,34 @@ func (r *UsrObjResource) Metadata(ctx context.Context, req resource.MetadataRequ
 func (r *UsrObjResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"param": schema.SingleNestedAttribute{
+			"usrobj": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
+					"vfwname": schema.StringAttribute{
 						Optional: true,
 					},
-					"vrrp_if_name": schema.StringAttribute{
+					"protocol": schema.StringAttribute{
+						Required: true,
+					},
+					"sportstart": schema.StringAttribute{
 						Optional: true,
 					},
-					"vrrp_id": schema.StringAttribute{
+					"sportend": schema.StringAttribute{
+						Optional: true,
+					},
+					"dportstart": schema.StringAttribute{
+						Optional: true,
+					},
+					"dportend": schema.StringAttribute{
+						Optional: true,
+					},
+					"services": schema.StringAttribute{
+						Optional: true,
+					},
+					"desc": schema.StringAttribute{
 						Optional: true,
 					},
 				},
@@ -144,7 +127,7 @@ func (r *UsrObjResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddUsrObjRequest(ctx, "POST", r.client, data.AddUsrObjParameter)
+	sendToweb_UsrObjRequest(ctx, "POST", r.client, data.AddUsrObjParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -157,7 +140,7 @@ func (r *UsrObjResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadUsrObjRequest(ctx, "GET", r.client, data.ReadUsrObjParameter)
+	//sendToweb_UsrObjRequest(ctx, "GET", r.client, data.AddUsrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -168,7 +151,7 @@ func (r *UsrObjResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateUsrObjRequest(ctx, "PUT", r.client, data.UpdateUsrObjParameter)
+	//sendToweb_UsrObjRequest(ctx, "PUT", r.client, data.AddUsrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -176,7 +159,7 @@ func (r *UsrObjResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	var data *UsrObjResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelUsrObjRequest(ctx, "DELETE", r.client, data.DelUsrObjParameter)
+	//sendToweb_UsrObjRequest(ctx, "DELETE", r.client, data.AddUsrObjParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -189,90 +172,66 @@ func (r *UsrObjResource) ImportState(ctx context.Context, req resource.ImportSta
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddUsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddUsrObjParameter) {
-	requstData := Rsinfo
+func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddUsrObjParameter) {
 
+	var sendData AddUsrObjRequestModel
+	if reqmethod == "POST" {
+		sendData = AddUsrObjRequestModel{
+			Name:       Rsinfo.Name.ValueString(),
+			VfwName:    Rsinfo.VfwName.ValueString(),
+			Protocol:   Rsinfo.Protocol.ValueString(),
+			SportStart: Rsinfo.SportStart.ValueString(),
+			SportEnd:   Rsinfo.SportEnd.ValueString(),
+			DportStart: Rsinfo.DportStart.ValueString(),
+			DportEnd:   Rsinfo.DportEnd.ValueString(),
+			Services:   Rsinfo.Services.ValueString(),
+			Desc:       Rsinfo.Desc.ValueString(),
+		}
+	} else if reqmethod == "GET" {
+
+	} else if reqmethod == "PUT" {
+
+	} else if reqmethod == "DELETE" {
+
+	}
+
+	requstData := AddUsrObjRequest{
+		AddUsrObjRequestModel: sendData,
+	}
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
 
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
+	tflog.Info(ctx, "请求体============:"+string(body))
 
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
+	//targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
+	//
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "application/json")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//
+	//// 创建一个HTTP客户端并发送请求
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//client := &http.Client{Transport: tr}
+	//respn, err := client.Do(req)
+	//if err != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//defer respn.Body.Close()
+	//
+	//body, err2 := io.ReadAll(respn.Body)
+	//if err2 != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//// 打印响应结果
+	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	//tflog.Info(ctx, "响应体======="+string(body))
+	//
+	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+	//	panic("请求响应失败=======")
+	//}
 
-func sendToweb_UpdateUsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateUsrObjParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_DelUsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelUsrObjParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_ReadUsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadUsrObjParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj?vfwName=vsys&searchValue=&offset=1&count=100"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
 }

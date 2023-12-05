@@ -1,13 +1,9 @@
 package provider
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -28,47 +24,27 @@ type UsrGroupResource struct {
 }
 
 type UsrGroupResourceModel struct {
-	AddUsrGroupParameter    AddUsrGroupParameter    `tfsdk:"addUsrGroupParameter"`
-	UpdateUsrGroupParameter UpdateUsrGroupParameter `tfsdk:"updateUsrGroupParameter"`
-	DelUsrGroupParameter    DelUsrGroupParameter    `tfsdk:"delUsrGroupParameter"`
-	ReadUsrGroupParameter   ReadUsrGroupParameter   `tfsdk:"readUsrGroupParameter"`
+	AddUsrGroupParameter AddUsrGroupParameter `tfsdk:"addUsrGroupParameter"`
 }
 
+type AddUsrGroupRequest struct {
+	AddUsrGroupRequestModel AddUsrGroupRequestModel `json:"netaddrgrplist"`
+}
+
+// 调用接口参数
+type AddUsrGroupRequestModel struct {
+	Name           string `json:"name"`
+	VfwName        string `json:"vfwName"`
+	Desc           string `json:"desc"`
+	AllSerNameList string `json:"allSerNameList"`
+}
+
+// 接收外部参数
 type AddUsrGroupParameter struct {
 	Name           types.String `tfsdk:"name"`
-	VfwName        types.String `tfsdk:"vfwName"`
+	VfwName        types.String `tfsdk:"vfwname"`
 	Desc           types.String `tfsdk:"desc"`
-	AllSerNameList types.String `tfsdk:"allSerNameList"`
-}
-
-type UpdateUsrGroupParameter struct {
-	Name           types.String `tfsdk:"name"`
-	VfwName        types.String `tfsdk:"vfwName"`
-	OldName        types.String `tfsdk:"oldName"`
-	Desc           types.String `tfsdk:"desc"`
-	AllSerNameList types.String `tfsdk:"allSerNameList"`
-}
-
-type DelUsrGroupParameter struct {
-	Name         types.String `tfsdk:"name"`
-	VfwName      types.String `tfsdk:"vfwName"`
-	DelAllEnable types.String `tfsdk:"delAllEnable"`
-}
-
-type ReadUsrGroupParameter struct {
-	Id             types.String `tfsdk:"id"`
-	VfwName        types.String `tfsdk:"vfwName"`
-	Name           types.String `tfsdk:"name"`
-	OldName        types.String `tfsdk:"oldName"`
-	Desc           types.String `tfsdk:"desc"`
-	AllSerNameList types.String `tfsdk:"allSerNameList"`
-	PreNameList    types.String `tfsdk:"preNameList"`
-	UsrNameList    types.String `tfsdk:"usrNameList"`
-	ReferNum       types.String `tfsdk:"referNum"`
-	DelAllEnable   types.String `tfsdk:"delAllEnable"`
-	SearchValue    types.String `tfsdk:"searchValue"`
-	Offset         types.String `tfsdk:"offset"`
-	Count          types.String `tfsdk:"count"`
+	AllSerNameList types.String `tfsdk:"allsernamelist"`
 }
 
 func (r *UsrGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -84,19 +60,13 @@ func (r *UsrGroupResource) Schema(ctx context.Context, req resource.SchemaReques
 					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_start": schema.StringAttribute{
+					"vfwname": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_end": schema.StringAttribute{
+					"desc": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
+					"allsernamelist": schema.StringAttribute{
 						Optional: true,
 					},
 				},
@@ -132,7 +102,7 @@ func (r *UsrGroupResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddUsrGroupRequest(ctx, "POST", r.client, data.AddUsrGroupParameter)
+	sendToweb_UsrGroupRequest(ctx, "POST", r.client, data.AddUsrGroupParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -145,7 +115,7 @@ func (r *UsrGroupResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadUsrGroupRequest(ctx, "GET", r.client, data.ReadUsrGroupParameter)
+	//sendToweb_UsrGroupRequest(ctx, "GET", r.client, data.AddUsrGroupParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -156,7 +126,7 @@ func (r *UsrGroupResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateUsrGroupRequest(ctx, "PUT", r.client, data.UpdateUsrGroupParameter)
+	//sendToweb_UsrGroupRequest(ctx, "PUT", r.client, data.AddUsrGroupParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -164,7 +134,7 @@ func (r *UsrGroupResource) Delete(ctx context.Context, req resource.DeleteReques
 	var data *UsrGroupResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelUsrGroupRequest(ctx, "DELETE", r.client, data.DelUsrGroupParameter)
+	//sendToweb_UsrGroupRequest(ctx, "DELETE", r.client, data.AddUsrGroupParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -177,90 +147,61 @@ func (r *UsrGroupResource) ImportState(ctx context.Context, req resource.ImportS
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddUsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddUsrGroupParameter) {
-	requstData := Rsinfo
+func sendToweb_UsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddUsrGroupParameter) {
 
+	var sendData AddUsrGroupRequestModel
+	if reqmethod == "POST" {
+		sendData = AddUsrGroupRequestModel{
+			Name:           Rsinfo.Name.ValueString(),
+			VfwName:        Rsinfo.VfwName.ValueString(),
+			AllSerNameList: Rsinfo.AllSerNameList.ValueString(),
+			Desc:           Rsinfo.Desc.ValueString(),
+		}
+	} else if reqmethod == "GET" {
+
+	} else if reqmethod == "PUT" {
+
+	} else if reqmethod == "DELETE" {
+
+	}
+
+	requstData := AddUsrGroupRequest{
+		AddUsrGroupRequestModel: sendData,
+	}
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/grp"
 
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
+	tflog.Info(ctx, "请求体============:"+string(body))
 
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
+	//targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/grp"
+	//
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "application/json")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//
+	//// 创建一个HTTP客户端并发送请求
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//client := &http.Client{Transport: tr}
+	//respn, err := client.Do(req)
+	//if err != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//defer respn.Body.Close()
+	//
+	//body, err2 := io.ReadAll(respn.Body)
+	//if err2 != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//// 打印响应结果
+	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	//tflog.Info(ctx, "响应体======="+string(body))
+	//
+	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+	//	panic("请求响应失败=======")
+	//}
 
-func sendToweb_UpdateUsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateUsrGroupParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/grp"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_DelUsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelUsrGroupParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/grp"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_ReadUsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadUsrGroupParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/grp?vfwName=vsys&searchValue=&offset=1&count=100"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
 }

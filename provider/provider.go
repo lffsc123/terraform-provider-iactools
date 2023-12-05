@@ -117,6 +117,13 @@ func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.R
 		NewIpv4RouterResource,
 		NewIpv4StrategyRouterResource,
 		NewPfPolicyResource,
+		NewVsysResource,
+		NewSecurityZoneResource,
+		NewNetAddrObjResource,
+		NewNetAddrGroupResource,
+		NewUsrObjResource,
+		NewUsrGroupResource,
+		NewVrrpResource,
 	}
 }
 

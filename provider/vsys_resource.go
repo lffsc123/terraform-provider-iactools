@@ -1,13 +1,9 @@
 package provider
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -28,35 +24,27 @@ type VsysResource struct {
 }
 
 type VsysResourceModel struct {
-	AddVsysParameter    AddVsysParameter    `tfsdk:"addVsysParameter"`
-	UpdateVsysParameter UpdateVsysParameter `tfsdk:"updateVsysParameter"`
-	DelVsysParameter    DelVsysParameter    `tfsdk:"delVsysParameter"`
-	ReadVsysParameter   ReadVsysParameter   `tfsdk:"readVsysParameter"`
+	AddVsysParameter AddVsysParameter `tfsdk:"vsyslist"`
 }
 
+type AddVsysRequest struct {
+	AddVsysRequestModel AddVsysRequestModel `json:"vsyslist"`
+}
+
+// 调用接口参数
+type AddVsysRequestModel struct {
+	VsysName string `json:"vsysName"`
+	VsysType string `json:"vsysType"`
+	VsysId   string `json:"vsysId"`
+	VsysInfo string `json:"vsysInfo"`
+}
+
+// 接收外部参数
 type AddVsysParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
-	VsysType types.String `tfsdk:"vsysType"`
-	VsysId   types.String `tfsdk:"vsysId"`
-	VsysInfo types.String `tfsdk:"vsysInfo"`
-}
-
-type UpdateVsysParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
-	VsysType types.String `tfsdk:"vsysType"`
-	VsysId   types.String `tfsdk:"vsysId"`
-	VsysInfo types.String `tfsdk:"vsysInfo"`
-}
-
-type DelVsysParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
-}
-
-type ReadVsysParameter struct {
-	VsysName types.String `tfsdk:"vsysName"`
-	VsysType types.String `tfsdk:"vsysType"`
-	VsysId   types.String `tfsdk:"vsysId"`
-	VsysInfo types.String `tfsdk:"vsysInfo"`
+	VsysName types.String `tfsdk:"vsysname"`
+	VsysType types.String `tfsdk:"vsystype"`
+	VsysId   types.String `tfsdk:"vsysid"`
+	VsysInfo types.String `tfsdk:"vsysinfo"`
 }
 
 func (r *VsysResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -66,26 +54,20 @@ func (r *VsysResource) Metadata(ctx context.Context, req resource.MetadataReques
 func (r *VsysResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"param": schema.SingleNestedAttribute{
+			"vsyslist": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
-					"name": schema.StringAttribute{
+					"vsysname": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_start": schema.StringAttribute{
+					"vsystype": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_end": schema.StringAttribute{
+					"vsysid": schema.StringAttribute{
+						Optional: true,
+					},
+					"vsysinfo": schema.StringAttribute{
 						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
-						Optional: true,
 					},
 				},
 			},
@@ -120,7 +102,7 @@ func (r *VsysResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddVsysRequest(ctx, "POST", r.client, data.AddVsysParameter)
+	sendToweb_VsysRequest(ctx, "POST", r.client, data.AddVsysParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -133,7 +115,7 @@ func (r *VsysResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 	tflog.Info(ctx, " read Start ***************")
-	sendToweb_ReadVsysRequest(ctx, "GET", r.client, data.ReadVsysParameter)
+	//sendToweb_VsysRequest(ctx, "GET", r.client, data.AddVsysParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -144,7 +126,7 @@ func (r *VsysResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateVsysRequest(ctx, "PUT", r.client, data.UpdateVsysParameter)
+	//sendToweb_VsysRequest(ctx, "PUT", r.client, data.AddVsysParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -152,7 +134,7 @@ func (r *VsysResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	var data *VsysResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelVsysRequest(ctx, "DELETE", r.client, data.DelVsysParameter)
+	//sendToweb_VsysRequest(ctx, "DELETE", r.client, data.AddVsysParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -165,90 +147,60 @@ func (r *VsysResource) ImportState(ctx context.Context, req resource.ImportState
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVsysParameter) {
-	requstData := Rsinfo
+func sendToweb_VsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVsysParameter) {
 
+	var sendData AddVsysRequestModel
+	if reqmethod == "POST" {
+		sendData = AddVsysRequestModel{
+			VsysName: Rsinfo.VsysName.ValueString(),
+			VsysType: Rsinfo.VsysType.ValueString(),
+			VsysId:   Rsinfo.VsysId.ValueString(),
+			VsysInfo: Rsinfo.VsysInfo.ValueString(),
+		}
+	} else if reqmethod == "GET" {
+
+	} else if reqmethod == "PUT" {
+
+	} else if reqmethod == "DELETE" {
+
+	}
+
+	requstData := AddVsysRequest{
+		AddVsysRequestModel: sendData,
+	}
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
 
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
+	tflog.Info(ctx, "请求体============:"+string(body))
 
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_UpdateVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateVsysParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_DelVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelVsysParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_ReadVsysRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadVsysParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
+	//targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
+	//
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "application/json")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//
+	//// 创建一个HTTP客户端并发送请求
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//client := &http.Client{Transport: tr}
+	//respn, err := client.Do(req)
+	//if err != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//defer respn.Body.Close()
+	//
+	//body, err2 := io.ReadAll(respn.Body)
+	//if err2 != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//// 打印响应结果
+	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	//tflog.Info(ctx, "响应体======="+string(body))
+	//
+	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+	//	panic("请求响应失败=======")
+	//}
 }

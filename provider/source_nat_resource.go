@@ -1,13 +1,9 @@
 package provider
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -28,90 +24,55 @@ type SourceNatResource struct {
 }
 
 type SourceNatResourceModel struct {
-	AddSourceNatParameter    AddSourceNatParameter    `tfsdk:"addSourceNatParameter"`
-	UpdateSourceNatParameter UpdateSourceNatParameter `tfsdk:"updateSourceNatParameter"`
-	DelSourceNatParameter    DelSourceNatParameter    `tfsdk:"delSourceNatParameter"`
-	ReadSourceNatParameter   ReadSourceNatParameter   `tfsdk:"readSourceNatParameter"`
+	AddSourceNatParameter AddSourceNatParameter `tfsdk:"addSourceNatParameter"`
 }
 
+type AddSourceNatRequest struct {
+	AddSourceNatRequestModel AddSourceNatRequestModel `json:"dnatlist"`
+}
+
+// 调用接口参数
+type AddSourceNatRequestModel struct {
+	IpVersion           string `json:"ipVersion"`
+	VsysName            string `json:"vsysName"`
+	Name                string `json:"name"`
+	TargetName          string `json:"targetName"`
+	Position            string `json:"position"`
+	OutInterface        string `json:"outInterface"`
+	SrcAddrObj          string `json:"srcAddrObj"`
+	SrcAddrGroup        string `json:"srcAddrGroup"`
+	DstAddrObj          string `json:"dstAddrObj"`
+	PreService          string `json:"preService"`
+	UsrService          string `json:"usrService"`
+	ServiceGroup        string `json:"serviceGroup"`
+	PublicIpAddressFlag string `json:"publicIpAddressFlag"`
+	AddrpoolName        string `json:"addrpoolName"`
+	MinPort             string `json:"minPort"`
+	MaxPort             string `json:"maxPort"`
+	PortHash            string `json:"portHash"`
+	State               string `json:"state"`
+}
+
+// 接收外部参数
 type AddSourceNatParameter struct {
-	IpVersion           types.String `tfsdk:"ipVersion"`
-	VsysName            types.String `tfsdk:"vsysName"`
+	IpVersion           types.String `tfsdk:"ipversion"`
+	VsysName            types.String `tfsdk:"vsysname"`
 	Name                types.String `tfsdk:"name"`
-	TargetName          types.String `tfsdk:"targetName"`
+	TargetName          types.String `tfsdk:"targetname"`
 	Position            types.String `tfsdk:"position"`
-	OutInterface        types.String `tfsdk:"outInterface"`
-	SrcAddrObj          types.String `tfsdk:"srcAddrObj"`
-	SrcAddrGroup        types.String `tfsdk:"srcAddrGroup"`
-	DstAddrObj          types.String `tfsdk:"dstAddrObj"`
-	PreService          types.String `tfsdk:"preService"`
-	UsrService          types.String `tfsdk:"usrService"`
-	ServiceGroup        types.String `tfsdk:"serviceGroup"`
-	PublicIpAddressFlag types.String `tfsdk:"publicIpAddressFlag"`
-	AddrpoolName        types.String `tfsdk:"addrpoolName"`
-	MinPort             types.String `tfsdk:"minPort"`
-	MaxPort             types.String `tfsdk:"maxPort"`
-	PortHash            types.String `tfsdk:"portHash"`
+	OutInterface        types.String `tfsdk:"outinterface"`
+	SrcAddrObj          types.String `tfsdk:"srcaddrobj"`
+	SrcAddrGroup        types.String `tfsdk:"srcaddrgroup"`
+	DstAddrObj          types.String `tfsdk:"dstaddrobj"`
+	PreService          types.String `tfsdk:"preservice"`
+	UsrService          types.String `tfsdk:"usrservice"`
+	ServiceGroup        types.String `tfsdk:"servicegroup"`
+	PublicIpAddressFlag types.String `tfsdk:"publicipaddressflag"`
+	AddrpoolName        types.String `tfsdk:"addrpoolname"`
+	MinPort             types.String `tfsdk:"minport"`
+	MaxPort             types.String `tfsdk:"maxport"`
+	PortHash            types.String `tfsdk:"porthash"`
 	State               types.String `tfsdk:"state"`
-}
-
-type UpdateSourceNatParameter struct {
-	IpVersion           types.String `tfsdk:"ipVersion"`
-	VsysName            types.String `tfsdk:"vsysName"`
-	OldName             types.String `tfsdk:"oldName"`
-	TargetName          types.String `tfsdk:"targetName"`
-	Position            types.String `tfsdk:"position"`
-	OutInterface        types.String `tfsdk:"outInterface"`
-	SrcAddrObj          types.String `tfsdk:"srcAddrObj"`
-	SrcAddrGroup        types.String `tfsdk:"srcAddrGroup"`
-	DstAddrObj          types.String `tfsdk:"dstAddrObj"`
-	DstAddrGroup        types.String `tfsdk:"dstAddrGroup"`
-	PreService          types.String `tfsdk:"preService"`
-	UsrService          types.String `tfsdk:"usrService"`
-	ServiceGroup        types.String `tfsdk:"serviceGroup"`
-	PublicIpAddressFlag types.String `tfsdk:"publicIpAddressFlag"`
-	AddrpoolName        types.String `tfsdk:"addrpoolName"`
-	MinPort             types.String `tfsdk:"minPort"`
-	MaxPort             types.String `tfsdk:"maxPort"`
-	PortHash            types.String `tfsdk:"portHash"`
-	State               types.String `tfsdk:"state"`
-}
-
-type DelSourceNatParameter struct {
-	IpVersion    types.String `tfsdk:"ipVersion"`
-	VsysName     types.String `tfsdk:"vsysName"`
-	Name         types.String `tfsdk:"name"`
-	DelallEnable types.String `tfsdk:"delallEnable"`
-}
-
-type ReadSourceNatParameter struct {
-	IpVersion           types.String `tfsdk:"ipVersion"`
-	VsysName            types.String `tfsdk:"vsysName"`
-	Offset              types.String `tfsdk:"offset"`
-	Count               types.String `tfsdk:"count"`
-	Name                types.String `tfsdk:"name"`
-	OutInterface        types.String `tfsdk:"outInterface"`
-	SourceIp            types.String `tfsdk:"sourceIp"`
-	DestinationIp       types.String `tfsdk:"destinationIp"`
-	Service             types.String `tfsdk:"service"`
-	State               types.String `tfsdk:"state"`
-	SrcAddrObj          types.String `tfsdk:"srcAddrObj"`
-	SrcAddrGroup        types.String `tfsdk:"srcAddrGroup"`
-	DstAddrObj          types.String `tfsdk:"dstAddrObj"`
-	DstAddrGroup        types.String `tfsdk:"dstAddrGroup"`
-	PreService          types.String `tfsdk:"preService"`
-	UsrService          types.String `tfsdk:"usrService"`
-	ServiceGroup        types.String `tfsdk:"serviceGroup"`
-	PublicIpAddressFlag types.String `tfsdk:"publicIpAddressFlag"`
-	AddrpoolName        types.String `tfsdk:"addrpoolName"`
-	MinPort             types.String `tfsdk:"minPort"`
-	MaxPort             types.String `tfsdk:"maxPort"`
-	PortHash            types.String `tfsdk:"portHash"`
-	RuleId              types.String `tfsdk:"ruleId"`
-	DelallEnable        types.String `tfsdk:"delallEnable"`
-	TargetName          types.String `tfsdk:"targetName"`
-	OldName             types.String `tfsdk:"oldName"`
-	Position            types.String `tfsdk:"position"`
 }
 
 func (r *SourceNatResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -121,25 +82,61 @@ func (r *SourceNatResource) Metadata(ctx context.Context, req resource.MetadataR
 func (r *SourceNatResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"sourcenat": schema.SingleNestedAttribute{
+			"snatlist": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
+					"ipversion": schema.StringAttribute{
+						Optional: true,
+					},
+					"vsysname": schema.StringAttribute{
+						Optional: true,
+					},
 					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
+					"targetname": schema.StringAttribute{
 						Optional: true,
 					},
-					"vrrp_if_name": schema.StringAttribute{
+					"position": schema.StringAttribute{
 						Optional: true,
 					},
-					"vrrp_id": schema.StringAttribute{
+					"outinterface": schema.StringAttribute{
+						Required: true,
+					},
+					"srcaddrobj": schema.StringAttribute{
+						Optional: true,
+					},
+					"srcaddrgroup": schema.StringAttribute{
+						Optional: true,
+					},
+					"dstaddrobj": schema.StringAttribute{
+						Optional: true,
+					},
+					"preservice": schema.StringAttribute{
+						Optional: true,
+					},
+					"usrservice": schema.StringAttribute{
+						Optional: true,
+					},
+					"servicegroup": schema.StringAttribute{
+						Optional: true,
+					},
+					"publicipaddressflag": schema.StringAttribute{
+						Optional: true,
+					},
+					"addrpoolname": schema.StringAttribute{
+						Optional: true,
+					},
+					"minport": schema.StringAttribute{
+						Optional: true,
+					},
+					"maxport": schema.StringAttribute{
+						Optional: true,
+					},
+					"porthash": schema.StringAttribute{
+						Optional: true,
+					},
+					"state": schema.StringAttribute{
 						Optional: true,
 					},
 				},
@@ -176,7 +173,7 @@ func (r *SourceNatResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddSourceNatRequest(ctx, "POST", r.client, data.AddSourceNatParameter)
+	sendToweb_SourceNatRequest(ctx, "POST", r.client, data.AddSourceNatParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -189,7 +186,7 @@ func (r *SourceNatResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	sendToweb_ReadSourceNatRequest(ctx, "GET", r.client, data.ReadSourceNatParameter)
+	//sendToweb_SourceNatRequest(ctx, "GET", r.client, data.AddSourceNatParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -200,7 +197,7 @@ func (r *SourceNatResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateSourceNatRequest(ctx, "PUT", r.client, data.UpdateSourceNatParameter)
+	//sendToweb_SourceNatRequest(ctx, "PUT", r.client, data.AddSourceNatParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -208,7 +205,7 @@ func (r *SourceNatResource) Delete(ctx context.Context, req resource.DeleteReque
 	var data *SourceNatResourceModel
 	tflog.Info(ctx, " Delete Start *************")
 
-	sendToweb_DelSourceNatRequest(ctx, "DELETE", r.client, data.DelSourceNatParameter)
+	//sendToweb_SourceNatRequest(ctx, "DELETE", r.client, data.AddSourceNatParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -228,90 +225,75 @@ func (r *SourceNatResource) ImportState(ctx context.Context, req resource.Import
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddSourceNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddSourceNatParameter) {
-	requstData := Rsinfo
+func sendToweb_SourceNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddSourceNatParameter) {
 
+	var sendData AddSourceNatRequestModel
+	if reqmethod == "POST" {
+		sendData = AddSourceNatRequestModel{
+			IpVersion:           Rsinfo.IpVersion.ValueString(),
+			VsysName:            Rsinfo.VsysName.ValueString(),
+			Name:                Rsinfo.Name.ValueString(),
+			TargetName:          Rsinfo.TargetName.ValueString(),
+			Position:            Rsinfo.Position.ValueString(),
+			OutInterface:        Rsinfo.OutInterface.ValueString(),
+			SrcAddrObj:          Rsinfo.SrcAddrObj.ValueString(),
+			SrcAddrGroup:        Rsinfo.SrcAddrGroup.ValueString(),
+			DstAddrObj:          Rsinfo.DstAddrObj.ValueString(),
+			PreService:          Rsinfo.PreService.ValueString(),
+			UsrService:          Rsinfo.UsrService.ValueString(),
+			ServiceGroup:        Rsinfo.ServiceGroup.ValueString(),
+			PublicIpAddressFlag: Rsinfo.PublicIpAddressFlag.ValueString(),
+			AddrpoolName:        Rsinfo.AddrpoolName.ValueString(),
+			MinPort:             Rsinfo.MinPort.ValueString(),
+			MaxPort:             Rsinfo.MaxPort.ValueString(),
+			PortHash:            Rsinfo.PortHash.ValueString(),
+			State:               Rsinfo.State.ValueString(),
+		}
+	} else if reqmethod == "GET" {
+
+	} else if reqmethod == "PUT" {
+
+	} else if reqmethod == "DELETE" {
+
+	}
+
+	requstData := AddSourceNatRequest{
+		AddSourceNatRequestModel: sendData,
+	}
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/nat/nat/snatlist"
 
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
+	tflog.Info(ctx, "请求体============:"+string(body))
 
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
+	//targetUrl := c.HostURL + "/func/web_main/api/nat/nat/snatlist"
+	//
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "application/json")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//
+	//// 创建一个HTTP客户端并发送请求
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//client := &http.Client{Transport: tr}
+	//respn, err := client.Do(req)
+	//if err != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//defer respn.Body.Close()
+	//
+	//body, err2 := io.ReadAll(respn.Body)
+	//if err2 != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//// 打印响应结果
+	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	//tflog.Info(ctx, "响应体======="+string(body))
+	//
+	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+	//	panic("请求响应失败=======")
+	//}
 
-func sendToweb_UpdateSourceNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateSourceNatParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/nat/nat/snatlist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_DelSourceNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelSourceNatParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/nat/nat/snatlist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_ReadSourceNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadSourceNatParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/nat/nat/snatlist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
 }

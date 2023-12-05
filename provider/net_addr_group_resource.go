@@ -1,13 +1,9 @@
 package provider
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -28,45 +24,27 @@ type NetAddrGroupResource struct {
 }
 
 type NetAddrGroupResourceModel struct {
-	AddNetAddrGroupParameter    AddNetAddrGroupParameter    `tfsdk:"addNetAddrGroupParameter"`
-	UpdateNetAddrGroupParameter UpdateNetAddrGroupParameter `tfsdk:"updateNetAddrGroupParameter"`
-	DelNetAddrGroupParameter    DelNetAddrGroupParameter    `tfsdk:"delNetAddrGroupParameter"`
-	ReadNetAddrGroupParameter   ReadNetAddrGroupParameter   `tfsdk:"readNetAddrGroupParameter"`
+	AddNetAddrGroupParameter AddNetAddrGroupParameter `tfsdk:"netaddrgrplist"`
 }
 
+type AddAddrGroupRequest struct {
+	AddAddrGroupRequestModel AddAddrGroupRequestModel `json:"netaddrgrplist"`
+}
+
+// 调用接口参数
+type AddAddrGroupRequestModel struct {
+	VsysName    string `json:"vsysName"`
+	Name        string `json:"name"`
+	ObjNameList string `json:"objNameList"`
+	Desc        string `json:"desc"`
+}
+
+// 接收外部参数
 type AddNetAddrGroupParameter struct {
-	VsysName    types.String `tfsdk:"vsysName"`
+	VsysName    types.String `tfsdk:"vsysname"`
 	Name        types.String `tfsdk:"name"`
-	ObjNameList types.String `tfsdk:"objNameList"`
+	ObjNameList types.String `tfsdk:"objnamelist"`
 	Desc        types.String `tfsdk:"desc"`
-}
-
-type UpdateNetAddrGroupParameter struct {
-	VsysName    types.String `tfsdk:"vsysName"`
-	Name        types.String `tfsdk:"name"`
-	OldName     types.String `tfsdk:"oldName"`
-	ObjNameList types.String `tfsdk:"objNameList"`
-	Desc        types.String `tfsdk:"desc"`
-}
-
-type DelNetAddrGroupParameter struct {
-	VsysName     types.String `tfsdk:"vsysName"`
-	Name         types.String `tfsdk:"name"`
-	DelAllEnable types.String `tfsdk:"delAllEnable"`
-}
-
-type ReadNetAddrGroupParameter struct {
-	Id           types.String `tfsdk:"id"`
-	VsysName     types.String `tfsdk:"vsysName"`
-	Name         types.String `tfsdk:"name"`
-	Oldname      types.String `tfsdk:"oldname"`
-	ObjNameList  types.String `tfsdk:"objNameList"`
-	Desc         types.String `tfsdk:"desc"`
-	ReferNum     types.String `tfsdk:"referNum"`
-	DelAllEnable types.String `tfsdk:"delAllEnable"`
-	SearchValue  types.String `tfsdk:"searchValue"`
-	Offset       types.String `tfsdk:"offset"`
-	Count        types.String `tfsdk:"count"`
 }
 
 func (r *NetAddrGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -76,25 +54,19 @@ func (r *NetAddrGroupResource) Metadata(ctx context.Context, req resource.Metada
 func (r *NetAddrGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"param": schema.SingleNestedAttribute{
+			"netaddrgrplist": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
+					"vsysname": schema.StringAttribute{
+						Optional: true,
+					},
 					"name": schema.StringAttribute{
 						Required: true,
 					},
-					"ip_start": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_end": schema.StringAttribute{
-						Required: true,
-					},
-					"ip_version": schema.StringAttribute{
+					"objnamelist": schema.StringAttribute{
 						Optional: true,
 					},
-					"vrrp_if_name": schema.StringAttribute{
-						Optional: true,
-					},
-					"vrrp_id": schema.StringAttribute{
+					"desc": schema.StringAttribute{
 						Optional: true,
 					},
 				},
@@ -130,7 +102,7 @@ func (r *NetAddrGroupResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 	tflog.Trace(ctx, "created a resource **************")
-	sendToweb_AddNetAddrGroupRequest(ctx, "POST", r.client, data.AddNetAddrGroupParameter)
+	sendToweb_NetAddrGroupRequest(ctx, "POST", r.client, data.AddNetAddrGroupParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -143,7 +115,7 @@ func (r *NetAddrGroupResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 	tflog.Info(ctx, " read Start")
-	sendToweb_ReadNetAddrGroupRequest(ctx, "GET", r.client, data.ReadNetAddrGroupParameter)
+	//sendToweb_NetAddrGroupRequest(ctx, "GET", r.client, data.AddNetAddrGroupParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -154,7 +126,7 @@ func (r *NetAddrGroupResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 	tflog.Info(ctx, " Update Start ************")
-	sendToweb_UpdateNetAddrGroupRequest(ctx, "PUT", r.client, data.UpdateNetAddrGroupParameter)
+	//sendToweb_NetAddrGroupRequest(ctx, "PUT", r.client, data.AddNetAddrGroupParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -162,7 +134,7 @@ func (r *NetAddrGroupResource) Delete(ctx context.Context, req resource.DeleteRe
 	var data *NetAddrGroupResourceModel
 	tflog.Info(ctx, " Delete Start ***** *******")
 
-	sendToweb_DelNetAddrGroupRequest(ctx, "DELETE", r.client, data.DelNetAddrGroupParameter)
+	//sendToweb_NetAddrGroupRequest(ctx, "DELETE", r.client, data.AddNetAddrGroupParameter)
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -182,90 +154,61 @@ func (r *NetAddrGroupResource) ImportState(ctx context.Context, req resource.Imp
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
-func sendToweb_AddNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrGroupParameter) {
-	requstData := Rsinfo
+func sendToweb_NetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrGroupParameter) {
 
+	var sendData AddAddrGroupRequestModel
+	if reqmethod == "POST" {
+		sendData = AddAddrGroupRequestModel{
+			VsysName:    Rsinfo.VsysName.ValueString(),
+			Name:        Rsinfo.Name.ValueString(),
+			ObjNameList: Rsinfo.ObjNameList.ValueString(),
+			Desc:        Rsinfo.Desc.ValueString(),
+		}
+	} else if reqmethod == "GET" {
+
+	} else if reqmethod == "PUT" {
+
+	} else if reqmethod == "DELETE" {
+
+	}
+
+	requstData := AddAddrGroupRequest{
+		AddAddrGroupRequestModel: sendData,
+	}
 	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist"
 
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
+	tflog.Info(ctx, "请求体============:"+string(body))
 
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
+	//targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist"
+	//
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "application/json")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//
+	//// 创建一个HTTP客户端并发送请求
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//client := &http.Client{Transport: tr}
+	//respn, err := client.Do(req)
+	//if err != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//defer respn.Body.Close()
+	//
+	//body, err2 := io.ReadAll(respn.Body)
+	//if err2 != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//// 打印响应结果
+	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	//tflog.Info(ctx, "响应体======="+string(body))
+	//
+	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+	//	panic("请求响应失败=======")
+	//}
 
-func sendToweb_UpdateNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo UpdateNetAddrGroupParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_DelNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo DelNetAddrGroupParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
-}
-
-func sendToweb_ReadNetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo ReadNetAddrGroupParameter) {
-	requstData := Rsinfo
-
-	body, _ := json.Marshal(requstData)
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist?vsysName=PublicSystem&offset=0&count=25"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	respn, err := http.DefaultClient.Do(req)
-	if err != nil {
-		tflog.Info(ctx, " read Error"+err.Error())
-	}
-	defer respn.Body.Close()
-
-	body, err2 := ioutil.ReadAll(respn.Body)
-	if err2 == nil {
-		fmt.Println(string(body))
-	}
 }
