@@ -60,7 +60,7 @@ type AddTargetNatParameter struct {
 	Name                 types.String `tfsdk:"name"`
 	TargetName           types.String `tfsdk:"targetname"`
 	Position             types.String `tfsdk:"position"`
-	InInterface          types.String `tfsdk:"inInterface"`
+	InInterface          types.String `tfsdk:"ininterface"`
 	SrcIpObj             types.String `tfsdk:"srcipobj"`
 	SrcIpGroup           types.String `tfsdk:"srcipgroup"`
 	PublicIp             types.String `tfsdk:"publicip"`
