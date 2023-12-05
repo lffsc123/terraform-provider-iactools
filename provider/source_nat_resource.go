@@ -24,11 +24,11 @@ type SourceNatResource struct {
 }
 
 type SourceNatResourceModel struct {
-	AddSourceNatParameter AddSourceNatParameter `tfsdk:"addSourceNatParameter"`
+	AddSourceNatParameter AddSourceNatParameter `tfsdk:"snatlist"`
 }
 
 type AddSourceNatRequest struct {
-	AddSourceNatRequestModel AddSourceNatRequestModel `json:"dnatlist"`
+	AddSourceNatRequestModel AddSourceNatRequestModel `json:"snatlist"`
 }
 
 // 调用接口参数
