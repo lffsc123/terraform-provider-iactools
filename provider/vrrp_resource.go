@@ -1,14 +1,8 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -234,74 +228,74 @@ func (r *VrrpResource) ImportState(ctx context.Context, req resource.ImportState
 
 func sendToweb_VrrpRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddVrrpParameter) {
 
-	var sendData AddVrrpRequestModel
-	if reqmethod == "POST" {
-		sendData = AddVrrpRequestModel{
-			Ipversion:    Rsinfo.Ipversion.ValueString(),
-			Vsysname:     Rsinfo.Vsysname.ValueString(),
-			Ifname:       Rsinfo.Ifname.ValueString(),
-			Vrid:         Rsinfo.Vrid.ValueString(),
-			Virtualip:    Rsinfo.Virtualip.ValueString(),
-			Version:      Rsinfo.Version.ValueString(),
-			Priority:     Rsinfo.Priority.ValueString(),
-			Timerlearn:   Rsinfo.Timerlearn.ValueString(),
-			Adverint:     Rsinfo.Adverint.ValueString(),
-			Preemptmode:  Rsinfo.Preemptmode.ValueString(),
-			Preemptdelay: Rsinfo.Preemptdelay.ValueString(),
-			Authmode:     Rsinfo.Authmode.ValueString(),
-			Authpass:     Rsinfo.Authpass.ValueString(),
-			Chksumflag:   Rsinfo.Chksumflag.ValueString(),
-			Trackifs:     Rsinfo.Trackifs.ValueString(),
-			Trackips:     Rsinfo.Trackips.ValueString(),
-			Bfddip:       Rsinfo.Bfddip.ValueString(),
-			Bfdsip:       Rsinfo.Bfdsip.ValueString(),
-			Bfdpro:       Rsinfo.Bfdpro.ValueString(),
-			Cfgstate:     Rsinfo.Cfgstate.ValueString(),
-		}
-	} else if reqmethod == "GET" {
-
-	} else if reqmethod == "PUT" {
-
-	} else if reqmethod == "DELETE" {
-
-	}
-
-	requstData := AddVrrpRequest{
-		AddVrrpRequestModel: sendData,
-	}
-	body, _ := json.Marshal(requstData)
-
-	tflog.Info(ctx, "请求体============:"+string(body))
-
-	targetUrl := c.HostURL + "/func/web_main/api/vrrpv3/vrrpv3/vrrpv3list"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-
-	// 创建一个HTTP客户端并发送请求
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	respn, err := client.Do(req)
-	if err != nil {
-		tflog.Error(ctx, "发送请求失败======="+err.Error())
-		panic("发送请求失败=======")
-	}
-	defer respn.Body.Close()
-
-	body, err2 := io.ReadAll(respn.Body)
-	if err2 != nil {
-		tflog.Error(ctx, "发送请求失败======="+err2.Error())
-		panic("发送请求失败=======")
-	}
-	// 打印响应结果
-	tflog.Info(ctx, "响应状态码======="+string(respn.Status))
-	tflog.Info(ctx, "响应体======="+string(body))
-
-	if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
-		panic("请求响应失败=======")
-	}
+	//var sendData AddVrrpRequestModel
+	//if reqmethod == "POST" {
+	//	sendData = AddVrrpRequestModel{
+	//		Ipversion:    Rsinfo.Ipversion.ValueString(),
+	//		Vsysname:     Rsinfo.Vsysname.ValueString(),
+	//		Ifname:       Rsinfo.Ifname.ValueString(),
+	//		Vrid:         Rsinfo.Vrid.ValueString(),
+	//		Virtualip:    Rsinfo.Virtualip.ValueString(),
+	//		Version:      Rsinfo.Version.ValueString(),
+	//		Priority:     Rsinfo.Priority.ValueString(),
+	//		Timerlearn:   Rsinfo.Timerlearn.ValueString(),
+	//		Adverint:     Rsinfo.Adverint.ValueString(),
+	//		Preemptmode:  Rsinfo.Preemptmode.ValueString(),
+	//		Preemptdelay: Rsinfo.Preemptdelay.ValueString(),
+	//		Authmode:     Rsinfo.Authmode.ValueString(),
+	//		Authpass:     Rsinfo.Authpass.ValueString(),
+	//		Chksumflag:   Rsinfo.Chksumflag.ValueString(),
+	//		Trackifs:     Rsinfo.Trackifs.ValueString(),
+	//		Trackips:     Rsinfo.Trackips.ValueString(),
+	//		Bfddip:       Rsinfo.Bfddip.ValueString(),
+	//		Bfdsip:       Rsinfo.Bfdsip.ValueString(),
+	//		Bfdpro:       Rsinfo.Bfdpro.ValueString(),
+	//		Cfgstate:     Rsinfo.Cfgstate.ValueString(),
+	//	}
+	//} else if reqmethod == "GET" {
+	//
+	//} else if reqmethod == "PUT" {
+	//
+	//} else if reqmethod == "DELETE" {
+	//
+	//}
+	//
+	//requstData := AddVrrpRequest{
+	//	AddVrrpRequestModel: sendData,
+	//}
+	//body, _ := json.Marshal(requstData)
+	//
+	//tflog.Info(ctx, "请求体============:"+string(body))
+	//
+	//targetUrl := c.HostURL + "/func/web_main/api/vrrpv3/vrrpv3/vrrpv3list"
+	//
+	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "application/json")
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//
+	//// 创建一个HTTP客户端并发送请求
+	//tr := &http.Transport{
+	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	//}
+	//client := &http.Client{Transport: tr}
+	//respn, err := client.Do(req)
+	//if err != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//defer respn.Body.Close()
+	//
+	//body, err2 := io.ReadAll(respn.Body)
+	//if err2 != nil {
+	//	tflog.Error(ctx, "发送请求失败======="+err2.Error())
+	//	panic("发送请求失败=======")
+	//}
+	//// 打印响应结果
+	//tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	//tflog.Info(ctx, "响应体======="+string(body))
+	//
+	//if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
+	//	panic("请求响应失败=======")
+	//}
 }

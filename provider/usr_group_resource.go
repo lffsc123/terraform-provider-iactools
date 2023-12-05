@@ -24,11 +24,11 @@ type UsrGroupResource struct {
 }
 
 type UsrGroupResourceModel struct {
-	AddUsrGroupParameter AddUsrGroupParameter `tfsdk:"addUsrGroupParameter"`
+	AddUsrGroupParameter AddUsrGroupParameter `tfsdk:"grp"`
 }
 
 type AddUsrGroupRequest struct {
-	AddUsrGroupRequestModel AddUsrGroupRequestModel `json:"netaddrgrplist"`
+	AddUsrGroupRequestModel AddUsrGroupRequestModel `json:"grp"`
 }
 
 // 调用接口参数
@@ -54,17 +54,17 @@ func (r *UsrGroupResource) Metadata(ctx context.Context, req resource.MetadataRe
 func (r *UsrGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"param": schema.SingleNestedAttribute{
+			"grp": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"name": schema.StringAttribute{
 						Required: true,
 					},
 					"vfwname": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"desc": schema.StringAttribute{
-						Required: true,
+						Optional: true,
 					},
 					"allsernamelist": schema.StringAttribute{
 						Optional: true,
