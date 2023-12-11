@@ -286,21 +286,24 @@ func sendToweb_VrrpRequest(ctx context.Context, reqmethod string, c *Client, Rsi
 	client := &http.Client{Transport: tr}
 	respn, err := client.Do(req)
 	if err != nil {
-		tflog.Error(ctx, "发送请求失败======="+err.Error())
-		panic("发送请求失败=======")
+		tflog.Error(ctx, "vrrp--发送请求失败======="+err.Error())
+		panic("vrrp--发送请求失败=======")
 	}
 	defer respn.Body.Close()
 
 	body, err2 := io.ReadAll(respn.Body)
 	if err2 != nil {
-		tflog.Error(ctx, "发送请求失败======="+err2.Error())
-		panic("发送请求失败=======")
+		tflog.Error(ctx, "vrrp--发送请求失败======="+err2.Error())
+		panic("vrrp--发送请求失败=======")
 	}
-	// 打印响应结果
-	tflog.Info(ctx, "响应状态码======="+string(respn.Status))
-	tflog.Info(ctx, "响应体======="+string(body))
 
-	if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
-		panic("请求响应失败=======")
+	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
+		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "vrrp--响应体======="+string(body))
+		panic("vrrp--请求响应失败=======")
+	} else {
+		// 打印响应结果
+		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "vrrp--响应体======="+string(body))
 	}
 }

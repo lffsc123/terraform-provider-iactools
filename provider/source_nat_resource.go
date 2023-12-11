@@ -46,6 +46,7 @@ type AddSourceNatRequestModel struct {
 	SrcAddrObj          string `json:"srcAddrObj"`
 	SrcAddrGroup        string `json:"srcAddrGroup"`
 	DstAddrObj          string `json:"dstAddrObj"`
+	DstAddrGroup        string `json:"dstaddrgroup"`
 	PreService          string `json:"preService"`
 	UsrService          string `json:"usrService"`
 	ServiceGroup        string `json:"serviceGroup"`
@@ -68,6 +69,7 @@ type AddSourceNatParameter struct {
 	SrcAddrObj          types.String `tfsdk:"srcaddrobj"`
 	SrcAddrGroup        types.String `tfsdk:"srcaddrgroup"`
 	DstAddrObj          types.String `tfsdk:"dstaddrobj"`
+	DstAddrGroup        types.String `tfsdk:"dstaddrgroup"`
 	PreService          types.String `tfsdk:"preservice"`
 	UsrService          types.String `tfsdk:"usrservice"`
 	ServiceGroup        types.String `tfsdk:"servicegroup"`
@@ -114,6 +116,9 @@ func (r *SourceNatResource) Schema(ctx context.Context, req resource.SchemaReque
 						Optional: true,
 					},
 					"dstaddrobj": schema.StringAttribute{
+						Optional: true,
+					},
+					"dstaddrgroup": schema.StringAttribute{
 						Optional: true,
 					},
 					"preservice": schema.StringAttribute{
@@ -243,6 +248,7 @@ func sendToweb_SourceNatRequest(ctx context.Context, reqmethod string, c *Client
 			SrcAddrObj:          Rsinfo.SrcAddrObj.ValueString(),
 			SrcAddrGroup:        Rsinfo.SrcAddrGroup.ValueString(),
 			DstAddrObj:          Rsinfo.DstAddrObj.ValueString(),
+			DstAddrGroup:        Rsinfo.DstAddrGroup.ValueString(),
 			PreService:          Rsinfo.PreService.ValueString(),
 			UsrService:          Rsinfo.UsrService.ValueString(),
 			ServiceGroup:        Rsinfo.ServiceGroup.ValueString(),
@@ -282,22 +288,24 @@ func sendToweb_SourceNatRequest(ctx context.Context, reqmethod string, c *Client
 	client := &http.Client{Transport: tr}
 	respn, err := client.Do(req)
 	if err != nil {
-		tflog.Error(ctx, "发送请求失败======="+err.Error())
-		panic("发送请求失败=======")
+		tflog.Error(ctx, "源NAT--发送请求失败======="+err.Error())
+		panic("源NAT--发送请求失败=======")
 	}
 	defer respn.Body.Close()
 
 	body, err2 := io.ReadAll(respn.Body)
 	if err2 != nil {
-		tflog.Error(ctx, "发送请求失败======="+err2.Error())
-		panic("发送请求失败=======")
-	}
-	// 打印响应结果
-	tflog.Info(ctx, "响应状态码======="+string(respn.Status))
-	tflog.Info(ctx, "响应体======="+string(body))
-
-	if respn.Status != "200" || respn.Status != "201" || respn.Status != "204" {
-		panic("请求响应失败=======")
+		tflog.Error(ctx, "源NAT--发送请求失败======="+err2.Error())
+		panic("源NAT--发送请求失败=======")
 	}
 
+	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
+		tflog.Info(ctx, "源NAT--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "源NAT--响应体======="+string(body))
+		panic("源NAT--请求响应失败=======")
+	} else {
+		// 打印响应结果
+		tflog.Info(ctx, "源NAT--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "源NAT--响应体======="+string(body))
+	}
 }
