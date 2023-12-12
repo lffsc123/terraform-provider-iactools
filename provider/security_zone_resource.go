@@ -116,7 +116,7 @@ func (r *SecurityZoneResource) Create(ctx context.Context, req resource.CreateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Trace(ctx, "created a resource **************")
+	tflog.Trace(ctx, "created a resource ************** ")
 	sendToweb_SecurityZoneRequest(ctx, "POST", r.client, data.AddSecurityZoneParameter)
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
