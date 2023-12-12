@@ -270,7 +270,7 @@ func sendToweb_VrrpRequest(ctx context.Context, reqmethod string, c *Client, Rsi
 	}
 	body, _ := json.Marshal(requstData)
 
-	tflog.Info(ctx, "请求体============:"+string(body))
+	tflog.Info(ctx, "vrrp--请求体============:"+string(body)+"======")
 
 	targetUrl := c.HostURL + "/func/web_main/api/vrrpv3/vrrpv3/vrrpv3list"
 
@@ -298,12 +298,12 @@ func sendToweb_VrrpRequest(ctx context.Context, reqmethod string, c *Client, Rsi
 	}
 
 	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
-		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status))
-		tflog.Info(ctx, "vrrp--响应体======="+string(body))
+		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status)+"======")
+		tflog.Info(ctx, "vrrp--响应体======="+string(body)+"======")
 		panic("vrrp--请求响应失败=======")
 	} else {
 		// 打印响应结果
-		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status))
-		tflog.Info(ctx, "vrrp--响应体======="+string(body))
+		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status)+"======")
+		tflog.Info(ctx, "vrrp--响应体======="+string(body)+"======")
 	}
 }

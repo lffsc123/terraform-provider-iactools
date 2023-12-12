@@ -186,7 +186,7 @@ func sendToweb_SecurityZoneRequest(ctx context.Context, reqmethod string, c *Cli
 	}
 	body, _ := json.Marshal(requstData)
 
-	tflog.Info(ctx, "请求体============:"+string(body))
+	tflog.Info(ctx, "安全域--请求体============:"+string(body)+"======")
 
 	targetUrl := c.HostURL + "/func/web_main/api/security_zone/security_zone/securityzonelist"
 
@@ -214,12 +214,12 @@ func sendToweb_SecurityZoneRequest(ctx context.Context, reqmethod string, c *Cli
 	}
 
 	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
-		tflog.Info(ctx, "安全域--响应状态码======="+string(respn.Status))
-		tflog.Info(ctx, "安全域--响应体======="+string(body))
+		tflog.Info(ctx, "安全域--响应状态码======="+string(respn.Status)+"======")
+		tflog.Info(ctx, "安全域--响应体======="+string(body)+"======")
 		panic("安全域--请求响应失败=======")
 	} else {
 		// 打印响应结果
-		tflog.Info(ctx, "安全域--响应状态码======="+string(respn.Status))
-		tflog.Info(ctx, "安全域--响应体======="+string(body))
+		tflog.Info(ctx, "安全域--响应状态码======="+string(respn.Status)+"======")
+		tflog.Info(ctx, "安全域--响应体======="+string(body)+"======")
 	}
 }

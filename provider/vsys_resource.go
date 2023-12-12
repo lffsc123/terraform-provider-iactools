@@ -174,7 +174,7 @@ func sendToweb_VsysRequest(ctx context.Context, reqmethod string, c *Client, Rsi
 	}
 	body, _ := json.Marshal(requstData)
 
-	tflog.Info(ctx, "请求体============:"+string(body))
+	tflog.Info(ctx, "虚拟系统--请求体============:"+string(body))
 
 	targetUrl := c.HostURL + "/func/web_main/api/vfw/vsyslist/vsyslist"
 
@@ -202,12 +202,12 @@ func sendToweb_VsysRequest(ctx context.Context, reqmethod string, c *Client, Rsi
 	}
 
 	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
-		tflog.Info(ctx, "虚拟系统--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "虚拟系统--响应状态码======="+string(respn.Status)+"======")
 		tflog.Info(ctx, "虚拟系统--响应体======="+string(body))
 		panic("虚拟系统--请求响应失败=======")
 	} else {
 		// 打印响应结果
-		tflog.Info(ctx, "虚拟系统--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "虚拟系统--响应状态码======="+string(respn.Status)+"======")
 		tflog.Info(ctx, "虚拟系统--响应体======="+string(body))
 	}
 }

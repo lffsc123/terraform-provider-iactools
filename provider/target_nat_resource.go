@@ -263,7 +263,7 @@ func sendToweb_TargetNatRequest(ctx context.Context, reqmethod string, c *Client
 	}
 	body, _ := json.Marshal(requstData)
 
-	tflog.Info(ctx, "请求体============:"+string(body))
+	tflog.Info(ctx, "目的NAT--请求体============:"+string(body))
 
 	targetUrl := c.HostURL + "/func/web_main/api/nat/nat/dnatlist"
 
@@ -291,12 +291,12 @@ func sendToweb_TargetNatRequest(ctx context.Context, reqmethod string, c *Client
 	}
 
 	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
-		tflog.Info(ctx, "目的NAT--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "目的NAT--响应状态码======="+string(respn.Status)+"======")
 		tflog.Info(ctx, "目的NAT--响应体======="+string(body))
 		panic("目的NAT--请求响应失败=======")
 	} else {
 		// 打印响应结果
-		tflog.Info(ctx, "目的NAT--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "目的NAT--响应状态码======="+string(respn.Status)+"======")
 		tflog.Info(ctx, "目的NAT--响应体======="+string(body))
 	}
 }

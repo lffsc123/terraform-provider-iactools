@@ -409,7 +409,7 @@ func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo 
 	}
 	body, _ := json.Marshal(requstData)
 
-	tflog.Info(ctx, "请求体============:"+string(body))
+	tflog.Info(ctx, "包过滤--请求体============:"+string(body))
 
 	targetUrl := c.HostURL + "/func/web_main/api/pf_policy/pf_policy/pf_policy/securitypolicylist"
 
@@ -437,12 +437,12 @@ func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo 
 	}
 
 	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
-		tflog.Info(ctx, "包过滤--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "包过滤--响应状态码======="+string(respn.Status)+"======")
 		tflog.Info(ctx, "包过滤--响应体======="+string(body))
 		panic("包过滤--请求响应失败=======")
 	} else {
 		// 打印响应结果
-		tflog.Info(ctx, "包过滤--响应状态码======="+string(respn.Status))
+		tflog.Info(ctx, "包过滤--响应状态码======="+string(respn.Status)+"======")
 		tflog.Info(ctx, "包过滤--响应体======="+string(body))
 	}
 }

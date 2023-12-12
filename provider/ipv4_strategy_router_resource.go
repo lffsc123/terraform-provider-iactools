@@ -272,7 +272,7 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 		panic("发送请求失败=======")
 	}
 	// 打印响应结果
-	tflog.Info(ctx, "响应状态码======="+string(respn.Status))
+	tflog.Info(ctx, "响应状态码======="+string(respn.Status)+"======")
 	tflog.Info(ctx, "响应体======="+string(body))
 
 	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
