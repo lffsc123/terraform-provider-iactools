@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // IPv4策略路由
@@ -271,77 +272,13 @@ func sendToweb_Ipv4StrategyRouterRequest(ctx context.Context, reqmethod string, 
 		tflog.Error(ctx, "发送请求失败======="+err2.Error())
 		panic("发送请求失败=======")
 	}
-	// 打印响应结果
-	tflog.Info(ctx, "响应状态码======="+string(respn.Status)+"======")
-	tflog.Info(ctx, "响应体======="+string(body))
-
 	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-		panic("请求响应失败=======")
+		tflog.Info(ctx, "IPv4策略路由--响应状态码======="+string(respn.Status)+"======")
+		tflog.Info(ctx, "IPv4策略路由--响应体======="+string(body)+"======")
+		panic("IPv4策略路由--请求响应失败=======")
+	} else {
+		// 打印响应结果
+		tflog.Info(ctx, "IPv4策略路由--响应状态码======="+string(respn.Status)+"======")
+		tflog.Info(ctx, "IPv4策略路由--响应体======="+string(body)+"======")
 	}
 }
-
-//func sendToweb_UpdateIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
-//	requstData := Rsinfo
-//
-//	body, _ := json.Marshal(requstData)
-//	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
-//
-//	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-//	req.Header.Set("Content-Type", "application/json")
-//	req.Header.Set("Accept", "application/json")
-//	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-//	respn, err := http.DefaultClient.Do(req)
-//	if err != nil {
-//		tflog.Info(ctx, " read Error"+err.Error())
-//	}
-//	defer respn.Body.Close()
-//
-//	body, err2 := ioutil.ReadAll(respn.Body)
-//	if err2 == nil {
-//		fmt.Println(string(body))
-//	}
-//}
-//
-//func sendToweb_DelIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
-//	requstData := Rsinfo
-//
-//	body, _ := json.Marshal(requstData)
-//	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist"
-//
-//	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-//	req.Header.Set("Content-Type", "application/json")
-//	req.Header.Set("Accept", "application/json")
-//	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-//	respn, err := http.DefaultClient.Do(req)
-//	if err != nil {
-//		tflog.Info(ctx, " read Error"+err.Error())
-//	}
-//	defer respn.Body.Close()
-//
-//	body, err2 := ioutil.ReadAll(respn.Body)
-//	if err2 == nil {
-//		fmt.Println(string(body))
-//	}
-//}
-//
-//func sendToweb_ReadIpv4StrategyRouterRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddIpv4StrategyRouterParameter) {
-//	requstData := Rsinfo
-//
-//	body, _ := json.Marshal(requstData)
-//	targetUrl := c.HostURL + "/func/web_main/api/rt_policy/rtpolicy/rtplist?rtpName=ss&listFlag=0"
-//
-//	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-//	req.Header.Set("Content-Type", "application/json")
-//	req.Header.Set("Accept", "application/json")
-//	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-//	respn, err := http.DefaultClient.Do(req)
-//	if err != nil {
-//		tflog.Info(ctx, " read Error"+err.Error())
-//	}
-//	defer respn.Body.Close()
-//
-//	body, err2 := ioutil.ReadAll(respn.Body)
-//	if err2 == nil {
-//		fmt.Println(string(body))
-//	}
-//}
