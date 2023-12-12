@@ -144,7 +144,7 @@ func (r *UsrObjResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Info(ctx, " read Start ***************")
+	tflog.Info(ctx, " read Start *************** ")
 	//sendToweb_UsrObjRequest(ctx, "GET", r.client, data.AddUsrObjParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
