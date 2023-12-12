@@ -231,7 +231,7 @@ func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, R
 		panic("服务对象--发送请求失败=======")
 	}
 
-	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
+	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
 		tflog.Info(ctx, "服务对象--响应状态码======="+string(respn.Status)+"======")
 		tflog.Info(ctx, "服务对象--响应体======="+string(body))
 		panic("服务对象--请求响应失败=======")

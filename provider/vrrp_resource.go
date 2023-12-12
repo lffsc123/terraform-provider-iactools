@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // vrrp
@@ -297,7 +298,7 @@ func sendToweb_VrrpRequest(ctx context.Context, reqmethod string, c *Client, Rsi
 		panic("vrrp--发送请求失败=======")
 	}
 
-	if respn.Status != "200" && respn.Status != "201" && respn.Status != "204" {
+	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
 		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status)+"======")
 		tflog.Info(ctx, "vrrp--响应体======="+string(body)+"======")
 		panic("vrrp--请求响应失败=======")
