@@ -239,6 +239,7 @@ func sendToweb_TargetNatRequest(ctx context.Context, reqmethod string, c *Client
 			InInterface:          Rsinfo.InInterface.ValueString(),
 			SrcIpObj:             Rsinfo.SrcIpObj.ValueString(),
 			SrcIpGroup:           Rsinfo.SrcIpGroup.ValueString(),
+			PublicIp:             Rsinfo.PublicIp.ValueString(),
 			PreService:           Rsinfo.PreService.ValueString(),
 			UsrService:           Rsinfo.UsrService.ValueString(),
 			InNetIp:              Rsinfo.InNetIp.ValueString(),
