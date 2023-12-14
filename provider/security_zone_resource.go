@@ -66,6 +66,9 @@ type AddSecurityZoneParameter struct {
 }
 
 // 查询结果结构体
+type QuerySecurityZoneResponseListModel struct {
+	Securityzonelist []QuerySecurityZoneResponseModel `json:"securityzonelist"`
+}
 type QuerySecurityZoneResponseModel struct {
 	Vsysname     string `json:"vsysName"`
 	Name         string `json:"name"`
@@ -193,31 +196,33 @@ func sendToweb_SecurityZoneRequest(ctx context.Context, reqmethod string, c *Cli
 		// 先查询是否存在，再执行新增操作
 		tflog.Info(ctx, "安全域--开始执行--查询操作")
 		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/security_zone/security_zone/securityzonelist?name="+Rsinfo.Name.ValueString()+"&offset=0&count=25", "安全域")
-		var querySecurityZoneResponseModel QuerySecurityZoneResponseModel
-		err := json.Unmarshal([]byte(responseBody), &querySecurityZoneResponseModel)
+		var queryResList QuerySecurityZoneResponseListModel
+		err := json.Unmarshal([]byte(responseBody), &queryResList)
 		if err != nil {
 			panic("转换查询结果json出现异常")
 		}
-		if querySecurityZoneResponseModel.Name == Rsinfo.Name.ValueString() {
-			tflog.Info(ctx, "安全域--存在重复数据，执行--修改操作")
-			var sendUpdateData UpdateSecurityZoneRequestModel
-			sendUpdateData = UpdateSecurityZoneRequestModel{
-				Vsysname:    Rsinfo.Vsysname.ValueString(),
-				Name:        Rsinfo.Name.ValueString(),
-				OldName:     Rsinfo.Name.ValueString(),
-				Priority:    Rsinfo.Priority.ValueString(),
-				Interfaces:  Rsinfo.Interfaces.ValueString(),
-				Desc:        Rsinfo.Desc.ValueString(),
-				Inneraction: Rsinfo.Inneraction.ValueString(),
-			}
+		for _, queryRes := range queryResList.Securityzonelist {
+			if queryRes.Name == Rsinfo.Name.ValueString() {
+				tflog.Info(ctx, "安全域--存在重复数据，执行--修改操作")
+				var sendUpdateData UpdateSecurityZoneRequestModel
+				sendUpdateData = UpdateSecurityZoneRequestModel{
+					Vsysname:    Rsinfo.Vsysname.ValueString(),
+					Name:        Rsinfo.Name.ValueString(),
+					OldName:     Rsinfo.Name.ValueString(),
+					Priority:    Rsinfo.Priority.ValueString(),
+					Interfaces:  Rsinfo.Interfaces.ValueString(),
+					Desc:        Rsinfo.Desc.ValueString(),
+					Inneraction: Rsinfo.Inneraction.ValueString(),
+				}
 
-			requstUpdateData := UpdateSecurityZoneRequest{
-				UpdateSecurityZoneRequestModel: sendUpdateData,
-			}
-			body, _ := json.Marshal(requstUpdateData)
+				requstUpdateData := UpdateSecurityZoneRequest{
+					UpdateSecurityZoneRequestModel: sendUpdateData,
+				}
+				body, _ := json.Marshal(requstUpdateData)
 
-			sendRequest(ctx, "PUT", c, body, "/func/web_main/api/security_zone/security_zone/securityzonelist", "安全域")
-			return
+				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/security_zone/security_zone/securityzonelist", "安全域")
+				return
+			}
 		}
 
 		sendData = AddSecurityZoneRequestModel{
