@@ -1,9 +1,15 @@
 package provider
 
 import (
+	"bytes"
+	"context"
+	"crypto/tls"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -183,41 +189,42 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 	return body, err
 }
 
-//func sendRequest(ctx context.Context, reqmethod string, c *Client, body []byte) {
-//	tflog.Info(ctx, "vrrp--请求体============:"+string(body)+"======")
-//
-//	targetUrl := c.HostURL + "/func/web_main/api/vrrpv3/vrrpv3/vrrpv3list"
-//
-//	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-//	req.Header.Set("Content-Type", "application/json")
-//	req.Header.Set("Accept", "application/json")
-//	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-//
-//	// 创建一个HTTP客户端并发送请求
-//	tr := &http.Transport{
-//		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-//	}
-//	client := &http.Client{Transport: tr}
-//	respn, err := client.Do(req)
-//	if err != nil {
-//		tflog.Error(ctx, "vrrp--发送请求失败======="+err.Error())
-//		panic("vrrp--发送请求失败=======")
-//	}
-//	defer respn.Body.Close()
-//
-//	body, err2 := io.ReadAll(respn.Body)
-//	if err2 != nil {
-//		tflog.Error(ctx, "vrrp--发送请求失败======="+err2.Error())
-//		panic("vrrp--发送请求失败=======")
-//	}
-//
-//	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-//		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status)+"======")
-//		tflog.Info(ctx, "vrrp--响应体======="+string(body)+"======")
-//		panic("vrrp--请求响应失败=======")
-//	} else {
-//		// 打印响应结果
-//		tflog.Info(ctx, "vrrp--响应状态码======="+string(respn.Status)+"======")
-//		tflog.Info(ctx, "vrrp--响应体======="+string(body)+"======")
-//	}
-//}
+func sendRequest(ctx context.Context, reqmethod string, c *Client, body []byte, apiUrl string, apiName string) string {
+	tflog.Info(ctx, apiName+"===请求体==="+string(body)+"===")
+
+	targetUrl := c.HostURL + apiUrl
+
+	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+
+	// 创建一个HTTP客户端并发送请求
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+	respn, err := client.Do(req)
+	if err != nil {
+		tflog.Error(ctx, apiName+"===发送请求失败==="+err.Error())
+		panic(apiName + "===发送请求失败===")
+	}
+	defer respn.Body.Close()
+
+	body, err2 := io.ReadAll(respn.Body)
+	if err2 != nil {
+		tflog.Error(ctx, apiName+"===发送请求失败==="+err2.Error())
+		panic(apiName + "===发送请求失败===")
+	}
+
+	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
+		tflog.Info(ctx, apiName+"===响应状态码==="+string(respn.Status)+"===")
+		tflog.Info(ctx, apiName+"===响应体==="+string(body)+"===")
+		panic(apiName + "===请求响应失败===")
+	} else {
+		// 打印响应结果
+		tflog.Info(ctx, apiName+"===响应状态码==="+string(respn.Status)+"===")
+		tflog.Info(ctx, apiName+"===响应体==="+string(body)+"===")
+		return string(body)
+	}
+}
