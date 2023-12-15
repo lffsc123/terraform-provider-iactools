@@ -458,7 +458,6 @@ func (r *PfPolicyResource) ImportState(ctx context.Context, req resource.ImportS
 func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo AddPfPolicyParameter) {
 
 	if reqmethod == "POST" {
-
 		// 先查询是否存在，再执行新增操作
 		tflog.Info(ctx, "包过滤--开始执行--查询操作")
 		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/pf_policy/pf_policy/pf_policy/securitypolicylist", "包过滤")
