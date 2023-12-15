@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"io"
-	"net/http"
-	"strings"
 )
 
 // 服务对象
@@ -36,10 +31,27 @@ type AddUsrObjRequest struct {
 	AddUsrObjRequestModel AddUsrObjRequestModel `json:"usrobj"`
 }
 
+type UpdateUsrObjRequest struct {
+	UpdateUsrObjRequestModel UpdateUsrObjRequestModel `json:"usrobj"`
+}
+
 // 调用接口参数
 type AddUsrObjRequestModel struct {
 	Name       string `json:"name"`
 	VfwName    string `json:"vfwName"`
+	Protocol   string `json:"protocol"`
+	SportStart string `json:"sportStart"`
+	SportEnd   string `json:"sportEnd"`
+	DportStart string `json:"dportStart"`
+	DportEnd   string `json:"dportEnd"`
+	Services   string `json:"services"`
+	Desc       string `json:"desc"`
+}
+
+type UpdateUsrObjRequestModel struct {
+	Name       string `json:"name"`
+	VfwName    string `json:"vfwName"`
+	OldName    string `json:"oldName"`
 	Protocol   string `json:"protocol"`
 	SportStart string `json:"sportStart"`
 	SportEnd   string `json:"sportEnd"`
@@ -60,6 +72,29 @@ type AddUsrObjParameter struct {
 	DportEnd   types.String `tfsdk:"dportend"`
 	Services   types.String `tfsdk:"services"`
 	Desc       types.String `tfsdk:"desc"`
+}
+
+// 查询结果结构体
+type QueryUsrObjResponseListModel struct {
+	UsrObjlist []QueryUsrObjResponseModel `json:"usrobj"`
+}
+type QueryUsrObjResponseModel struct {
+	Id           string `json:"id"`
+	VfwName      string `json:"vfwName"`
+	Name         string `json:"name"`
+	OldName      string `json:"oldName"`
+	Protocol     string `json:"protocol"`
+	SportStart   string `json:"sportStart"`
+	SportEnd     string `json:"sportEnd"`
+	DportStart   string `json:"dportStart"`
+	DportEnd     string `json:"dportEnd"`
+	Services     string `json:"services"`
+	Desc         string `json:"desc"`
+	ReferNum     string `json:"referNum"`
+	DelAllEnable string `json:"delAllEnable"`
+	SearchValue  string `json:"searchValue"`
+	Offset       string `json:"offset"`
+	Count        string `json:"count"`
 }
 
 func (r *UsrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -179,8 +214,43 @@ func (r *UsrObjResource) ImportState(ctx context.Context, req resource.ImportSta
 
 func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddUsrObjParameter) {
 
-	var sendData AddUsrObjRequestModel
 	if reqmethod == "POST" {
+		// 先查询是否存在，再执行新增操作
+		tflog.Info(ctx, "服务对象--开始执行--查询操作")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/usrobj?vfwName=vsys&searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=1000", "服务对象")
+		var queryResList QueryUsrObjResponseListModel
+		err := json.Unmarshal([]byte(responseBody), &queryResList)
+		if err != nil {
+			panic("转换查询结果json出现异常")
+		}
+		for _, queryRes := range queryResList.UsrObjlist {
+			if queryRes.Name == Rsinfo.Name.ValueString() {
+				tflog.Info(ctx, "服务对象--存在重复数据，执行--修改操作")
+				var sendUpdateData UpdateUsrObjRequestModel
+				sendUpdateData = UpdateUsrObjRequestModel{
+					Name:       Rsinfo.Name.ValueString(),
+					VfwName:    Rsinfo.VfwName.ValueString(),
+					Protocol:   Rsinfo.Protocol.ValueString(),
+					SportStart: Rsinfo.SportStart.ValueString(),
+					SportEnd:   Rsinfo.SportEnd.ValueString(),
+					DportStart: Rsinfo.DportStart.ValueString(),
+					DportEnd:   Rsinfo.DportEnd.ValueString(),
+					Services:   Rsinfo.Services.ValueString(),
+					Desc:       Rsinfo.Desc.ValueString(),
+				}
+
+				requstUpdateData := UpdateUsrObjRequest{
+					UpdateUsrObjRequestModel: sendUpdateData,
+				}
+				body, _ := json.Marshal(requstUpdateData)
+
+				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/usrobj", "服务对象")
+				return
+			}
+		}
+
+		// 新增操作
+		var sendData AddUsrObjRequestModel
 		sendData = AddUsrObjRequestModel{
 			Name:       Rsinfo.Name.ValueString(),
 			VfwName:    Rsinfo.VfwName.ValueString(),
@@ -192,6 +262,12 @@ func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, R
 			Services:   Rsinfo.Services.ValueString(),
 			Desc:       Rsinfo.Desc.ValueString(),
 		}
+		requstData := AddUsrObjRequest{
+			AddUsrObjRequestModel: sendData,
+		}
+		body, _ := json.Marshal(requstData)
+		sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/usrobj", "服务对象")
+		return
 	} else if reqmethod == "GET" {
 
 	} else if reqmethod == "PUT" {
@@ -199,47 +275,4 @@ func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, R
 	} else if reqmethod == "DELETE" {
 
 	}
-
-	requstData := AddUsrObjRequest{
-		AddUsrObjRequestModel: sendData,
-	}
-	body, _ := json.Marshal(requstData)
-
-	tflog.Info(ctx, "服务对象--请求体============:"+string(body))
-
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/usrobj"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-
-	// 创建一个HTTP客户端并发送请求
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	respn, err := client.Do(req)
-	if err != nil {
-		tflog.Error(ctx, "服务对象--发送请求失败======="+err.Error())
-		panic("服务对象--发送请求失败=======")
-	}
-	defer respn.Body.Close()
-
-	body, err2 := io.ReadAll(respn.Body)
-	if err2 != nil {
-		tflog.Error(ctx, "服务对象--发送请求失败======="+err2.Error())
-		panic("服务对象--发送请求失败=======")
-	}
-
-	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-		tflog.Info(ctx, "服务对象--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "服务对象--响应体======="+string(body))
-		panic("服务对象--请求响应失败=======")
-	} else {
-		// 打印响应结果
-		tflog.Info(ctx, "服务对象--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "服务对象--响应体======="+string(body))
-	}
-
 }

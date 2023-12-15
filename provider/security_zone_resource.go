@@ -191,11 +191,10 @@ func (r *SecurityZoneResource) ImportState(ctx context.Context, req resource.Imp
 
 func sendToweb_SecurityZoneRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddSecurityZoneParameter) {
 
-	var sendData AddSecurityZoneRequestModel
 	if reqmethod == "POST" {
 		// 先查询是否存在，再执行新增操作
 		tflog.Info(ctx, "安全域--开始执行--查询操作")
-		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/security_zone/security_zone/securityzonelist?name="+Rsinfo.Name.ValueString()+"&offset=0&count=25", "安全域")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/security_zone/security_zone/securityzonelist?vsysName=PublicSystem&offset=0&count=1000", "安全域")
 		var queryResList QuerySecurityZoneResponseListModel
 		err := json.Unmarshal([]byte(responseBody), &queryResList)
 		if err != nil {
@@ -225,6 +224,8 @@ func sendToweb_SecurityZoneRequest(ctx context.Context, reqmethod string, c *Cli
 			}
 		}
 
+		// 新增操作
+		var sendData AddSecurityZoneRequestModel
 		sendData = AddSecurityZoneRequestModel{
 			Vsysname:    Rsinfo.Vsysname.ValueString(),
 			Name:        Rsinfo.Name.ValueString(),
@@ -248,41 +249,4 @@ func sendToweb_SecurityZoneRequest(ctx context.Context, reqmethod string, c *Cli
 	} else if reqmethod == "DELETE" {
 
 	}
-
-	//tflog.Info(ctx, "安全域--请求体============:"+string(body)+"======")
-	//
-	//targetUrl := c.HostURL + "/func/web_main/api/security_zone/security_zone/securityzonelist"
-	//
-	//req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	//req.Header.Set("Content-Type", "application/json")
-	//req.Header.Set("Accept", "application/json")
-	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-	//
-	//// 创建一个HTTP客户端并发送请求
-	//tr := &http.Transport{
-	//	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	//}
-	//client := &http.Client{Transport: tr}
-	//respn, err := client.Do(req)
-	//if err != nil {
-	//	tflog.Error(ctx, "安全域--发送请求失败======="+err.Error())
-	//	panic("安全域--发送请求失败=======")
-	//}
-	//defer respn.Body.Close()
-	//
-	//body, err2 := io.ReadAll(respn.Body)
-	//if err2 != nil {
-	//	tflog.Error(ctx, "安全域--发送请求失败======="+err2.Error())
-	//	panic("安全域--发送请求失败=======")
-	//}
-	//
-	//if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-	//	tflog.Info(ctx, "安全域--响应状态码======="+string(respn.Status)+"======")
-	//	tflog.Info(ctx, "安全域--响应体======="+string(body)+"======")
-	//	panic("安全域--请求响应失败=======")
-	//} else {
-	//	// 打印响应结果
-	//	tflog.Info(ctx, "安全域--响应状态码======="+string(respn.Status)+"======")
-	//	tflog.Info(ctx, "安全域--响应体======="+string(body)+"======")
-	//}
 }

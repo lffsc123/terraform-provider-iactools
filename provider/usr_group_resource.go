@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"io"
-	"net/http"
-	"strings"
 )
 
 // 服务组
@@ -36,12 +31,44 @@ type AddUsrGroupRequest struct {
 	AddUsrGroupRequestModel AddUsrGroupRequestModel `json:"grp"`
 }
 
+type UpdateUsrGroupRequest struct {
+	UpdateUsrGroupRequestModel UpdateUsrGroupRequestModel `json:"grp"`
+}
+
 // 调用接口参数
 type AddUsrGroupRequestModel struct {
 	Name           string `json:"name"`
 	VfwName        string `json:"vfwName"`
 	Desc           string `json:"desc"`
 	AllSerNameList string `json:"allSerNameList"`
+}
+
+type UpdateUsrGroupRequestModel struct {
+	Name           string `json:"name"`
+	VfwName        string `json:"vfwName"`
+	OldName        string `json:"oldName"`
+	Desc           string `json:"desc"`
+	AllSerNameList string `json:"allSerNameList"`
+}
+
+// 查询结果结构体
+type QueryUsrGroupResponseListModel struct {
+	UsrGrouplist []QueryUsrGroupResponseModel `json:"grp"`
+}
+type QueryUsrGroupResponseModel struct {
+	Id             string `json:"id"`
+	VfwName        string `json:"vfwName"`
+	Name           string `json:"name"`
+	OldName        string `json:"oldName"`
+	Desc           string `json:"desc"`
+	AllSerNameList string `json:"allSerNameList"`
+	PreNameList    string `json:"preNameList"`
+	UsrNameList    string `json:"usrNameList"`
+	ReferNum       string `json:"referNum"`
+	DelAllEnable   string `json:"delAllEnable"`
+	SearchValue    string `json:"searchValue"`
+	Offset         string `json:"offset"`
+	Count          string `json:"count"`
 }
 
 // 接收外部参数
@@ -154,14 +181,52 @@ func (r *UsrGroupResource) ImportState(ctx context.Context, req resource.ImportS
 
 func sendToweb_UsrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddUsrGroupParameter) {
 
-	var sendData AddUsrGroupRequestModel
 	if reqmethod == "POST" {
+
+		// 先查询是否存在，再执行新增操作
+		tflog.Info(ctx, "服务组--开始执行--查询操作")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/grp?vfwName=vsys&searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=100", "服务组")
+		var queryResList QueryUsrGroupResponseListModel
+		err := json.Unmarshal([]byte(responseBody), &queryResList)
+		if err != nil {
+			panic("转换查询结果json出现异常")
+		}
+		for _, queryRes := range queryResList.UsrGrouplist {
+			if queryRes.Name == Rsinfo.Name.ValueString() {
+				tflog.Info(ctx, "服务组--存在重复数据，执行--修改操作")
+				var sendUpdateData UpdateUsrGroupRequestModel
+				sendUpdateData = UpdateUsrGroupRequestModel{
+					Name:           Rsinfo.Name.ValueString(),
+					VfwName:        Rsinfo.VfwName.ValueString(),
+					OldName:        Rsinfo.Name.ValueString(),
+					Desc:           Rsinfo.Desc.ValueString(),
+					AllSerNameList: Rsinfo.AllSerNameList.ValueString(),
+				}
+
+				requstUpdateData := UpdateUsrGroupRequest{
+					UpdateUsrGroupRequestModel: sendUpdateData,
+				}
+				body, _ := json.Marshal(requstUpdateData)
+
+				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/grp", "服务组")
+				return
+			}
+		}
+
+		// 新增操作
+		var sendData AddUsrGroupRequestModel
 		sendData = AddUsrGroupRequestModel{
 			Name:           Rsinfo.Name.ValueString(),
 			VfwName:        Rsinfo.VfwName.ValueString(),
 			AllSerNameList: Rsinfo.AllSerNameList.ValueString(),
 			Desc:           Rsinfo.Desc.ValueString(),
 		}
+		requstData := AddUsrGroupRequest{
+			AddUsrGroupRequestModel: sendData,
+		}
+		body, _ := json.Marshal(requstData)
+		sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netservice/netservice/grp", "服务组")
+		return
 	} else if reqmethod == "GET" {
 
 	} else if reqmethod == "PUT" {
@@ -169,47 +234,4 @@ func sendToweb_UsrGroupRequest(ctx context.Context, reqmethod string, c *Client,
 	} else if reqmethod == "DELETE" {
 
 	}
-
-	requstData := AddUsrGroupRequest{
-		AddUsrGroupRequestModel: sendData,
-	}
-	body, _ := json.Marshal(requstData)
-
-	tflog.Info(ctx, "服务组--请求体============:"+string(body))
-
-	targetUrl := c.HostURL + "/func/web_main/api/netservice/netservice/grp"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-
-	// 创建一个HTTP客户端并发送请求
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	respn, err := client.Do(req)
-	if err != nil {
-		tflog.Error(ctx, "服务组--发送请求失败======="+err.Error())
-		panic("服务组--发送请求失败=======")
-	}
-	defer respn.Body.Close()
-
-	body, err2 := io.ReadAll(respn.Body)
-	if err2 != nil {
-		tflog.Error(ctx, "服务组--发送请求失败======="+err2.Error())
-		panic("服务组--发送请求失败=======")
-	}
-
-	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-		tflog.Info(ctx, "服务组--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "服务组--响应体======="+string(body))
-		panic("服务组--请求响应失败=======")
-	} else {
-		// 打印响应结果
-		tflog.Info(ctx, "服务组--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "服务组--响应体======="+string(body))
-	}
-
 }

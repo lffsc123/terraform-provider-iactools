@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"io"
-	"net/http"
-	"strings"
 )
 
 // 源NAT
@@ -36,11 +31,38 @@ type AddSourceNatRequest struct {
 	AddSourceNatRequestModel AddSourceNatRequestModel `json:"snatlist"`
 }
 
+type UpdateSourceNatRequest struct {
+	UpdateSourceNatRequestModel UpdateSourceNatRequestModel `json:"snatlist"`
+}
+
 // 调用接口参数
 type AddSourceNatRequestModel struct {
 	IpVersion           string `json:"ipVersion"`
 	VsysName            string `json:"vsysName"`
 	Name                string `json:"name"`
+	TargetName          string `json:"targetName"`
+	Position            string `json:"position"`
+	OutInterface        string `json:"outInterface"`
+	SrcAddrObj          string `json:"srcAddrObj"`
+	SrcAddrGroup        string `json:"srcAddrGroup"`
+	DstAddrObj          string `json:"dstAddrObj"`
+	DstAddrGroup        string `json:"dstaddrgroup"`
+	PreService          string `json:"preService"`
+	UsrService          string `json:"usrService"`
+	ServiceGroup        string `json:"serviceGroup"`
+	PublicIpAddressFlag string `json:"publicIpAddressFlag"`
+	AddrpoolName        string `json:"addrpoolName"`
+	MinPort             string `json:"minPort"`
+	MaxPort             string `json:"maxPort"`
+	PortHash            string `json:"portHash"`
+	State               string `json:"state"`
+}
+
+type UpdateSourceNatRequestModel struct {
+	IpVersion           string `json:"ipVersion"`
+	VsysName            string `json:"vsysName"`
+	Name                string `json:"name"`
+	OldName             string `json:"oldName"`
 	TargetName          string `json:"targetName"`
 	Position            string `json:"position"`
 	OutInterface        string `json:"outInterface"`
@@ -80,6 +102,39 @@ type AddSourceNatParameter struct {
 	MaxPort             types.String `tfsdk:"maxport"`
 	PortHash            types.String `tfsdk:"porthash"`
 	State               types.String `tfsdk:"state"`
+}
+
+// 查询结果结构体
+type QuerySourceNatResponseListModel struct {
+	Snatlist []QuerySourceNatResponseModel `json:"snatlist"`
+}
+type QuerySourceNatResponseModel struct {
+	IpVersion           string `json:"ipVersion"`
+	VsysName            string `json:"vsysName"`
+	Offset              string `json:"offset"`
+	Count               string `json:"count"`
+	Name                string `json:"name"`
+	OutInterface        string `json:"outInterface"`
+	SourceIp            string `json:"sourceIp"`
+	DestinationIp       string `json:"destinationIp"`
+	Service             string `json:"service"`
+	State               string `json:"state"`
+	SrcAddrObj          string `json:"srcAddrObj"`
+	SrcAddrGroup        string `json:"srcAddrGroup"`
+	DstAddrObj          string `json:"dstAddrObj"`
+	DstAddrGroup        string `json:"dstaddrgroup"`
+	PreService          string `json:"preService"`
+	UsrService          string `json:"usrService"`
+	ServiceGroup        string `json:"serviceGroup"`
+	PublicIpAddressFlag string `json:"publicIpAddressFlag"`
+	AddrpoolName        string `json:"addrpoolName"`
+	MinPort             string `json:"minPort"`
+	MaxPort             string `json:"maxPort"`
+	PortHash            string `json:"portHash"`
+	RuleId              string `json:"ruleId"`
+	DelallEnable        string `json:"delallEnable"`
+	TargetName          string `json:"targetName"`
+	OldName             string `json:"oldName"`
 }
 
 func (r *SourceNatResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -237,8 +292,53 @@ func (r *SourceNatResource) ImportState(ctx context.Context, req resource.Import
 
 func sendToweb_SourceNatRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddSourceNatParameter) {
 
-	var sendData AddSourceNatRequestModel
 	if reqmethod == "POST" {
+		// 先查询是否存在，再执行新增操作
+		tflog.Info(ctx, "源NAT--开始执行--查询操作")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/nat/nat/snatlist", "源NAT")
+		var queryResList QuerySourceNatResponseListModel
+		err := json.Unmarshal([]byte(responseBody), &queryResList)
+		if err != nil {
+			panic("转换查询结果json出现异常")
+		}
+		for _, queryRes := range queryResList.Snatlist {
+			if queryRes.Name == Rsinfo.Name.ValueString() {
+				tflog.Info(ctx, "源NAT--存在重复数据，执行--修改操作")
+				var sendUpdateData UpdateSourceNatRequestModel
+				sendUpdateData = UpdateSourceNatRequestModel{
+					IpVersion:           Rsinfo.IpVersion.ValueString(),
+					VsysName:            Rsinfo.VsysName.ValueString(),
+					Name:                Rsinfo.Name.ValueString(),
+					OldName:             Rsinfo.Name.ValueString(),
+					TargetName:          Rsinfo.TargetName.ValueString(),
+					Position:            Rsinfo.Position.ValueString(),
+					OutInterface:        Rsinfo.OutInterface.ValueString(),
+					SrcAddrObj:          Rsinfo.SrcAddrObj.ValueString(),
+					SrcAddrGroup:        Rsinfo.SrcAddrGroup.ValueString(),
+					DstAddrObj:          Rsinfo.DstAddrObj.ValueString(),
+					DstAddrGroup:        Rsinfo.DstAddrGroup.ValueString(),
+					PreService:          Rsinfo.PreService.ValueString(),
+					UsrService:          Rsinfo.UsrService.ValueString(),
+					ServiceGroup:        Rsinfo.ServiceGroup.ValueString(),
+					PublicIpAddressFlag: Rsinfo.PublicIpAddressFlag.ValueString(),
+					AddrpoolName:        Rsinfo.AddrpoolName.ValueString(),
+					MinPort:             Rsinfo.MinPort.ValueString(),
+					MaxPort:             Rsinfo.MaxPort.ValueString(),
+					PortHash:            Rsinfo.PortHash.ValueString(),
+					State:               Rsinfo.State.ValueString(),
+				}
+
+				requstUpdateData := UpdateSourceNatRequest{
+					UpdateSourceNatRequestModel: sendUpdateData,
+				}
+				body, _ := json.Marshal(requstUpdateData)
+
+				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/nat/nat/snatlist", "源NAT")
+				return
+			}
+		}
+		// 新增操作
+		var sendData AddSourceNatRequestModel
 		sendData = AddSourceNatRequestModel{
 			IpVersion:           Rsinfo.IpVersion.ValueString(),
 			VsysName:            Rsinfo.VsysName.ValueString(),
@@ -260,53 +360,17 @@ func sendToweb_SourceNatRequest(ctx context.Context, reqmethod string, c *Client
 			PortHash:            Rsinfo.PortHash.ValueString(),
 			State:               Rsinfo.State.ValueString(),
 		}
+		requstData := AddSourceNatRequest{
+			AddSourceNatRequestModel: sendData,
+		}
+		body, _ := json.Marshal(requstData)
+		sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/nat/nat/snatlist", "源NAT")
+		return
 	} else if reqmethod == "GET" {
 
 	} else if reqmethod == "PUT" {
 
 	} else if reqmethod == "DELETE" {
 
-	}
-
-	requstData := AddSourceNatRequest{
-		AddSourceNatRequestModel: sendData,
-	}
-	body, _ := json.Marshal(requstData)
-
-	tflog.Info(ctx, "源NAT--请求体============:"+string(body))
-
-	targetUrl := c.HostURL + "/func/web_main/api/nat/nat/snatlist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-
-	// 创建一个HTTP客户端并发送请求
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	respn, err := client.Do(req)
-	if err != nil {
-		tflog.Error(ctx, "源NAT--发送请求失败======="+err.Error())
-		panic("源NAT--发送请求失败=======")
-	}
-	defer respn.Body.Close()
-
-	body, err2 := io.ReadAll(respn.Body)
-	if err2 != nil {
-		tflog.Error(ctx, "源NAT--发送请求失败======="+err2.Error())
-		panic("源NAT--发送请求失败=======")
-	}
-
-	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-		tflog.Info(ctx, "源NAT--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "源NAT--响应体======="+string(body))
-		panic("源NAT--请求响应失败=======")
-	} else {
-		// 打印响应结果
-		tflog.Info(ctx, "源NAT--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "源NAT--响应体======="+string(body))
 	}
 }

@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"io"
-	"net/http"
-	"strings"
 )
 
 // 包过滤
@@ -34,6 +29,10 @@ type PfPolicyResourceModel struct {
 
 type AddPfPolicyRequest struct {
 	AddPfPolicyRequestModel AddPfPolicyRequestModel `json:"securitypolicylist"`
+}
+
+type UpdatePfPolicyRequest struct {
+	UpdatePfPolicyRequestModel UpdatePfPolicyRequestModel `json:"securitypolicylist"`
 }
 
 // 调用接口参数
@@ -65,6 +64,52 @@ type AddPfPolicyRequestModel struct {
 	UserObjects             string `json:"userObjects"`
 	UserGroups              string `json:"userGroups"`
 	Description             string `json:"describe"`
+	EffectName              string `json:"effectName"`
+	Matchlog                string `json:"matchlog"`
+	Sessionlog              string `json:"sessionlog"`
+	Longsession             string `json:"longsession"`
+	Agingtime               string `json:"agingtime"`
+	Fragdrop                string `json:"fragdrop"`
+	Dscp                    string `json:"dscp"`
+	Cos                     string `json:"cos"`
+	RltGroup                string `json:"rltGroup"`
+	RltUser                 string `json:"rltUser"`
+	Acctl                   string `json:"acctl"`
+	UrlClass                string `json:"urlClass"`
+	UrlSenior               string `json:"urlSenior"`
+	Cam                     string `json:"cam"`
+	Ips                     string `json:"ips"`
+	Av                      string `json:"av"`
+}
+
+type UpdatePfPolicyRequestModel struct {
+	IpVersion               string `json:"ipVersion"`
+	VsysName                string `json:"vsysName"`
+	GroupName               string `json:"groupName"`
+	TargetName              string `json:"targetName"`
+	Position                string `json:"position"`
+	Name                    string `json:"name"`
+	OldName                 string `json:"oldName"`
+	SourceSecurityZone      string `json:"sourceSecurityZone"`
+	DestinationSecurityZone string `json:"destinationSecurityZone"`
+	Enabled                 string `json:"enabled"`
+	Action                  string `json:"action"`
+	SourceIpObjects         string `json:"sourceIpObjects"`
+	SourceIpGroups          string `json:"sourceIpGroups"`
+	SourceDomains           string `json:"sourceDomains"`
+	SourceMacObjects        string `json:"sourceMacObjects"`
+	SourceMacGroups         string `json:"sourceMacGroups"`
+	DestinationIpObjects    string `json:"destinationIpObjects"`
+	DestinationIpGroups     string `json:"destinationIpGroups"`
+	DestinationDomains      string `json:"destinationDomains"`
+	DestinationMacObjects   string `json:"destinationMacObjects"`
+	DestinationMacGroups    string `json:"destinationMacGroups"`
+	ServicePreObjects       string `json:"servicePreObjects"`
+	ServiceUsrObjects       string `json:"serviceUsrObjects"`
+	ServiceGroups           string `json:"serviceGroups"`
+	UserObjects             string `json:"userObjects"`
+	UserGroups              string `json:"userGroups"`
+	Description             string `json:"description"`
 	EffectName              string `json:"effectName"`
 	Matchlog                string `json:"matchlog"`
 	Sessionlog              string `json:"sessionlog"`
@@ -128,6 +173,69 @@ type AddPfPolicyParameter struct {
 	Cam                     types.String `tfsdk:"cam"`
 	Ips                     types.String `tfsdk:"ips"`
 	Av                      types.String `tfsdk:"av"`
+}
+
+// 查询结果结构体
+type QueryPfPolicyResponseListModel struct {
+	Securitypolicylist []QueryPfPolicyResponseModel `json:"securitypolicylist"`
+}
+type QueryPfPolicyResponseModel struct {
+	IpVersion               string `json:"ipVersion"`
+	VsysName                string `json:"vsysName"`
+	Offset                  string `json:"offset"`
+	Count                   string `json:"count"`
+	GroupName               string `json:"groupName"`
+	TargetName              string `json:"targetName"`
+	Position                string `json:"position"`
+	Name                    string `json:"name"`
+	OldName                 string `json:"oldName"`
+	SourceSecurityZone      string `json:"sourceSecurityZone"`
+	DestinationSecurityZone string `json:"destinationSecurityZone"`
+	Sourceaddress           string `json:"sourceaddress"`
+	Destinationaddress      string `json:"destinationaddress"`
+	Service                 string `json:"service"`
+	Enabled                 string `json:"enabled"`
+	Action                  string `json:"action"`
+	MatchTime               string `json:"matchTime"`
+	DelallEnable            string `json:"delallEnable"`
+	Id                      string `json:"id"`
+	SourceIpObjects         string `json:"sourceIpObjects"`
+	SourceIpGroups          string `json:"sourceIpGroups"`
+	SourceDomains           string `json:"sourceDomains"`
+	SourceMacObjects        string `json:"sourceMacObjects"`
+	SourceMacGroups         string `json:"sourceMacGroups"`
+	DestinationIpObjects    string `json:"destinationIpObjects"`
+	DestinationIpGroups     string `json:"destinationIpGroups"`
+	DestinationDomains      string `json:"destinationDomains"`
+	DestinationMacObjects   string `json:"destinationMacObjects"`
+	DestinationMacGroups    string `json:"destinationMacGroups"`
+	ServicePreObjects       string `json:"servicePreObjects"`
+	ServiceUsrObjects       string `json:"serviceUsrObjects"`
+	ServiceGroups           string `json:"serviceGroups"`
+	UserObjects             string `json:"userObjects"`
+	UserGroups              string `json:"userGroups"`
+	Description             string `json:"description"`
+	EffectName              string `json:"effectName"`
+	Matchlog                string `json:"matchlog"`
+	Sessionlog              string `json:"sessionlog"`
+	Longsession             string `json:"longsession"`
+	Agingtime               string `json:"agingtime"`
+	Fragdrop                string `json:"fragdrop"`
+	Dscp                    string `json:"dscp"`
+	Cos                     string `json:"cos"`
+	RltGroup                string `json:"rltGroup"`
+	RltUser                 string `json:"rltUser"`
+	Acctl                   string `json:"acctl"`
+	UrlClass                string `json:"urlClass"`
+	UrlSenior               string `json:"urlSenior"`
+	Cam                     string `json:"cam"`
+	Ips                     string `json:"ips"`
+	Av                      string `json:"av"`
+	Createtime              string `json:"createtime"`
+	Modifytime              string `json:"modifytime"`
+	Matchnum                string `json:"matchnum"`
+	FlowStatisticsBytes     string `json:"flowStatisticsBytes"`
+	FlowStatisticsPackets   string `json:"flowStatisticsPackets"`
 }
 
 func (r *PfPolicyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -349,8 +457,77 @@ func (r *PfPolicyResource) ImportState(ctx context.Context, req resource.ImportS
 
 func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo AddPfPolicyParameter) {
 
-	var sendData AddPfPolicyRequestModel
 	if reqmethod == "POST" {
+
+		// 先查询是否存在，再执行新增操作
+		tflog.Info(ctx, "包过滤--开始执行--查询操作")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/pf_policy/pf_policy/pf_policy/securitypolicylist", "包过滤")
+		var queryResList QueryPfPolicyResponseListModel
+		err := json.Unmarshal([]byte(responseBody), &queryResList)
+		if err != nil {
+			panic("转换查询结果json出现异常")
+		}
+		for _, queryRes := range queryResList.Securitypolicylist {
+			if queryRes.Name == Rsinfo.Name.ValueString() {
+				tflog.Info(ctx, "包过滤--存在重复数据，执行--修改操作")
+				var sendUpdateData UpdatePfPolicyRequestModel
+				sendUpdateData = UpdatePfPolicyRequestModel{
+					IpVersion:               Rsinfo.IpVersion.ValueString(),
+					VsysName:                Rsinfo.VsysName.ValueString(),
+					GroupName:               Rsinfo.GroupName.ValueString(),
+					TargetName:              Rsinfo.TargetName.ValueString(),
+					Position:                Rsinfo.Position.ValueString(),
+					Name:                    Rsinfo.Name.ValueString(),
+					OldName:                 Rsinfo.Name.ValueString(),
+					SourceSecurityZone:      Rsinfo.SourceSecurityZone.ValueString(),
+					DestinationSecurityZone: Rsinfo.DestinationSecurityZone.ValueString(),
+					Enabled:                 Rsinfo.Enabled.ValueString(),
+					Action:                  Rsinfo.Action.ValueString(),
+					SourceIpObjects:         Rsinfo.SourceIpObjects.ValueString(),
+					SourceIpGroups:          Rsinfo.SourceIpGroups.ValueString(),
+					SourceDomains:           Rsinfo.SourceDomains.ValueString(),
+					SourceMacObjects:        Rsinfo.SourceMacObjects.ValueString(),
+					SourceMacGroups:         Rsinfo.SourceMacGroups.ValueString(),
+					DestinationIpObjects:    Rsinfo.DestinationIpObjects.ValueString(),
+					DestinationIpGroups:     Rsinfo.DestinationIpGroups.ValueString(),
+					DestinationDomains:      Rsinfo.DestinationDomains.ValueString(),
+					DestinationMacObjects:   Rsinfo.DestinationMacObjects.ValueString(),
+					DestinationMacGroups:    Rsinfo.DestinationMacGroups.ValueString(),
+					ServicePreObjects:       Rsinfo.ServicePreObjects.ValueString(),
+					ServiceUsrObjects:       Rsinfo.ServiceUsrObjects.ValueString(),
+					ServiceGroups:           Rsinfo.ServiceGroups.ValueString(),
+					UserObjects:             Rsinfo.UserObjects.ValueString(),
+					UserGroups:              Rsinfo.UserGroups.ValueString(),
+					Description:             Rsinfo.Description.ValueString(),
+					EffectName:              Rsinfo.EffectName.ValueString(),
+					Matchlog:                Rsinfo.Matchlog.ValueString(),
+					Sessionlog:              Rsinfo.Sessionlog.ValueString(),
+					Longsession:             Rsinfo.Longsession.ValueString(),
+					Agingtime:               Rsinfo.Agingtime.ValueString(),
+					Fragdrop:                Rsinfo.Fragdrop.ValueString(),
+					Dscp:                    Rsinfo.Dscp.ValueString(),
+					Cos:                     Rsinfo.Cos.ValueString(),
+					RltGroup:                Rsinfo.RltGroup.ValueString(),
+					RltUser:                 Rsinfo.RltUser.ValueString(),
+					Acctl:                   Rsinfo.Acctl.ValueString(),
+					UrlClass:                Rsinfo.UrlClass.ValueString(),
+					UrlSenior:               Rsinfo.UrlSenior.ValueString(),
+					Cam:                     Rsinfo.Cam.ValueString(),
+					Ips:                     Rsinfo.Ips.ValueString(),
+					Av:                      Rsinfo.Av.ValueString(),
+				}
+
+				requstUpdateData := UpdatePfPolicyRequest{
+					UpdatePfPolicyRequestModel: sendUpdateData,
+				}
+				body, _ := json.Marshal(requstUpdateData)
+
+				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/pf_policy/pf_policy/pf_policy/securitypolicylist", "包过滤")
+				return
+			}
+		}
+		// 新增操作
+		var sendData AddPfPolicyRequestModel
 		sendData = AddPfPolicyRequestModel{
 			Name:                    Rsinfo.Name.ValueString(),
 			Enabled:                 Rsinfo.Enabled.ValueString(),
@@ -395,55 +572,18 @@ func sendToweb_Request(ctx context.Context, reqmethod string, c *Client, Rsinfo 
 			Ips:                     Rsinfo.Ips.ValueString(),
 			Av:                      Rsinfo.Av.ValueString(),
 		}
+
+		requstData := AddPfPolicyRequest{
+			AddPfPolicyRequestModel: sendData,
+		}
+		body, _ := json.Marshal(requstData)
+		sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/pf_policy/pf_policy/pf_policy/securitypolicylist", "包过滤")
+		return
 	} else if reqmethod == "GET" {
 
 	} else if reqmethod == "PUT" {
 
 	} else if reqmethod == "DELETE" {
-		sendData = AddPfPolicyRequestModel{
-			DelAllEnable: "1",
-		}
-	}
 
-	requstData := AddPfPolicyRequest{
-		AddPfPolicyRequestModel: sendData,
-	}
-	body, _ := json.Marshal(requstData)
-
-	tflog.Info(ctx, "包过滤--请求体============:"+string(body))
-
-	targetUrl := c.HostURL + "/func/web_main/api/pf_policy/pf_policy/pf_policy/securitypolicylist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-
-	// 创建一个HTTP客户端并发送请求
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	respn, err := client.Do(req)
-	if err != nil {
-		tflog.Error(ctx, "包过滤--发送请求失败======="+err.Error())
-		panic("包过滤--发送请求失败=======")
-	}
-	defer respn.Body.Close()
-
-	body, err2 := io.ReadAll(respn.Body)
-	if err2 != nil {
-		tflog.Error(ctx, "包过滤--发送请求失败======="+err2.Error())
-		panic("包过滤--发送请求失败=======")
-	}
-
-	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-		tflog.Info(ctx, "包过滤--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "包过滤--响应体======="+string(body))
-		panic("包过滤--请求响应失败=======")
-	} else {
-		// 打印响应结果
-		tflog.Info(ctx, "包过滤--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "包过滤--响应体======="+string(body))
 	}
 }

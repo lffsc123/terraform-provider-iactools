@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"io"
-	"net/http"
-	"strings"
 )
 
 // IP 地址对象
@@ -36,11 +31,25 @@ type AddNetAddrObjRequest struct {
 	AddNetAddrObjRequestModel AddNetAddrObjRequestModel `json:"netaddrobjlist"`
 }
 
+type UpdateNetAddrObjRequest struct {
+	UpdateNetAddrObjRequestModel UpdateNetAddrObjRequestModel `json:"netaddrobjlist"`
+}
+
 // 调用接口参数
 type AddNetAddrObjRequestModel struct {
 	IpVersion string `json:"ipVersion"`
 	VsysName  string `json:"vsysName"`
 	Name      string `json:"name"`
+	Desc      string `json:"desc"`
+	Ip        string `json:"ip"`
+	ExpIp     string `json:"expIp"`
+}
+
+type UpdateNetAddrObjRequestModel struct {
+	IpVersion string `json:"ipVersion"`
+	VsysName  string `json:"vsysName"`
+	Name      string `json:"name"`
+	OldName   string `json:"oldName"`
 	Desc      string `json:"desc"`
 	Ip        string `json:"ip"`
 	ExpIp     string `json:"expIp"`
@@ -54,6 +63,26 @@ type AddNetAddrObjParameter struct {
 	Desc      types.String `tfsdk:"desc"`
 	Ip        types.String `tfsdk:"ip"`
 	ExpIp     types.String `tfsdk:"expip"`
+}
+
+// 查询结果结构体
+type QueryNetAddrObjResponseListModel struct {
+	Netaddrobjlist []QueryNetAddrObjResponseModel `json:"netaddrobjlist"`
+}
+type QueryNetAddrObjResponseModel struct {
+	IpVersion    string `json:"ipVersion"`
+	Vsysname     string `json:"vsysName"`
+	Offset       string `json:"offset"`
+	Count        string `json:"count"`
+	SearchValue  string `json:"searchValue"`
+	Id           string `json:"id"`
+	Name         string `json:"name"`
+	OldName      string `json:"oldName"`
+	Desc         string `json:"desc"`
+	Ip           string `json:"ip"`
+	ExpIp        string `json:"expIp"`
+	ReferNum     string `json:"referNum"`
+	DelAllEnable string `json:"delAllEnable"`
 }
 
 func (r *NetAddrObjResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -171,8 +200,41 @@ func (r *NetAddrObjResource) ImportState(ctx context.Context, req resource.Impor
 
 func sendToweb_NetAddrObjRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrObjParameter) {
 
-	var sendData AddNetAddrObjRequestModel
 	if reqmethod == "POST" {
+		// 先查询是否存在，再执行新增操作
+		tflog.Info(ctx, "IP地址对象--开始执行--查询操作")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist?vsysName=PublicSystem&offset=0&count=1000", "IP地址对象")
+		var queryResList QueryNetAddrObjResponseListModel
+		err := json.Unmarshal([]byte(responseBody), &queryResList)
+		if err != nil {
+			panic("转换查询结果json出现异常")
+		}
+		for _, queryRes := range queryResList.Netaddrobjlist {
+			if queryRes.Name == Rsinfo.Name.ValueString() {
+				tflog.Info(ctx, "IP地址对象--存在重复数据，执行--修改操作")
+				var sendUpdateData UpdateNetAddrObjRequestModel
+				sendUpdateData = UpdateNetAddrObjRequestModel{
+					IpVersion: Rsinfo.IpVersion.ValueString(),
+					VsysName:  Rsinfo.VsysName.ValueString(),
+					Name:      Rsinfo.Name.ValueString(),
+					OldName:   Rsinfo.Name.ValueString(),
+					Desc:      Rsinfo.Desc.ValueString(),
+					Ip:        Rsinfo.Ip.ValueString(),
+					ExpIp:     Rsinfo.ExpIp.ValueString(),
+				}
+
+				requstUpdateData := UpdateNetAddrObjRequest{
+					UpdateNetAddrObjRequestModel: sendUpdateData,
+				}
+				body, _ := json.Marshal(requstUpdateData)
+
+				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist", "IP地址对象")
+				return
+			}
+		}
+
+		// 新增操作
+		var sendData AddNetAddrObjRequestModel
 		sendData = AddNetAddrObjRequestModel{
 			IpVersion: Rsinfo.IpVersion.ValueString(),
 			Name:      Rsinfo.Name.ValueString(),
@@ -181,53 +243,18 @@ func sendToweb_NetAddrObjRequest(ctx context.Context, reqmethod string, c *Clien
 			Desc:      Rsinfo.Desc.ValueString(),
 			ExpIp:     Rsinfo.ExpIp.ValueString(),
 		}
+		requstData := AddNetAddrObjRequest{
+			AddNetAddrObjRequestModel: sendData,
+		}
+		body, _ := json.Marshal(requstData)
+
+		sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist", "IP地址对象")
+		return
 	} else if reqmethod == "GET" {
 
 	} else if reqmethod == "PUT" {
 
 	} else if reqmethod == "DELETE" {
 
-	}
-
-	requstData := AddNetAddrObjRequest{
-		AddNetAddrObjRequestModel: sendData,
-	}
-	body, _ := json.Marshal(requstData)
-
-	tflog.Info(ctx, "IP地址对象--请求体============:"+string(body)+"======")
-
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-
-	// 创建一个HTTP客户端并发送请求
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	respn, err := client.Do(req)
-	if err != nil {
-		tflog.Error(ctx, "IP地址对象--发送请求失败======="+err.Error())
-		panic("IP地址对象--发送请求失败=======")
-	}
-	defer respn.Body.Close()
-
-	body, err2 := io.ReadAll(respn.Body)
-	if err2 != nil {
-		tflog.Error(ctx, "IP地址对象--发送请求失败======="+err2.Error())
-		panic("IP地址对象--发送请求失败=======")
-	}
-
-	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-		tflog.Info(ctx, "IP地址对象--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "IP地址对象--响应体======="+string(body)+"======")
-		panic("IP地址对象--请求响应失败=======")
-	} else {
-		// 打印响应结果
-		tflog.Info(ctx, "IP地址对象--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "IP地址对象--响应体======="+string(body)+"======")
 	}
 }

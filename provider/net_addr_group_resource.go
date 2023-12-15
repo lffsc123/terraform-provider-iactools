@@ -1,9 +1,7 @@
 package provider
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -11,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"io"
-	"net/http"
-	"strings"
 )
 
 // ip地址组
@@ -36,10 +31,22 @@ type AddAddrGroupRequest struct {
 	AddAddrGroupRequestModel AddAddrGroupRequestModel `json:"netaddrgrplist"`
 }
 
+type UpdateAddrGroupRequest struct {
+	UpdateAddrGroupRequestModel UpdateAddrGroupRequestModel `json:"netaddrgrplist"`
+}
+
 // 调用接口参数
 type AddAddrGroupRequestModel struct {
 	VsysName    string `json:"vsysName"`
 	Name        string `json:"name"`
+	ObjNameList string `json:"objNameList"`
+	Desc        string `json:"desc"`
+}
+
+type UpdateAddrGroupRequestModel struct {
+	VsysName    string `json:"vsysName"`
+	Name        string `json:"name"`
+	OldName     string `json:"oldName"`
 	ObjNameList string `json:"objNameList"`
 	Desc        string `json:"desc"`
 }
@@ -50,6 +57,24 @@ type AddNetAddrGroupParameter struct {
 	Name        types.String `tfsdk:"name"`
 	ObjNameList types.String `tfsdk:"objnamelist"`
 	Desc        types.String `tfsdk:"desc"`
+}
+
+// 查询结果结构体
+type QueryNetAddrGroupResponseListModel struct {
+	Netaddrgrplist []QueryNetAddrGroupResponseModel `json:"netaddrgrplist"`
+}
+type QueryNetAddrGroupResponseModel struct {
+	Id           string `json:"id"`
+	VsysName     string `json:"vsysName"`
+	Name         string `json:"name"`
+	Oldname      string `json:"oldname"`
+	ObjNameList  string `json:"objNameList"`
+	Desc         string `json:"desc"`
+	ReferNum     string `json:"referNum"`
+	DelAllEnable string `json:"delAllEnable"`
+	SearchValue  string `json:"searchValue"`
+	Offset       string `json:"offset"`
+	Count        string `json:"count"`
 }
 
 func (r *NetAddrGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -161,62 +186,58 @@ func (r *NetAddrGroupResource) ImportState(ctx context.Context, req resource.Imp
 
 func sendToweb_NetAddrGroupRequest(ctx context.Context, reqmethod string, c *Client, Rsinfo AddNetAddrGroupParameter) {
 
-	var sendData AddAddrGroupRequestModel
 	if reqmethod == "POST" {
+		// 先查询是否存在，再执行新增操作
+		tflog.Info(ctx, "ip地址组--开始执行--查询操作")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist?vsysName=PublicSystem&offset=0&count=1000", "ip地址组")
+		var queryResList QueryNetAddrGroupResponseListModel
+		err := json.Unmarshal([]byte(responseBody), &queryResList)
+		if err != nil {
+			panic("转换查询结果json出现异常")
+		}
+		for _, queryRes := range queryResList.Netaddrgrplist {
+			if queryRes.Name == Rsinfo.Name.ValueString() {
+				tflog.Info(ctx, "ip地址组--存在重复数据，执行--修改操作")
+				var sendUpdateData UpdateAddrGroupRequestModel
+				sendUpdateData = UpdateAddrGroupRequestModel{
+					VsysName:    Rsinfo.VsysName.ValueString(),
+					Name:        Rsinfo.Name.ValueString(),
+					OldName:     Rsinfo.Name.ValueString(),
+					ObjNameList: Rsinfo.ObjNameList.ValueString(),
+					Desc:        Rsinfo.Desc.ValueString(),
+				}
+
+				requstUpdateData := UpdateAddrGroupRequest{
+					UpdateAddrGroupRequestModel: sendUpdateData,
+				}
+				body, _ := json.Marshal(requstUpdateData)
+
+				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist", "ip地址组")
+				return
+			}
+		}
+
+		// 新增操作
+		var sendData AddAddrGroupRequestModel
 		sendData = AddAddrGroupRequestModel{
 			VsysName:    Rsinfo.VsysName.ValueString(),
 			Name:        Rsinfo.Name.ValueString(),
 			ObjNameList: Rsinfo.ObjNameList.ValueString(),
 			Desc:        Rsinfo.Desc.ValueString(),
 		}
+
+		requstData := AddAddrGroupRequest{
+			AddAddrGroupRequestModel: sendData,
+		}
+		body, _ := json.Marshal(requstData)
+		sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist", "ip地址组")
+		return
 	} else if reqmethod == "GET" {
 
 	} else if reqmethod == "PUT" {
 
 	} else if reqmethod == "DELETE" {
 
-	}
-
-	requstData := AddAddrGroupRequest{
-		AddAddrGroupRequestModel: sendData,
-	}
-	body, _ := json.Marshal(requstData)
-
-	tflog.Info(ctx, "ip地址组--请求体============:"+string(body))
-
-	targetUrl := c.HostURL + "/func/web_main/api/netaddr/netaddr_group/netaddrgrplist"
-
-	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
-
-	// 创建一个HTTP客户端并发送请求
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-	respn, err := client.Do(req)
-	if err != nil {
-		tflog.Error(ctx, "ip地址组--发送请求失败======="+err.Error())
-		panic("ip地址组--发送请求失败=======")
-	}
-	defer respn.Body.Close()
-
-	body, err2 := io.ReadAll(respn.Body)
-	if err2 != nil {
-		tflog.Error(ctx, "ip地址组--发送请求失败======="+err2.Error())
-		panic("ip地址组--发送请求失败=======")
-	}
-
-	if strings.HasSuffix(respn.Status, "200") && strings.HasSuffix(respn.Status, "201") && strings.HasSuffix(respn.Status, "204") {
-		tflog.Info(ctx, "ip地址组--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "ip地址组--响应体======="+string(body))
-		panic("ip地址组--请求响应失败=======")
-	} else {
-		// 打印响应结果
-		tflog.Info(ctx, "ip地址组--响应状态码======="+string(respn.Status)+"======")
-		tflog.Info(ctx, "ip地址组--响应体======="+string(body))
 	}
 
 }
