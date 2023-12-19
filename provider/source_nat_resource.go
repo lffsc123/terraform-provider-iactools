@@ -106,7 +106,7 @@ type AddSourceNatParameter struct {
 
 // 查询结果结构体
 type QuerySourceNatResponseListModel struct {
-	Snatlist []QuerySourceNatResponseModel `json:"snatlist"`
+	Snatlist QuerySourceNatResponseModel `json:"snatlist"`
 }
 type QuerySourceNatResponseModel struct {
 	IpVersion           string `json:"ipVersion"`
@@ -301,41 +301,40 @@ func sendToweb_SourceNatRequest(ctx context.Context, reqmethod string, c *Client
 		if err != nil {
 			panic("转换查询结果json出现异常")
 		}
-		for _, queryRes := range queryResList.Snatlist {
-			if queryRes.Name == Rsinfo.Name.ValueString() {
-				tflog.Info(ctx, "源NAT--存在重复数据，执行--修改操作")
-				var sendUpdateData UpdateSourceNatRequestModel
-				sendUpdateData = UpdateSourceNatRequestModel{
-					IpVersion:           Rsinfo.IpVersion.ValueString(),
-					VsysName:            Rsinfo.VsysName.ValueString(),
-					Name:                Rsinfo.Name.ValueString(),
-					OldName:             Rsinfo.Name.ValueString(),
-					TargetName:          Rsinfo.TargetName.ValueString(),
-					Position:            Rsinfo.Position.ValueString(),
-					OutInterface:        Rsinfo.OutInterface.ValueString(),
-					SrcAddrObj:          Rsinfo.SrcAddrObj.ValueString(),
-					SrcAddrGroup:        Rsinfo.SrcAddrGroup.ValueString(),
-					DstAddrObj:          Rsinfo.DstAddrObj.ValueString(),
-					DstAddrGroup:        Rsinfo.DstAddrGroup.ValueString(),
-					PreService:          Rsinfo.PreService.ValueString(),
-					UsrService:          Rsinfo.UsrService.ValueString(),
-					ServiceGroup:        Rsinfo.ServiceGroup.ValueString(),
-					PublicIpAddressFlag: Rsinfo.PublicIpAddressFlag.ValueString(),
-					AddrpoolName:        Rsinfo.AddrpoolName.ValueString(),
-					MinPort:             Rsinfo.MinPort.ValueString(),
-					MaxPort:             Rsinfo.MaxPort.ValueString(),
-					PortHash:            Rsinfo.PortHash.ValueString(),
-					State:               Rsinfo.State.ValueString(),
-				}
-
-				requstUpdateData := UpdateSourceNatRequest{
-					UpdateSourceNatRequestModel: sendUpdateData,
-				}
-				body, _ := json.Marshal(requstUpdateData)
-
-				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/nat/nat/snatlist", "源NAT")
-				return
+		queryRes := queryResList.Snatlist
+		if queryRes.Name == Rsinfo.Name.ValueString() {
+			tflog.Info(ctx, "源NAT--存在重复数据，执行--修改操作")
+			var sendUpdateData UpdateSourceNatRequestModel
+			sendUpdateData = UpdateSourceNatRequestModel{
+				IpVersion:           Rsinfo.IpVersion.ValueString(),
+				VsysName:            Rsinfo.VsysName.ValueString(),
+				Name:                Rsinfo.Name.ValueString(),
+				OldName:             Rsinfo.Name.ValueString(),
+				TargetName:          Rsinfo.TargetName.ValueString(),
+				Position:            Rsinfo.Position.ValueString(),
+				OutInterface:        Rsinfo.OutInterface.ValueString(),
+				SrcAddrObj:          Rsinfo.SrcAddrObj.ValueString(),
+				SrcAddrGroup:        Rsinfo.SrcAddrGroup.ValueString(),
+				DstAddrObj:          Rsinfo.DstAddrObj.ValueString(),
+				DstAddrGroup:        Rsinfo.DstAddrGroup.ValueString(),
+				PreService:          Rsinfo.PreService.ValueString(),
+				UsrService:          Rsinfo.UsrService.ValueString(),
+				ServiceGroup:        Rsinfo.ServiceGroup.ValueString(),
+				PublicIpAddressFlag: Rsinfo.PublicIpAddressFlag.ValueString(),
+				AddrpoolName:        Rsinfo.AddrpoolName.ValueString(),
+				MinPort:             Rsinfo.MinPort.ValueString(),
+				MaxPort:             Rsinfo.MaxPort.ValueString(),
+				PortHash:            Rsinfo.PortHash.ValueString(),
+				State:               Rsinfo.State.ValueString(),
 			}
+
+			requstUpdateData := UpdateSourceNatRequest{
+				UpdateSourceNatRequestModel: sendUpdateData,
+			}
+			body, _ := json.Marshal(requstUpdateData)
+
+			sendRequest(ctx, "PUT", c, body, "/func/web_main/api/nat/nat/snatlist", "源NAT")
+			return
 		}
 		// 新增操作
 		var sendData AddSourceNatRequestModel

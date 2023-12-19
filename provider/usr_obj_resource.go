@@ -229,6 +229,7 @@ func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, R
 				var sendUpdateData UpdateUsrObjRequestModel
 				sendUpdateData = UpdateUsrObjRequestModel{
 					Name:       Rsinfo.Name.ValueString(),
+					OldName:    Rsinfo.Name.ValueString(),
 					VfwName:    Rsinfo.VfwName.ValueString(),
 					Protocol:   Rsinfo.Protocol.ValueString(),
 					SportStart: Rsinfo.SportStart.ValueString(),

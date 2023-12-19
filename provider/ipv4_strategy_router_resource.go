@@ -125,9 +125,6 @@ type AddIpv4StrategyRouterParameter struct {
 }
 
 // 查询结果结构体
-type QueryIpv4StrategyRouterResponseListModel struct {
-	Securityzonelist []QueryIpv4StrategyRouterResponseModel `json:"securityzonelist"`
-}
 type QueryIpv4StrategyRouterResponseModel struct {
 	VsysName      string `json:"vsysName"`
 	Resource      string `json:"resource"`

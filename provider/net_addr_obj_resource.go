@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"strings"
 )
 
 // IP 地址对象
@@ -202,36 +203,36 @@ func sendToweb_NetAddrObjRequest(ctx context.Context, reqmethod string, c *Clien
 
 	if reqmethod == "POST" {
 		// 先查询是否存在，再执行新增操作
-		tflog.Info(ctx, "IP地址对象--开始执行--查询操作")
-		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist?vsysName=PublicSystem&offset=0&count=1000", "IP地址对象")
-		var queryResList QueryNetAddrObjResponseListModel
-		err := json.Unmarshal([]byte(responseBody), &queryResList)
-		if err != nil {
-			panic("转换查询结果json出现异常")
-		}
-		for _, queryRes := range queryResList.Netaddrobjlist {
-			if queryRes.Name == Rsinfo.Name.ValueString() {
-				tflog.Info(ctx, "IP地址对象--存在重复数据，执行--修改操作")
-				var sendUpdateData UpdateNetAddrObjRequestModel
-				sendUpdateData = UpdateNetAddrObjRequestModel{
-					IpVersion: Rsinfo.IpVersion.ValueString(),
-					VsysName:  Rsinfo.VsysName.ValueString(),
-					Name:      Rsinfo.Name.ValueString(),
-					OldName:   Rsinfo.Name.ValueString(),
-					Desc:      Rsinfo.Desc.ValueString(),
-					Ip:        Rsinfo.Ip.ValueString(),
-					ExpIp:     Rsinfo.ExpIp.ValueString(),
-				}
-
-				requstUpdateData := UpdateNetAddrObjRequest{
-					UpdateNetAddrObjRequestModel: sendUpdateData,
-				}
-				body, _ := json.Marshal(requstUpdateData)
-
-				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist", "IP地址对象")
-				return
-			}
-		}
+		//tflog.Info(ctx, "IP地址对象--开始执行--查询操作")
+		//responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist?vsysName=PublicSystem&offset=0&count=1000", "IP地址对象")
+		//var queryResList QueryNetAddrObjResponseListModel
+		//err := json.Unmarshal([]byte(responseBody), &queryResList)
+		//if err != nil {
+		//	panic("转换查询结果json出现异常")
+		//}
+		//for _, queryRes := range queryResList.Netaddrobjlist {
+		//	if queryRes.Name == Rsinfo.Name.ValueString() {
+		//		tflog.Info(ctx, "IP地址对象--存在重复数据，执行--修改操作")
+		//		var sendUpdateData UpdateNetAddrObjRequestModel
+		//		sendUpdateData = UpdateNetAddrObjRequestModel{
+		//			IpVersion: Rsinfo.IpVersion.ValueString(),
+		//			VsysName:  Rsinfo.VsysName.ValueString(),
+		//			Name:      Rsinfo.Name.ValueString(),
+		//			OldName:   Rsinfo.Name.ValueString(),
+		//			Desc:      Rsinfo.Desc.ValueString(),
+		//			Ip:        Rsinfo.Ip.ValueString(),
+		//			ExpIp:     Rsinfo.ExpIp.ValueString(),
+		//		}
+		//
+		//		requstUpdateData := UpdateNetAddrObjRequest{
+		//			UpdateNetAddrObjRequestModel: sendUpdateData,
+		//		}
+		//		body, _ := json.Marshal(requstUpdateData)
+		//
+		//		sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist", "IP地址对象")
+		//		return
+		//	}
+		//}
 
 		// 新增操作
 		var sendData AddNetAddrObjRequestModel
@@ -248,7 +249,28 @@ func sendToweb_NetAddrObjRequest(ctx context.Context, reqmethod string, c *Clien
 		}
 		body, _ := json.Marshal(requstData)
 
-		sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist", "IP地址对象")
+		responseBody := sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist", "IP地址对象")
+		if strings.Contains(responseBody, "already exists") {
+			// 更新操作
+			var sendUpdateData UpdateNetAddrObjRequestModel
+			sendUpdateData = UpdateNetAddrObjRequestModel{
+				IpVersion: Rsinfo.IpVersion.ValueString(),
+				VsysName:  Rsinfo.VsysName.ValueString(),
+				Name:      Rsinfo.Name.ValueString(),
+				OldName:   Rsinfo.Name.ValueString(),
+				Desc:      Rsinfo.Desc.ValueString(),
+				Ip:        Rsinfo.Ip.ValueString(),
+				ExpIp:     Rsinfo.ExpIp.ValueString(),
+			}
+
+			requstUpdateData := UpdateNetAddrObjRequest{
+				UpdateNetAddrObjRequestModel: sendUpdateData,
+			}
+			body, _ := json.Marshal(requstUpdateData)
+
+			sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist", "IP地址对象")
+			return
+		}
 		return
 	} else if reqmethod == "GET" {
 
