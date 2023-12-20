@@ -185,7 +185,7 @@ func sendToweb_UsrGroupRequest(ctx context.Context, reqmethod string, c *Client,
 
 		// 先查询是否存在，再执行新增操作
 		tflog.Info(ctx, "服务组--开始执行--查询操作")
-		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/grp?vfwName=PublicSystem&searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=100", "服务组")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/grp?searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=100", "服务组")
 		var queryResList QueryUsrGroupResponseListModel
 		err := json.Unmarshal([]byte(responseBody), &queryResList)
 		if err != nil {

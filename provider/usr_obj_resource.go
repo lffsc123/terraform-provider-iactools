@@ -217,7 +217,7 @@ func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, R
 	if reqmethod == "POST" {
 		// 先查询是否存在，再执行新增操作
 		tflog.Info(ctx, "服务对象--开始执行--查询操作")
-		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/usrobj?vfwName=vsys&searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=1000", "服务对象")
+		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/usrobj?searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=1000", "服务对象")
 		var queryResList QueryUsrObjResponseListModel
 		err := json.Unmarshal([]byte(responseBody), &queryResList)
 		if err != nil {
