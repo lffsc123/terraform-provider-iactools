@@ -251,6 +251,7 @@ func sendToweb_NetAddrObjRequest(ctx context.Context, reqmethod string, c *Clien
 
 		responseBody := sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netaddr/netaddr_obj/netaddrobjlist", "IP地址对象")
 		if strings.Contains(responseBody, "already exists") {
+			tflog.Info(ctx, "IP地址对象--存在重复数据，执行--修改操作")
 			// 更新操作
 			var sendUpdateData UpdateNetAddrObjRequestModel
 			sendUpdateData = UpdateNetAddrObjRequestModel{

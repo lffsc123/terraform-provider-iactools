@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"strings"
 )
 
 // 服务对象
@@ -216,39 +217,39 @@ func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, R
 
 	if reqmethod == "POST" {
 		// 先查询是否存在，再执行新增操作
-		tflog.Info(ctx, "服务对象--开始执行--查询操作")
-		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/usrobj?searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=1000", "服务对象")
-		var queryResList QueryUsrObjResponseListModel
-		err := json.Unmarshal([]byte(responseBody), &queryResList)
-		if err != nil {
-			panic("转换查询结果json出现异常")
-		}
-		for _, queryRes := range queryResList.UsrObjlist {
-			if queryRes.Name == Rsinfo.Name.ValueString() {
-				tflog.Info(ctx, "服务对象--存在重复数据，执行--修改操作")
-				var sendUpdateData UpdateUsrObjRequestModel
-				sendUpdateData = UpdateUsrObjRequestModel{
-					Name:       Rsinfo.Name.ValueString(),
-					OldName:    Rsinfo.Name.ValueString(),
-					VfwName:    Rsinfo.VfwName.ValueString(),
-					Protocol:   Rsinfo.Protocol.ValueString(),
-					SportStart: Rsinfo.SportStart.ValueString(),
-					SportEnd:   Rsinfo.SportEnd.ValueString(),
-					DportStart: Rsinfo.DportStart.ValueString(),
-					DportEnd:   Rsinfo.DportEnd.ValueString(),
-					Services:   Rsinfo.Services.ValueString(),
-					Desc:       Rsinfo.Desc.ValueString(),
-				}
-
-				requstUpdateData := UpdateUsrObjRequest{
-					UpdateUsrObjRequestModel: sendUpdateData,
-				}
-				body, _ := json.Marshal(requstUpdateData)
-
-				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/usrobj", "服务对象")
-				return
-			}
-		}
+		//tflog.Info(ctx, "服务对象--开始执行--查询操作")
+		//responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/usrobj?searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=1000", "服务对象")
+		//var queryResList QueryUsrObjResponseListModel
+		//err := json.Unmarshal([]byte(responseBody), &queryResList)
+		//if err != nil {
+		//	panic("转换查询结果json出现异常")
+		//}
+		//for _, queryRes := range queryResList.UsrObjlist {
+		//	if queryRes.Name == Rsinfo.Name.ValueString() {
+		//		tflog.Info(ctx, "服务对象--存在重复数据，执行--修改操作")
+		//		var sendUpdateData UpdateUsrObjRequestModel
+		//		sendUpdateData = UpdateUsrObjRequestModel{
+		//			Name:       Rsinfo.Name.ValueString(),
+		//			OldName:    Rsinfo.Name.ValueString(),
+		//			VfwName:    Rsinfo.VfwName.ValueString(),
+		//			Protocol:   Rsinfo.Protocol.ValueString(),
+		//			SportStart: Rsinfo.SportStart.ValueString(),
+		//			SportEnd:   Rsinfo.SportEnd.ValueString(),
+		//			DportStart: Rsinfo.DportStart.ValueString(),
+		//			DportEnd:   Rsinfo.DportEnd.ValueString(),
+		//			Services:   Rsinfo.Services.ValueString(),
+		//			Desc:       Rsinfo.Desc.ValueString(),
+		//		}
+		//
+		//		requstUpdateData := UpdateUsrObjRequest{
+		//			UpdateUsrObjRequestModel: sendUpdateData,
+		//		}
+		//		body, _ := json.Marshal(requstUpdateData)
+		//
+		//		sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/usrobj", "服务对象")
+		//		return
+		//	}
+		//}
 
 		// 新增操作
 		var sendData AddUsrObjRequestModel
@@ -267,7 +268,31 @@ func sendToweb_UsrObjRequest(ctx context.Context, reqmethod string, c *Client, R
 			AddUsrObjRequestModel: sendData,
 		}
 		body, _ := json.Marshal(requstData)
-		sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/usrobj", "服务对象")
+		responseBody := sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netservice/netservice/usrobj", "服务对象")
+		if strings.Contains(responseBody, "already exists") {
+			tflog.Info(ctx, "服务对象--存在重复数据，执行--修改操作")
+			var sendUpdateData UpdateUsrObjRequestModel
+			sendUpdateData = UpdateUsrObjRequestModel{
+				Name:       Rsinfo.Name.ValueString(),
+				OldName:    Rsinfo.Name.ValueString(),
+				VfwName:    Rsinfo.VfwName.ValueString(),
+				Protocol:   Rsinfo.Protocol.ValueString(),
+				SportStart: Rsinfo.SportStart.ValueString(),
+				SportEnd:   Rsinfo.SportEnd.ValueString(),
+				DportStart: Rsinfo.DportStart.ValueString(),
+				DportEnd:   Rsinfo.DportEnd.ValueString(),
+				Services:   Rsinfo.Services.ValueString(),
+				Desc:       Rsinfo.Desc.ValueString(),
+			}
+
+			requstUpdateData := UpdateUsrObjRequest{
+				UpdateUsrObjRequestModel: sendUpdateData,
+			}
+			body, _ := json.Marshal(requstUpdateData)
+
+			sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/usrobj", "服务对象")
+			return
+		}
 		return
 	} else if reqmethod == "GET" {
 

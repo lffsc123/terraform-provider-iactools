@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"strings"
 )
 
 // 服务组
@@ -184,34 +185,34 @@ func sendToweb_UsrGroupRequest(ctx context.Context, reqmethod string, c *Client,
 	if reqmethod == "POST" {
 
 		// 先查询是否存在，再执行新增操作
-		tflog.Info(ctx, "服务组--开始执行--查询操作")
-		responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/grp?searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=100", "服务组")
-		var queryResList QueryUsrGroupResponseListModel
-		err := json.Unmarshal([]byte(responseBody), &queryResList)
-		if err != nil {
-			panic("转换查询结果json出现异常")
-		}
-		for _, queryRes := range queryResList.UsrGrouplist {
-			if queryRes.Name == Rsinfo.Name.ValueString() {
-				tflog.Info(ctx, "服务组--存在重复数据，执行--修改操作")
-				var sendUpdateData UpdateUsrGroupRequestModel
-				sendUpdateData = UpdateUsrGroupRequestModel{
-					Name:           Rsinfo.Name.ValueString(),
-					VfwName:        Rsinfo.VfwName.ValueString(),
-					OldName:        Rsinfo.Name.ValueString(),
-					Desc:           Rsinfo.Desc.ValueString(),
-					AllSerNameList: Rsinfo.AllSerNameList.ValueString(),
-				}
-
-				requstUpdateData := UpdateUsrGroupRequest{
-					UpdateUsrGroupRequestModel: sendUpdateData,
-				}
-				body, _ := json.Marshal(requstUpdateData)
-
-				sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/grp", "服务组")
-				return
-			}
-		}
+		//tflog.Info(ctx, "服务组--开始执行--查询操作")
+		//responseBody := sendRequest(ctx, "GET", c, nil, "/func/web_main/api/netservice/netservice/grp?searchValue="+Rsinfo.Name.ValueString()+"&offset=1&count=100", "服务组")
+		//var queryResList QueryUsrGroupResponseListModel
+		//err := json.Unmarshal([]byte(responseBody), &queryResList)
+		//if err != nil {
+		//	panic("转换查询结果json出现异常")
+		//}
+		//for _, queryRes := range queryResList.UsrGrouplist {
+		//	if queryRes.Name == Rsinfo.Name.ValueString() {
+		//		tflog.Info(ctx, "服务组--存在重复数据，执行--修改操作")
+		//		var sendUpdateData UpdateUsrGroupRequestModel
+		//		sendUpdateData = UpdateUsrGroupRequestModel{
+		//			Name:           Rsinfo.Name.ValueString(),
+		//			VfwName:        Rsinfo.VfwName.ValueString(),
+		//			OldName:        Rsinfo.Name.ValueString(),
+		//			Desc:           Rsinfo.Desc.ValueString(),
+		//			AllSerNameList: Rsinfo.AllSerNameList.ValueString(),
+		//		}
+		//
+		//		requstUpdateData := UpdateUsrGroupRequest{
+		//			UpdateUsrGroupRequestModel: sendUpdateData,
+		//		}
+		//		body, _ := json.Marshal(requstUpdateData)
+		//
+		//		sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/grp", "服务组")
+		//		return
+		//	}
+		//}
 
 		// 新增操作
 		var sendData AddUsrGroupRequestModel
@@ -225,7 +226,26 @@ func sendToweb_UsrGroupRequest(ctx context.Context, reqmethod string, c *Client,
 			AddUsrGroupRequestModel: sendData,
 		}
 		body, _ := json.Marshal(requstData)
-		sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netservice/netservice/grp", "服务组")
+		responseBody := sendRequest(ctx, reqmethod, c, body, "/func/web_main/api/netservice/netservice/grp", "服务组")
+		if strings.Contains(responseBody, "already exists") {
+			tflog.Info(ctx, "服务组--存在重复数据，执行--修改操作")
+			var sendUpdateData UpdateUsrGroupRequestModel
+			sendUpdateData = UpdateUsrGroupRequestModel{
+				Name:           Rsinfo.Name.ValueString(),
+				VfwName:        Rsinfo.VfwName.ValueString(),
+				OldName:        Rsinfo.Name.ValueString(),
+				Desc:           Rsinfo.Desc.ValueString(),
+				AllSerNameList: Rsinfo.AllSerNameList.ValueString(),
+			}
+
+			requstUpdateData := UpdateUsrGroupRequest{
+				UpdateUsrGroupRequestModel: sendUpdateData,
+			}
+			body, _ := json.Marshal(requstUpdateData)
+
+			sendRequest(ctx, "PUT", c, body, "/func/web_main/api/netservice/netservice/grp", "服务组")
+			return
+		}
 		return
 	} else if reqmethod == "GET" {
 
