@@ -46,7 +46,7 @@ type AddGeneralApiParameter struct {
 }
 
 func (r *GeneralApiResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = "dpfirewall_GeneralApi"
+	resp.TypeName = "iac_GeneralApi"
 }
 
 func (r *GeneralApiResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {

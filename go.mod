@@ -1,4 +1,4 @@
-module terraform-provider-dpfirewall
+module terraform-provider-iac
 
 go 1.19
 

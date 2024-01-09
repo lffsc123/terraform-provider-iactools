@@ -27,7 +27,7 @@ type ScaffoldingProviderModel struct {
 }
 
 func (p *ScaffoldingProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "dpfirewall"
+	resp.TypeName = "iac"
 	tflog.Info(ctx, "Metadata**********")
 }
 
