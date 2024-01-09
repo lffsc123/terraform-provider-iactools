@@ -59,7 +59,7 @@ func sendRequest(ctx context.Context, reqmethod string, c *Client, body []byte, 
 	req, _ := http.NewRequest(reqmethod, targetUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
+	//req.SetBasicAuth(c.Auth.Username, c.Auth.Password)
 
 	// 创建一个HTTP客户端并发送请求
 	tr := &http.Transport{
