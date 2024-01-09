@@ -155,7 +155,7 @@ func sendToweb_GeneralApiRequest(ctx context.Context, c *Client, Rsinfo AddGener
 	body, _ := json.Marshal(requstData)
 	tflog.Info(ctx, "===请求url===="+Rsinfo.Url.ValueString()+"===")
 	tflog.Info(ctx, "===请求方法===="+Rsinfo.Method.ValueString()+"===")
-	tflog.Info(ctx, "===请求参数转换前==="+Rsinfo.RequestBody.ValueString()+"===")
+	tflog.Info(ctx, "===请求参数转换前===="+Rsinfo.RequestBody.ValueString()+"===")
 	tflog.Info(ctx, "===请求参数转换后==="+string(body)+"===")
 	//sendRequest(ctx, Rsinfo.Method.ValueString(), c, body, Rsinfo.Url.ValueString(), "通用api")
 	return
