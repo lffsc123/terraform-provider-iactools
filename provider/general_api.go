@@ -35,14 +35,14 @@ type AddGeneralApiRequest struct {
 type AddGeneralApiRequestModel struct {
 	Url         string `json:"url"`
 	Method      string `json:"method"`
-	RequestBody string `json:"requestBody"`
+	RequestBody string `json:"requestbody"`
 }
 
 // 接收外部参数
 type AddGeneralApiParameter struct {
 	Url         types.String `tfsdk:"url"`
 	Method      types.String `tfsdk:"method"`
-	RequestBody types.String `tfsdk:"requestBody"`
+	RequestBody types.String `tfsdk:"requestbody"`
 }
 
 func (r *GeneralApiResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -61,7 +61,7 @@ func (r *GeneralApiResource) Schema(ctx context.Context, req resource.SchemaRequ
 					"method": schema.StringAttribute{
 						Required: true,
 					},
-					"requestBody": schema.StringAttribute{
+					"requestbody": schema.StringAttribute{
 						Required: true,
 					},
 				},
