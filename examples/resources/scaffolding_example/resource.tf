@@ -1,3 +1,3 @@
- resource "iac_example" "cs" {
+ resource "iactools_example" "cs" {
   uuid_count="4"
 }

@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 
-	"terraform-provider-iac/provider"
+	"terraform-provider-iactools/provider"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/lffsc123/iac",
+		Address: "registry.terraform.io/lffsc123/iactools",
 		Debug:   debug,
 	}
 

@@ -1,4 +1,4 @@
-module terraform-provider-iac
+module terraform-provider-iactools
 
 go 1.19
 

@@ -1,20 +1,20 @@
 terraform {
  required_providers {
-  iac={
-     source = "registry.terraform.io/lffsc123/iac"
+  iactools={
+     source = "registry.terraform.io/lffsc123/iactools"
      version = "1.2.37"
    } 
  }
  }
 
-provider "iac" {
+provider "iactools" {
   address="http://localhost:"
   port="8080"
   username="test"
   password="jsepc123!"
 }
 
-resource "iac_RealServiceList" "cs2" {
+resource "iactools_RealServiceList" "cs2" {
  poollist={
   name="string__*"
   monitor="string" // 健康监测
@@ -23,7 +23,7 @@ resource "iac_RealServiceList" "cs2" {
  }
 }
 
-resource "iac_AddrPoolList" "cs" {
+resource "iactools_AddrPoolList" "cs" {
 addrpoollist={
     name="string__*"
     ip_start="string__*"
@@ -34,7 +34,7 @@ addrpoollist={
 } 
 }
 
-resource "iac_VirtualService" "cs" {
+resource "iactools_VirtualService" "cs" {
     virtualservice={
       name ="string__*"
       mode ="string__*"
@@ -51,7 +51,7 @@ resource "iac_VirtualService" "cs" {
   }
 }
 
-resource "iac-TargetNat" "dpcs" {
+resource "iactools-TargetNat" "dpcs" {
   targetnat={
     name="string__*"
     ip_start="string__*"
@@ -62,7 +62,7 @@ resource "iac-TargetNat" "dpcs" {
   }
 }
 
-resource "iac-SourceNat" "dpcs" {
+resource "iactools-SourceNat" "dpcs" {
   sourcenat={
     name="string__*"
     ip_start="string__*"
@@ -74,7 +74,7 @@ resource "iac-SourceNat" "dpcs" {
 }
 
 // 会话保持
-resource "iac-SessionKeep" "dpcs" {
+resource "iactools-SessionKeep" "dpcs" {
   sessionkeep={
     // 1）必须配置。
     // 2）会话保持策略名称。
@@ -90,7 +90,7 @@ resource "iac-SessionKeep" "dpcs" {
 }
 
 // 健康监测
-resource "iac-AdxSlbMonitor" "dpcs" {
+resource "iactools-AdxSlbMonitor" "dpcs" {
   monitorinfo={
     // 1）必须配置
     // 2）新建健康监测的名称
