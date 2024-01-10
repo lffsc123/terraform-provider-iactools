@@ -35,6 +35,8 @@ type AddGeneralApiRequest struct {
 type AddGeneralApiRequestModel struct {
 	Url         string `json:"url"`
 	Method      string `json:"method"`
+	Type        string `json:"type"`
+	Applyid     string `json:"applyid"`
 	RequestBody string `json:"requestbody"`
 }
 
@@ -42,6 +44,8 @@ type AddGeneralApiRequestModel struct {
 type AddGeneralApiParameter struct {
 	Url         types.String `tfsdk:"url"`
 	Method      types.String `tfsdk:"method"`
+	Type        types.String `tfsdk:"type"`
+	Applyid     types.String `tfsdk:"applyid"`
 	RequestBody types.String `tfsdk:"requestbody"`
 }
 
@@ -59,6 +63,12 @@ func (r *GeneralApiResource) Schema(ctx context.Context, req resource.SchemaRequ
 						Optional: true,
 					},
 					"method": schema.StringAttribute{
+						Required: true,
+					},
+					"type": schema.StringAttribute{
+						Required: true,
+					},
+					"applyid": schema.StringAttribute{
 						Required: true,
 					},
 					"requestbody": schema.StringAttribute{
@@ -146,6 +156,8 @@ func sendToweb_GeneralApiRequest(ctx context.Context, c *Client, Rsinfo AddGener
 	// 新增操作
 	var sendData AddGeneralApiRequestModel
 	sendData = AddGeneralApiRequestModel{
+		Type:        Rsinfo.Type.ValueString(),
+		Applyid:     Rsinfo.Applyid.ValueString(),
 		RequestBody: Rsinfo.RequestBody.ValueString(),
 	}
 
