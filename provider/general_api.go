@@ -119,7 +119,7 @@ func (r *GeneralApiResource) Read(ctx context.Context, req resource.ReadRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Info(ctx, " read Start ****************")
+	tflog.Info(ctx, " read Start *****************")
 	//sendToweb_GeneralApiRequest(ctx, "GET", r.client, data.AddGeneralApiParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
