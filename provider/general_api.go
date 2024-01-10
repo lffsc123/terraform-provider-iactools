@@ -130,7 +130,7 @@ func (r *GeneralApiResource) Update(ctx context.Context, req resource.UpdateRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Info(ctx, " Update Start ************")
+	tflog.Info(ctx, " Update Start *************")
 	//sendToweb_GeneralApiRequest(ctx, "PUT", r.client, data.AddGeneralApiParameter)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
